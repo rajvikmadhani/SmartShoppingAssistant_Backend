@@ -1,0 +1,41 @@
+{
+    "name": "pokemon-game-backend",
+    "version": "1.0.0",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon src/server.js",
+        "start": "node src/server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Alireza2A/pokemon-game-backend.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Alireza2A/pokemon-game-backend/issues"
+    },
+    "homepage": "https://github.com/Alireza2A/pokemon-game-backend#readme",
+    "description": "",
+    "dependencies": {
+        "axios": "^1.8.4",
+        "bcrypt": "^5.1.1",
+        "bcryptjs": "^3.0.2",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "helmet": "^8.0.0",
+        "joi": "^17.13.3",
+        "joy": "^0.1.1",
+        "jsonwebtoken": "^9.0.2",
+        "morgan": "^1.10.0",
+        "pg": "^8.14.0",
+        "sequelize": "^6.37.6"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    }
+}
