@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
     return sequelize.define(
-        'User',
+        'Product',
         {
             id: {
                 type: DataTypes.UUID,
@@ -13,15 +13,11 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            email: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                unique: true,
-                validate: { isEmail: true },
+            description: {
+                type: DataTypes.TEXT,
             },
-            password: {
+            imageUrl: {
                 type: DataTypes.STRING,
-                allowNull: false,
             },
         },
         { timestamps: true }

@@ -1,29 +1,32 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-    return sequelize.define(
-        'User',
+    const Store = sequelize.define(
+        'Store',
         {
             id: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
+                allowNull: false,
             },
             name: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            email: {
+            website: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: true,
-                validate: { isEmail: true },
-            },
-            password: {
-                type: DataTypes.STRING,
-                allowNull: false,
+                validate: {
+                    isUrl: true,
+                },
             },
         },
-        { timestamps: true }
+        {
+            tableName: 'stores',
+            timestamps: true,
+        }
     );
+
+    return Store;
 };
