@@ -2,26 +2,32 @@ import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
     return sequelize.define(
-        'User',
+        'Coupon',
         {
             id: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            name: {
+            storeId: {
+                type: DataTypes.UUID,
+                allowNull: false,
+            },
+            code: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            email: {
-                type: DataTypes.STRING,
+            discount: {
+                type: DataTypes.FLOAT,
                 allowNull: false,
-                unique: true,
-                validate: { isEmail: true },
             },
-            password: {
-                type: DataTypes.STRING,
+            expiryDate: {
+                type: DataTypes.DATE,
                 allowNull: false,
+            },
+            isActive: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
             },
         },
         { timestamps: true }

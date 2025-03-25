@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-
 import express from 'express';
+import { connectDB } from './db/index.js';
 //Middleware
 import cors from 'cors';
 import helmet from 'helmet';
@@ -31,7 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use(errorHandler);
 
 const startServer = async () => {
-    // await connectDB();
+    await connectDB();
     app.listen(PORT, () => console.log(`server running on port ${PORT} ->  http://localhost:${PORT}/`));
 };
 startServer();

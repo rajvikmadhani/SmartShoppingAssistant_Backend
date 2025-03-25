@@ -2,25 +2,23 @@ import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
     return sequelize.define(
-        'User',
+        'PriceAlert',
         {
             id: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            name: {
-                type: DataTypes.STRING,
+            userId: {
+                type: DataTypes.UUID,
                 allowNull: false,
             },
-            email: {
-                type: DataTypes.STRING,
+            productId: {
+                type: DataTypes.UUID,
                 allowNull: false,
-                unique: true,
-                validate: { isEmail: true },
             },
-            password: {
-                type: DataTypes.STRING,
+            targetPrice: {
+                type: DataTypes.FLOAT,
                 allowNull: false,
             },
         },
