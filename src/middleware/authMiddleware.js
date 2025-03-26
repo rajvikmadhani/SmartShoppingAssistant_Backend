@@ -4,6 +4,9 @@ import models from '../models/index.js';
 const { User } = models;
 
 const authMiddleware = async (req, res, next) => {
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined in the environment variables');
+    }
     // Token Extraction
     const token = req.header('Authorization');
     if (!token) {
