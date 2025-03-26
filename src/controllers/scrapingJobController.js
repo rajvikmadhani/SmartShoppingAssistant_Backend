@@ -1,6 +1,9 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 import ScrapingJob from '../models/scrapingJob.js';
+import Price from '../models/price.js';
+import Notification from '../models/notification.js';
+import Coupon from '../models/coupon.js';
 
 // Get all scraping jobs
 export const getAllScrapingJobs = asyncHandler(async (req, res, next) => {
