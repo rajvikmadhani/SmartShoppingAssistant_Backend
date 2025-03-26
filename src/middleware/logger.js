@@ -1,5 +1,4 @@
 import morgan from 'morgan';
-
-const logger = morgan('dev'); // Use "combined" for production logs
+const logger = morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev');
 
 export default logger;
