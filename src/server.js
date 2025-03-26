@@ -22,7 +22,7 @@ console.log('DATABASE_URL from server.js:', process.env.DATABASE_URL);
 // middleware
 app.use(logger);
 app.use(cors(corsOptions));
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 
 // Route handlers
