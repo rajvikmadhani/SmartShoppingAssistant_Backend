@@ -2,14 +2,15 @@ import Joi from 'joi';
 
 const userSchema = {
     POST: Joi.object({
-        name: Joi.string().min(2).max(30).optional(),
+        username: Joi.string().min(3).max(50).required(),
         email: Joi.string().email().required(),
-        password: Joi.string().min(8).max(50).required(),
+        password: Joi.string().min(6).required(),
     }),
     PUT: Joi.object({
-        name: Joi.string().min(2).max(30).optional(),
+        username: Joi.string().min(3).max(50).optional(),
         email: Joi.string().email().optional(),
-        password: Joi.string().min(8).max(50).optional(),
+        password: Joi.string().min(6).optional(),
     }),
 };
+
 export default userSchema;
