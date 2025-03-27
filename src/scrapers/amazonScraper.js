@@ -8,10 +8,10 @@ const scrapeAmazon = async (query, maxPages = 3) => {
   const page = await browser.newPage();
 
   // navigate to the Amazon search results page  .com
-  // const url = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
+  const url = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
 
   // navigate to the Amazon search results page  .de
-  const url = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
+  // const url = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
 
   const baseUrl = url; // base URL for the search results
   let currentPageUrl = baseUrl; // current page URL
@@ -63,9 +63,13 @@ const scrapeAmazon = async (query, maxPages = 3) => {
 
         const imageEl = el.querySelector("img.s-image"); // extract the image element
 
-        const link = linkEl
-          ? `https://www.amazon.de${linkEl.getAttribute("href")}`
-          : undefined; // product link
+        // const link = linkEl
+        //   ? `https://www.amazon.de${linkEl.getAttribute("href")}`
+        //   : undefined; // product link de
+
+          const link = linkEl
+          ? `https://www.amazon.com${linkEl.getAttribute("href")}`
+          : undefined; // product link com
         const image = imageEl?.getAttribute("src"); // image URL
 
         if (title && price) {
@@ -110,7 +114,7 @@ scrapeAmazon("iphone", 3)
   .then((results) => {
     // log the total number of items scraped
     console.log(`\ntotal items scraped: ${results.length}`);
-    console.log("\nscraped Data:");
+    console.log("\nscraped data:");
 
     // loop through the results and log each item
     results.forEach((item, i) => {
