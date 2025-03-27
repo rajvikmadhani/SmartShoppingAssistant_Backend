@@ -51,9 +51,26 @@ const scrapeAmazon = async (query, maxPages = 3) => {
         const title = el.querySelector("h2 span")?.innerText; // extract the title
         const price = el.querySelector(".a-price .a-offscreen")?.innerText; // extract the price
         const rating = el.querySelector(".a-icon-alt")?.innerText; // extract the rating
+        const linkEl =
+          el.querySelector("h2 a") ||
+          el.querySelector("a.a-link-normal.s-no-outline");
+        // const link = linkEl
+        //   ? new URL(
+        //       linkEl.getAttribute("href"),
+        //       "https://www.amazon.de"
+        //     ).toString()
+        //   : undefined;
+
+        const imageEl = el.querySelector("img.s-image"); // extract the image element
+
+        const link = linkEl
+          ? `https://www.amazon.de${linkEl.getAttribute("href")}`
+          : undefined; // product link
+        const image = imageEl?.getAttribute("src"); // image URL
+
         if (title && price) {
           // if both title and price are available
-          items.push({ title, price, rating, store: "Amazon" }); // add the item to the results array
+          items.push({ title, price, rating, link, image, store: "Amazon" }); // add the item to the results array
         }
       });
 
@@ -100,8 +117,8 @@ scrapeAmazon("iphone", 3)
       console.log(`\nitem ${i + 1}`);
       console.log(`title: ${item.title}`);
       console.log(`price: ${item.price}`);
-      console.log(`link: ${item.link}   => undefined`);
-      console.log(`image: ${item.image} => undefined`);
+      console.log(`link: ${item.link}`);
+      console.log(`image: ${item.image}`);
       console.log(`store: ${item.store}`);
     });
 
