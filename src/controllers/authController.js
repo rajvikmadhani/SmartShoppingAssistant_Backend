@@ -10,7 +10,7 @@ export const register = asyncHandler(async (req, res) => {
         body: { name, email, password },
     } = req;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (user) throw new ErrorResponse('User already exists', 400);
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,16 +25,13 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
     const {
-        body: { name, email, password },
+        body: { email, password },
     } = req;
 
-    const user = await User.scope('withPassword').findOne({
-        where: { email },
-    });
+    const user = await User.scope('withPassword').findOne({ where: { email } });
+    console.log('Found User:', user.email);
     if (!user) throw new ErrorResponse('Invalid credentials', 400);
-
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('isMatch', isMatch);
     if (!isMatch) throw new ErrorResponse('Invalid credentials', 400);
 
     const payload = { id: user.id, email: user.email, name: user.name };
