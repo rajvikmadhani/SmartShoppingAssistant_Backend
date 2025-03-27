@@ -1,5 +1,5 @@
 // controllers/productController.js
-import asyncHandler from '../middleware/asyncHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 import Product from '../models/product.js';
 import Price from '../models/price.js';

@@ -1,5 +1,6 @@
 import PriceAlert from '../models/priceAlert.js';
-
+import asyncHandler from '../utils/asyncHandler.js';
+import ErrorResponse from '../utils/ErrorResponse.js';
 // Set a price alert
 export const setPriceAlert = asyncHandler(async (req, res, next) => {
     const { userId, productId, targetPrice } = req.body;
