@@ -67,14 +67,32 @@ const scrapeAmazon = async (query, maxPages = 3) => {
         //   ? `https://www.amazon.de${linkEl.getAttribute("href")}`
         //   : undefined; // product link de
 
-          const link = linkEl
+        const link = linkEl
           ? `https://www.amazon.com${linkEl.getAttribute("href")}`
           : undefined; // product link com
         const image = imageEl?.getAttribute("src"); // image URL
 
+        const seller = el.querySelector(".s-byline span")?.innerText; // extract the seller name
+        const badge = el.querySelector(".a-badge-text")?.innerText; // extract the badge text
+        const isPrime = !!el.querySelector(".a-icon-prime"); // check if the item is prime
+        const delivery = el.querySelector(
+          ".a-color-secondary .a-text-bold"
+        )?.innerText; // extract the delivery information
+
         if (title && price) {
           // if both title and price are available
-          items.push({ title, price, rating, link, image, store: "Amazon" }); // add the item to the results array
+          items.push({
+            title,
+            price,
+            rating,
+            link,
+            image,
+            seller,
+            badge,
+            isPrime,
+            delivery,
+            store: "Amazon",
+          }); // add the item to the results array
         }
       });
 
@@ -121,8 +139,13 @@ scrapeAmazon("iphone", 3)
       console.log(`\nitem ${i + 1}`);
       console.log(`title: ${item.title}`);
       console.log(`price: ${item.price}`);
+      console.log(`rating: ${item.rating}`);
       console.log(`link: ${item.link}`);
       console.log(`image: ${item.image}`);
+      console.log(`seller: ${item.seller}`);
+      console.log(`badge: ${item.badge}`);
+      console.log(`prime eligible: ${item.isPrime}`);
+      console.log(`delivery: ${item.delivery}`);
       console.log(`store: ${item.store}`);
     });
 
