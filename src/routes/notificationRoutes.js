@@ -9,6 +9,6 @@ import notificationSchema from '../schemas/notificationSchema.js';
 
 const notificationRouter = Router();
 notificationRouter.get('/', getAllNotifications);
-notificationRouter.post('/', validateSchema(notificationSchema.POST), createNotification);
+notificationRouter.post('/', validateSchema(notificationSchema), createNotification);
 notificationRouter.put('/:id/read', markNotificationAsRead);
 export default notificationRouter;

@@ -7,3 +7,4 @@ const notificationSchema = {
         read: Joi.boolean().default(false),
     }),
 };
+export default notificationSchema;

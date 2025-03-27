@@ -23,3 +23,47 @@ export const deletePriceAlert = asyncHandler(async (req, res, next) => {
     await alert.destroy();
     res.json({ message: 'Price alert deleted successfully' });
 });
+
+// Create a new price alert
+export const createPriceAlert = asyncHandler(async (req, res, next) => {
+    const { userId, productId, targetPrice } = req.body;
+
+    // Validate required fields
+    if (!userId || !productId || !targetPrice) {
+        return next(new ErrorResponse('User ID, Product ID, and Target Price are required', 400));
+    }
+
+    // Check if a price alert already exists for the same user and product
+    const existingAlert = await PriceAlert.findOne({
+        where: { userId, productId },
+    });
+
+    if (existingAlert) {
+        return next(new ErrorResponse('A price alert for this product already exists', 400));
+    }
+
+    // Create the price alert
+    const priceAlert = await PriceAlert.create({
+        userId,
+        productId,
+        targetPrice,
+    });
+
+    res.status(201).json({
+        message: 'Price alert created successfully',
+        priceAlert,
+    });
+});
+// Get all price alerts
+export const getAllPriceAlerts = asyncHandler(async (req, res, next) => {
+    const priceAlerts = await PriceAlert.findAll();
+
+    if (!priceAlerts || priceAlerts.length === 0) {
+        return next(new ErrorResponse('No price alerts found', 404));
+    }
+
+    res.json({
+        message: 'Price alerts retrieved successfully',
+        priceAlerts,
+    });
+});
