@@ -5,6 +5,6 @@ import couponSchema from '../schemas/couponSchema.js';
 
 const couponRouter = Router();
 couponRouter.get('/', getAllCoupons);
-couponRouter.post('/', validateSchema(couponSchema.POST), createCoupon);
+couponRouter.post('/', validateSchema(couponSchema), createCoupon);
 couponRouter.delete('/:id', deleteCoupon);
 export default couponRouter;

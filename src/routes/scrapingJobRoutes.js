@@ -9,6 +9,6 @@ import scrapingJobSchema from '../schemas/scrapingJobSchema.js';
 
 const scrapingJobRouter = Router();
 scrapingJobRouter.get('/', getAllScrapingJobs);
-scrapingJobRouter.post('/', validateSchema(scrapingJobSchema.POST), createScrapingJob);
-scrapingJobRouter.put('/:id', validateSchema(scrapingJobSchema.PUT), updateScrapingJobStatus);
+scrapingJobRouter.post('/', validateSchema(scrapingJobSchema), createScrapingJob);
+scrapingJobRouter.put('/:id', validateSchema(scrapingJobSchema), updateScrapingJobStatus);
 export default scrapingJobRouter;

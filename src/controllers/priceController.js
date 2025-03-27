@@ -1,5 +1,5 @@
 import Price from '../models/price.js';
-import asyncHandler from '../middleware/asyncHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 
 // Get prices for a product

@@ -12,7 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import priceAlertRoutes from './routes/priceAlertRoutes.js';
-import scraperRoutes from './routes/scraperRoutes.js';
+import scrapingJobSchema from './routes/scrapingJobRoutes.js';
 import couponRoutes from './routes/couponRoutes.js'; // Newly added
 import wishlistRoutes from './routes/wishlistRoutes.js'; // Newly added
 
@@ -36,7 +36,7 @@ app.use('/api/auth', authRoutes); // Public routes
 app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/notifications', authMiddleware, notificationRoutes);
 app.use('/api/price-alerts', authMiddleware, priceAlertRoutes);
-app.use('/api/scrapers', authMiddleware, scraperRoutes);
+app.use('/api/scrapers', authMiddleware, scrapingJobSchema);
 app.use('/api/coupons', authMiddleware, couponRoutes); // Newly added
 app.use('/api/wishlist', authMiddleware, wishlistRoutes); // Newly added
 

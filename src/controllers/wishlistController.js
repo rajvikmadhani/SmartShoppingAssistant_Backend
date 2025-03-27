@@ -1,4 +1,6 @@
 import Wishlist from '../models/wishlist.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import ErrorResponse from '../utils/ErrorResponse.js';
 
 // Add product to wishlist
 export const addToWishlist = asyncHandler(async (req, res, next) => {

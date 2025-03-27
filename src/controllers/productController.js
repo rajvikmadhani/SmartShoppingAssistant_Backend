@@ -1,5 +1,5 @@
 // controllers/productController.js
-import asyncHandler from '../middleware/asyncHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 import Product from '../models/product.js';
 import Price from '../models/price.js';
@@ -68,4 +68,26 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
     }
     await product.destroy();
     res.json({ message: 'Product deleted successfully' });
+});
+
+// Update a product
+export const updateProduct = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const { name, description, category } = req.body;
+
+    // Find the product by ID
+    const product = await Product.findByPk(id);
+    if (!product) {
+        return next(new ErrorResponse('Product not found', 404));
+    }
+
+    // Update the product details
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.category = category || product.category;
+
+    // Save the updated product
+    await product.save();
+
+    res.json({ message: 'Product updated successfully', product });
 });
