@@ -1,61 +1,72 @@
-import puppeteer from "puppeteer"; // import the puppeteer library
+import puppeteer from "puppeteer"; // import puppeteer
 
-//  function to scrape Amazon search results
+// function to scrape Amazon search results with pagination
 const scrapeAmazon = async (query, maxPages = 3) => {
-  const browser = await puppeteer.launch({ headless: true }); // launch a new browser instance
-  const page = await browser.newPage(); // create a new page
+  // launch browser
+  const browser = await puppeteer.launch({ headless: true });
+  // create new page
+  const page = await browser.newPage();
 
-  const url = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`; // navigate to the Amazon search results page .com
+  // set user agent to prevent Amazon from blocking the request
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+  );
 
-  const baseUrl = url; // base URL for the search results
-  let currentPageUrl = baseUrl; // current page URL
-  let currentPage = 1; // current page number
-  const allResults = []; // array to store all results
+  const baseUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
+  // current page URL
+  let currentPageUrl = baseUrl;
+  // current page number
+  let currentPage = 1;
+  // array to store all results
+  const allResults = [];
 
   // loop through pages
   while (currentPage <= maxPages && currentPageUrl) {
-    console.log(`scraping page ${currentPage}: ${currentPageUrl}`); // log current page
+    // log current page
+    console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
+    // go to the current page
+    await page.goto(currentPageUrl, { waitUntil: "networkidle2" });
 
-    await page.goto(currentPageUrl, { waitUntil: "networkidle2" }); // go to the current page
-
-    // accept cookies if prompted
+    // accept cookies
     try {
-      await page.waitForSelector('input[name="accept"]', { timeout: 1000 }); // wait for the cookie prompt to appear
-      await page.click('input[name="accept"]'); // click the accept button
-      console.log("accepted cookies"); // log accepted cookies
-      await page.waitForTimeout(1000); // wait for 1 second
+      // wait for the cookie prompt to appear
+      await page.waitForSelector('input[name="accept"]', { timeout: 3000 });
+      // click the accept button
+      await page.click('input[name="accept"]');
+      // log accepted cookies
+      console.log("accepted cookies");
+      // wait for 1 second
+      await page.waitForTimeout(1000);
     } catch {
-      console.log("no cookie prompt"); // no cookie prompt
+      // no cookie prompt
+      console.log("no cookie prompt");
     }
 
-    // evaluate the page and extract the results, scrape items on the current page
+    // scrape products
     const results = await page.evaluate(() => {
-      const items = []; // create an empty array to store the results
+      // array to store items
+      const items = [];
 
-      // loop through each search result item
+      // loop through each item on the page
       document.querySelectorAll(".s-main-slot .s-result-item").forEach((el) => {
-        const title = el.querySelector("h2 span")?.innerText; // extract the title
-        const price = el.querySelector(".a-price .a-offscreen")?.innerText; // extract the price
-        const rating = el.querySelector(".a-icon-alt")?.innerText; // extract the rating
-
-        const linkEl =
-          el.querySelector("h2 a") ||
-          el.querySelector("a.a-link-normal.s-no-outline");
-        const imageEl = el.querySelector("img.s-image"); // extract the image element
-        const link = linkEl
-          ? `https://www.amazon.com${linkEl.getAttribute("href")}`
-          : undefined; // product link com
-        const image = imageEl?.getAttribute("src"); // image URL
-
-        const seller = el.querySelector(".s-byline span")?.innerText; // extract the seller name
-        const badge = el.querySelector(".a-badge-text")?.innerText; // extract the badge text
-        const isPrime = !!el.querySelector(".a-icon-prime"); // check if the item is prime
+        // get title, price, rating, link, image, seller, badge, isPrime, and delivery
+        const title = el.querySelector("h2 span")?.innerText;
+        const price = el.querySelector(".a-price .a-offscreen")?.innerText;
+        const rating = el.querySelector(".a-icon-alt")?.innerText;
+        const image = el.querySelector(".s-image")?.src;
+        const seller = el.querySelector(
+          ".a-row.a-size-base.a-color-secondary"
+        )?.innerText;
+        const badge = el.querySelector(".s-badge-text")?.innerText;
+        const isPrime = !!el.querySelector(".a-icon-prime");
         const delivery = el.querySelector(
-          ".a-color-secondary .a-text-bold"
-        )?.innerText; // extract the delivery info
+          ".a-color-base.a-text-bold"
+        )?.innerText;
+        const asin = el.getAttribute("data-asin"); // get ASIN
+        const link = asin ? `https://www.amazon.com/dp/${asin}` : undefined; // clean product detail page link
 
-        if (title && link) {
-          // include as long as there's a title and link (price may be missing in some sponsored ads)
+        // add item to the array if title and price are available
+        if (title && price) {
           items.push({
             title,
             price,
@@ -70,47 +81,55 @@ const scrapeAmazon = async (query, maxPages = 3) => {
           });
         }
       });
-
-      return items; // return the items
+      // return the items
+      return items;
     });
 
-    console.log(`page ${currentPage}: ${results.length} items scraped`); // log the number of items scraped
-    allResults.push(...results); // add results to the allResults array
+    // log the number of items scraped
+    console.log(`page ${currentPage}: ${results.length} items scraped`);
+    // add results to the allResults array
+    allResults.push(...results);
 
-    // get the next page URL
-    const nextUrl = await page.evaluate(() => {
-      const nextLink = document.querySelector("ul.a-pagination li.a-last a"); // get the next link
-      return nextLink ? nextLink.href : null; // return the href attribute of the next link
+    // get next page path (try both old and new selectors)
+    const nextPagePath = await page.evaluate(() => {
+      // get the next link
+      const nextLinkOld = document.querySelector("ul.a-pagination li.a-last a");
+      // get the next link
+      const nextLinkNew = document.querySelector("a.s-pagination-next");
+      // return the href attribute of the next link
+      return (
+        nextLinkOld?.getAttribute("href") ||
+        nextLinkNew?.getAttribute("href") ||
+        null
+      );
     });
 
-    if (!nextUrl) break; // if no next link, break the loop
+    // if no next page, break the loop
+    if (!nextPagePath) {
+      // log no next page
+      console.log("no next page link found.");
+      break;
+    }
 
-    currentPageUrl = nextUrl; // update the current page URL
-    currentPage++; // add 1 to the current page number
+    // convert to full URL
+    currentPageUrl = `https://www.amazon.com${nextPagePath}`;
+    // increment page number
+    currentPage++;
   }
 
-  await browser.close(); // close the browser
-  return allResults; // return all results
+  // close the browser
+  await browser.close();
+  // return all results
+  return allResults;
 };
 
 // run the scraper
-scrapeAmazon("iphone", 3)
+scrapeAmazon("iphone", 2)
   .then((results) => {
+    // log the total number of items scraped
     console.log(`\ntotal items scraped: ${results.length}`);
-    console.log("\nscraped data:");
-    results.forEach((item, i) => {
-      console.log(`\nitem ${i + 1}`);
-      console.log(`title: ${item.title}`);
-      console.log(`price: ${item.price}`);
-      console.log(`rating: ${item.rating}`);
-      console.log(`link: ${item.link}`);
-      console.log(`image: ${item.image}`);
-      console.log(`seller: ${item.seller}`);
-      console.log(`badge: ${item.badge}`);
-      console.log(`prime eligible: ${item.isPrime}`);
-      console.log(`delivery: ${item.delivery}`);
-      console.log(`store: ${item.store}`);
-    });
+    // log the results
     console.log(results);
   })
-  .catch(console.error); // catch and log any errors
+  // catch and log any errors
+  .catch(console.error);
