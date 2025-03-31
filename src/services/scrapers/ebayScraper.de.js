@@ -1,175 +1,199 @@
-import puppeteer from "puppeteer"; // import the puppeteer library
+import puppeteer from "puppeteer"; // import the puppeteer library which allows us to control a headless browser
 
-// function to scrape eBay for a given query with pagination
+/**
+ * function to scrape multiple pages of eBay search results
+ * this enhanced version includes pagination to scrape multiple pages of results
+ *
+ * @param {string} query - the search term to look for on eBay
+ * @param {number} maxPages - maximum number of pages to scrape (default: 3)
+ * @returns {Promise<Array>} - a promise that resolves to an array of all scraped products
+ */
 const scrapeEbay = async (query, maxPages = 3) => {
+  // launch a new browser instance in headless mode (no visible UI)
+  // the arguments help prevent permission issues in Docker/CI environments
+  // options for browser launch
+  // headless: true for production, false for debugging
+  // args: ["--no-sandbox", "--disable-setuid-sandbox"] for Linux environments
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
-  // create a new page in the browser
+  // create a new page/tab in the browser where we'll perform our scraping
   const page = await browser.newPage();
 
-  // set user agent to mimic a real browser
-
+  // set a realistic user agent string to look like a normal browser
+  // this helps avoid detection by anti-bot measures on websites
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
       "(KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
   );
 
-  // page setup
-  let currentPage = 1;
-  // link to the first page of search results
+  // initialize pagination variables
+  let currentPage = 1; // track which page we're currently on
   let currentUrl = `https://www.ebay.de/sch/i.html?_nkw=${encodeURIComponent(
     query
-  )}`;
-  // empty array to store all results
-  const allItems = [];
+  )}`; // start with the first page URL
+  const allItems = []; // master array to store all products from all pages
 
-  // loop through pages
-  // while the current page is less than or equal to maxPages and currentUrl is not null
+  // main pagination loop - continues until we reach maxPages or there are no more pages
   while (currentPage <= maxPages && currentUrl) {
-    // log current page and URL
+    // log which page we're currently scraping (helpful for debugging)
     console.log(`scraping eBay page ${currentPage}: ${currentUrl}`);
-    // go to the current page
+
+    // navigate to the current page URL and wait for basic DOM content to load
     await page.goto(currentUrl, { waitUntil: "domcontentloaded" });
-    // wait for the search results to load
+
+    // wait until product listings appear before trying to scrape them
     await page.waitForSelector(".s-item");
-    // scroll to the bottom of the page to load lazy-loaded images
+
+    // scroll to bottom of page to trigger lazy-loading of images and content
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
-    // wait for lazy-loaded images to load
+    // allow time (3 seconds) for lazy-loaded elements to fully load
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    //evaluate the page to scrape items
+    // execute JavaScript within the browser context to extract data from the current page
     const results = await page.evaluate(() => {
-      // empty array to store items
+      // initialize array to store products from this page
       const items = [];
-      // select all elements with the class "s-item"
+
+      // select all product listings on the page
       const elements = document.querySelectorAll(".s-item");
 
-      // loop through the elements and extract the title, price, link, and image
+      // process each product listing to extract details
       for (let el of elements) {
-        // title, price, link, image, shipping, condition, location
-        const title = el.querySelector(".s-item__title")?.innerText;
-        const price = el.querySelector(".s-item__price")?.innerText;
-        const link = el.querySelector(".s-item__link")?.href;
-        const shipping = el.querySelector(".s-item__shipping")?.innerText;
-        const condition = el.querySelector(".SECONDARY_INFO")?.innerText;
-        const location = el.querySelector(".s-item__location")?.innerText;
+        // extract basic product information using CSS selectors
+        // optional chaining (?.) prevents errors if elements don't exist
+        const title = el.querySelector(".s-item__title")?.innerText; // product title
+        const price = el.querySelector(".s-item__price")?.innerText; // product price
+        const link = el.querySelector(".s-item__link")?.href; // product URL
+        const shipping = el.querySelector(".s-item__shipping")?.innerText; // shipping info
+        const condition = el.querySelector(".SECONDARY_INFO")?.innerText; // condition (new, used)
+        const location = el.querySelector(".s-item__location")?.innerText; // seller location
 
-        // null check for image element
+        // image extraction with multiple fallback strategies
         let image = null;
-        // check for image element
+
+        // try to find the image element with different possible selectors
         const imgEl =
           el.querySelector(".s-item__image-img") ||
           el.querySelector(".s-item__image img");
 
-        // check if the image element exists and get the src attribute
+        // if image element found, try various attributes that might contain the URL
         if (imgEl) {
+          // try different image source attributes (sites use different ones for lazy loading)
           image =
-            imgEl.getAttribute("src") ||
-            imgEl.getAttribute("data-src") ||
-            imgEl.getAttribute("data-img-src") ||
-            imgEl.getAttribute("data-image-src");
+            imgEl.getAttribute("src") || // standard image source
+            imgEl.getAttribute("data-src") || // common lazy-load attribute
+            imgEl.getAttribute("data-img-src") || // alternative lazy-load attribute
+            imgEl.getAttribute("data-image-src"); // another possible attribute
 
-          // check if the image is a 1x2.gif placeholder
+          // handle placeholder images (1x2.gif) by looking for better images in srcset
           if (
-            (!image || image.includes("1x2.gif")) &&
-            imgEl.hasAttribute("srcset")
+            (!image || image.includes("1x2.gif")) && // if no image or it's a placeholder
+            imgEl.hasAttribute("srcset") // and srcset attribute exists
           ) {
-            // fallback to highest-res image in srcset
+            // extract the highest resolution image from srcset
             const srcset = imgEl.getAttribute("srcset");
-            // split srcset by comma and get the last element
+            // take the last entry in srcset (typically highest resolution)
             const best = srcset.split(",").pop()?.trim().split(" ")[0];
-            // check if the best image is not a 1x2.gif placeholder
+            // use it if it's not a placeholder
             if (best && !best.includes("1x2.gif")) image = best;
           }
         }
 
-        // fallback to noscript tag if image is not found
+        // advanced fallback: try to extract image from <noscript> tag
+        // some sites hide real images in noscript tags for non-JS browsers
         if (!image) {
-          // check if <noscript> tag exists and extract the image from it
+          // look for noscript tag and get its HTML content
           const noscript = el.querySelector("noscript")?.innerHTML;
-          // check if noscript tag is not null and extract the image from it
+
+          // if found, use regex to extract image URL from the HTML
           if (noscript) {
-            // regex to match the image src in noscript tag
             const match = noscript.match(/<img.*?src="(.*?)"/i);
-            // check if match is not null and extract the image src
+            // use the extracted URL if it's valid and not a placeholder
             if (match && match[1] && !match[1].includes("1x2.gif")) {
               image = match[1];
             }
           }
         }
 
-        // check if title, price, and link are available
+        // only include products with essential information (title, price, link)
         if (title && price && link) {
-          // push the item to the items array
+          // add this product to our results array with all available details
           items.push({
-            title,
-            price,
-            link,
-            image,
-            shipping: shipping || null,
-            condition: condition || null,
-            location: location || null,
-            store: "eBay",
+            title, // product name
+            price, // price with currency
+            link, // URL to product page
+            image, // image URL (may be null)
+            shipping: shipping || null, // shipping information (may be null)
+            condition: condition || null, // product condition (may be null)
+            location: location || null, // seller location (may be null)
+            store: "eBay", // source marketplace
           });
         }
       }
 
-      // log the number of items scraped
+      // return all products found on this page
       return items;
     });
 
-    // log the number of items scraped
+    // log how many items we found on this page
     console.log(`page ${currentPage}: ${results.length} items scraped`);
-    // add results to the allItems array
+
+    // add this page's products to our master list
     allItems.push(...results);
 
-    // try to find next page URL
+    // look for a "Next Page" link to continue pagination
     const nextPage = await page.evaluate(() => {
-      // get next page link
+      // find the "Next" pagination link
       const next = document.querySelector("a.pagination__next");
-      // check if next page link is not null and return its href attribute
+      // return its URL if found, otherwise null
       return next?.href || null;
     });
 
-    // log the next page URL
+    // if no next page found, exit the loop
     if (!nextPage) break;
-    // log the next page URL
+
+    // update the URL for the next iteration to the next page URL
     currentUrl = nextPage;
-    // increment the current page
+
+    // increment page counter for the next iteration
     currentPage++;
   }
-  // close the browser
+
+  // clean up by closing the browser when finished
   await browser.close();
 
-  // log the total number of items scraped
+  // log the total number of products found across all pages
   console.log(`\ntotal scraped items: ${allItems.length}`);
-  // log the scraped items
+
+  // return the complete array of all products
   return allItems;
 };
 
-// run scraper
+// execute the scraper function with search query "iphone" and max 3 pages
 scrapeEbay("iphone", 3)
-
   .then((scrapedData) => {
-    // log the scraped data
+    // when scraping is complete, display the results
     console.log("\nscraped data:");
-    // loop through the scraped data and log each item
+
+    // format and print details for each product
     scrapedData.forEach((item, i) => {
-      console.log(`\nitem ${i + 1}`);
-      console.log(`title: ${item.title}`);
-      console.log(`price: ${item.price}`);
-      console.log(`link: ${item.link}`);
-      console.log(`image: ${item.image}`);
-      console.log(`condition: ${item.condition}`);
-      console.log(`shipping: ${item.shipping}`);
-      console.log(`location: ${item.location}`);
-      console.log(`store: ${item.store}`);
+      console.log(`\nitem ${i + 1}`); // item counter
+      console.log(`title: ${item.title}`); // product title
+      console.log(`price: ${item.price}`); // price
+      console.log(`link: ${item.link}`); // URL
+      console.log(`image: ${item.image}`); // image URL
+      console.log(`condition: ${item.condition}`); // condition
+      console.log(`shipping: ${item.shipping}`); // shipping info
+      console.log(`location: ${item.location}`); // seller location
+      console.log(`store: ${item.store}`); // marketplace source
     });
+
+    // indicate successful completion
     console.log("\ndone");
   })
-  // log any errors
+  // handle and display any errors that occur during scraping
   .catch(console.error);
