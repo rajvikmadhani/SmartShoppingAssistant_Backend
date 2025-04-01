@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import logger from './middleware/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import authMiddleware from './middleware/authMiddleware.js';
+
 // Import routes
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -15,6 +16,7 @@ import priceAlertRoutes from './routes/priceAlertRoutes.js';
 import scrapingJobSchema from './routes/scrapingJobRoutes.js';
 import couponRoutes from './routes/couponRoutes.js'; // Newly added
 import wishlistRoutes from './routes/wishlistRoutes.js'; // Newly added
+import userRoutes from './routes/userRoutes.js';
 
 import { corsOptions } from './config/cors-options.js';
 const PORT = process.env.PORT || 5001;
@@ -39,6 +41,7 @@ app.use('/api/price-alerts', authMiddleware, priceAlertRoutes);
 app.use('/api/scrapers', authMiddleware, scrapingJobSchema);
 app.use('/api/coupons', authMiddleware, couponRoutes); // Newly added
 app.use('/api/wishlist', authMiddleware, wishlistRoutes); // Newly added
+app.use('/api/users', authMiddleware, userRoutes);
 
 app.use(errorHandler);
 
