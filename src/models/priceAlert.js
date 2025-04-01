@@ -21,6 +21,10 @@ export default (sequelize) => {
                 type: DataTypes.FLOAT,
                 allowNull: false,
             },
+            isNotified: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
         },
         { timestamps: true }
     );

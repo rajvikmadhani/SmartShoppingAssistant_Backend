@@ -20,6 +20,16 @@ export default (sequelize) => {
                     },
                 },
             },
+            surename: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    len: {
+                        args: [2, 30],
+                        msg: 'Name must be between 2 and 30 characters',
+                    },
+                },
+            },
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,

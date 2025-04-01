@@ -13,6 +13,11 @@ export default (sequelize) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
+            //type like: price drop, wishlist
+            type: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             message: {
                 type: DataTypes.STRING,
                 allowNull: false,
