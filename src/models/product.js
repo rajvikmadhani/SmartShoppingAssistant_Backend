@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { col, DataTypes } from 'sequelize';
 
 export default (sequelize) => {
     return sequelize.define(
@@ -14,9 +14,30 @@ export default (sequelize) => {
                 allowNull: false,
             },
             description: {
-                type: DataTypes.TEXT,
+                type: DataTypes.STRING,
+                allowNull: true,
             },
-            imageUrl: {
+            description: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            brand: {
+                type: DataTypes.TEXT,
+                allowNull: false,
+            },
+            ram_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            storage_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            color: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            mainImgUrl: {
                 type: DataTypes.STRING,
             },
         },

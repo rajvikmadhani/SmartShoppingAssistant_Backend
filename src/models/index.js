@@ -1,3 +1,4 @@
+import { DataTypes } from 'sequelize';
 import { sequelize } from '../db/index.js';
 import UserModel from './User.js';
 import ProductModel from './product.js';
@@ -9,6 +10,7 @@ import PriceAlertModel from './priceAlert.js';
 import CouponModel from './coupon.js';
 import ScrapingJobModel from './scrapingJob.js';
 import NotificationModel from './notification.js';
+import SellerModel from './seller.js';
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -21,6 +23,20 @@ const PriceAlert = PriceAlertModel(sequelize);
 const Coupon = CouponModel(sequelize);
 const ScrapingJob = ScrapingJobModel(sequelize);
 const Notification = NotificationModel(sequelize);
+const Seller = SellerModel(sequelize);
+
+//fefining the table for the many to many relationship between seller and store
+const SellerStore = sequelize.define(
+    'SellerStore',
+    {
+        rating: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
+            validate: { min: 0, max: 5 },
+        },
+    },
+    { timestamps: false }
+);
 
 // Define relationships
 Product.hasMany(Price);
@@ -52,6 +68,9 @@ ScrapingJob.belongsTo(Store);
 
 User.hasMany(Notification);
 Notification.belongsTo(User);
+
+Seller.belongsToMany(Store, { through: SellerStore });
+Store.belongsToMany(Seller, { through: SellerStore });
 
 // Ensuring all models are loaded correctly
 const models = {
