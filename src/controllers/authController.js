@@ -7,14 +7,24 @@ import ErrorResponse from '../utils/ErrorResponse.js';
 const { User } = models;
 
 export const register = asyncHandler(async (req, res) => {
-    const { name, surname, email, password } = req.body;
+    const { name, surname, email, password, street, city, zipcode, about, phone } = req.body;
 
     const userExists = await User.findOne({ where: { email } });
     if (userExists) throw new ErrorResponse('User already exists', 400);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({ name, surname, email, password: hashedPassword });
+    const newUser = await User.create({
+        name,
+        surname,
+        email,
+        password: hashedPassword,
+        street,
+        city,
+        zipcode,
+        about,
+        phone,
+    });
     console.log('new user: ', newUser);
     const payload = { id: newUser.id, email: newUser.email, name: newUser.name };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
