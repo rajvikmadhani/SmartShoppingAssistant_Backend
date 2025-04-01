@@ -6,9 +6,9 @@ export default (sequelize) => {
         'User',
         {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
-                autoIncrement: true,
             },
             name: {
                 type: DataTypes.STRING,
@@ -20,24 +20,23 @@ export default (sequelize) => {
                     },
                 },
             },
-            surename: {
+            surname: {
+                // Fixed typo from 'surename'
                 type: DataTypes.STRING,
                 allowNull: true,
                 validate: {
                     len: {
                         args: [2, 30],
-                        msg: 'Name must be between 2 and 30 characters',
+                        msg: 'Surname must be between 2 and 30 characters',
                     },
                 },
             },
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: true,
+                unique: { msg: 'Email already in use' },
                 validate: {
-                    isEmail: {
-                        msg: 'Email must be a valid email address',
-                    },
+                    isEmail: { msg: 'Email must be a valid email address' },
                 },
             },
             password: {
@@ -47,6 +46,56 @@ export default (sequelize) => {
                     len: {
                         args: [8, 100],
                         msg: 'Password must be between 8 and 100 characters',
+                    },
+                },
+            },
+            street: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    len: {
+                        args: [5, 100],
+                        msg: 'Street must be between 5 and 100 characters',
+                    },
+                },
+            },
+            city: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    len: {
+                        args: [2, 50],
+                        msg: 'City must be between 2 and 50 characters',
+                    },
+                },
+            },
+            zipcode: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    is: {
+                        args: [/^\d{5,10}$/],
+                        msg: 'Zipcode must be between 5 and 10 digits',
+                    },
+                },
+            },
+            about: {
+                type: DataTypes.TEXT,
+                allowNull: true,
+                validate: {
+                    len: {
+                        args: [10, 500],
+                        msg: 'About must be between 10 and 500 characters',
+                    },
+                },
+            },
+            phone: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    is: {
+                        args: [/^\+?[0-9\s\-]{10,15}$/],
+                        msg: 'Phone number must be between 10 and 15 characters',
                     },
                 },
             },
@@ -60,8 +109,8 @@ export default (sequelize) => {
                     attributes: { include: ['password'] },
                 },
             },
-            tableName: 'Users', // explicitly set table name in database
-            timestamps: false, // disable Sequelize's default timestamp fields
+            tableName: 'Users',
+            timestamps: true, // Now storing createdAt and updatedAt
         }
     );
 
