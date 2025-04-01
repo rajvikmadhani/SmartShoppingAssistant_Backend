@@ -60,7 +60,7 @@ const scrapeAmazon = async (query, maxPages = 3) => {
                 const delivery = el.querySelector('.a-color-base.a-text-bold')?.innerText;
                 const asin = el.getAttribute('data-asin'); // get ASIN
                 const link = asin ? `https://www.amazon.com/dp/${asin}` : undefined; // clean product detail page link
-                const productSellerRate = el.querySelector('.a-icon-alt'); // extract the product seller rate
+                const productSellerRate = el.querySelector('.a-icon-alt')?.innerText; // extract the product seller rate
                 // add item to the array if title and price are available
                 if (title && price) {
                     items.push({
