@@ -6,9 +6,9 @@ export default (sequelize) => {
         'User',
         {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
-                autoIncrement: true,
             },
             name: {
                 type: DataTypes.STRING,
@@ -107,16 +107,6 @@ export default (sequelize) => {
             scopes: {
                 withPassword: {
                     attributes: { include: ['password'] },
-                },
-            },
-            hooks: {
-                beforeCreate: async (user) => {
-                    user.password = await bcrypt.hash(user.password, 10);
-                },
-                beforeUpdate: async (user) => {
-                    if (user.changed('password')) {
-                        user.password = await bcrypt.hash(user.password, 10);
-                    }
                 },
             },
             tableName: 'Users',

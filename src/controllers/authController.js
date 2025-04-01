@@ -15,7 +15,7 @@ export const register = asyncHandler(async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({ name, surname, email, password: hashedPassword });
-
+    console.log('new user: ', newUser);
     const payload = { id: newUser.id, email: newUser.email, name: newUser.name };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
 
@@ -24,12 +24,26 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    console.log('Received email:', email);
 
-    const user = await User.scope('withPassword').findOne({ where: { email } });
-    if (!user) throw new ErrorResponse('Invalid credentials', 400);
+    const user = await User.scope('withPassword').findOne({
+        where: { email },
+    });
+
+    if (!user) {
+        console.log('User not found');
+        throw new ErrorResponse('Invalid credentials', 400);
+    }
+
+    console.log('Found user:', user.email);
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new ErrorResponse('Invalid credentials', 400);
+    if (!isMatch) {
+        console.log('Password mismatch');
+        throw new ErrorResponse('Invalid credentials', 400);
+    }
+
+    console.log('Password matched');
 
     const payload = { id: user.id, email: user.email, name: user.name };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });

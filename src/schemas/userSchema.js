@@ -1,11 +1,11 @@
 import Joi from 'joi';
 
-const userSchema = {
+export const userSchema = {
     POST: Joi.object({
         name: Joi.string().min(3).max(50).required(),
         surname: Joi.string().min(3).max(50).optional(),
         email: Joi.string().email().required(),
-        password: Joi.string().min(6).required(),
+        password: Joi.string().min(8).required(),
         street: Joi.string().min(5).max(100).optional(),
         city: Joi.string().min(2).max(50).optional(),
         zipcode: Joi.string()
@@ -21,7 +21,7 @@ const userSchema = {
         name: Joi.string().min(3).max(50).optional(),
         surname: Joi.string().min(3).max(50).optional(),
         email: Joi.string().email().optional(),
-        password: Joi.string().min(6).optional(),
+        password: Joi.string().min(8).optional(),
         street: Joi.string().min(5).max(100).optional(),
         city: Joi.string().min(2).max(50).optional(),
         zipcode: Joi.string()
@@ -34,4 +34,9 @@ const userSchema = {
     }),
 };
 
-export default userSchema;
+export const userSchemaForLogin = {
+    POST: Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().min(8).required(),
+    }),
+};

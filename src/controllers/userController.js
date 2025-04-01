@@ -11,6 +11,8 @@ const { User } = models;
  */
 export const getUserProfile = asyncHandler(async (req, res) => {
     const { id } = req.user;
+    console.log('User ID:', id);
+    console.log('User:', req.user);
 
     const user = await User.findByPk(id, {
         attributes: { exclude: ['password'] }, // Exclude password
@@ -28,7 +30,8 @@ export const getUserProfile = asyncHandler(async (req, res) => {
  */
 export const getUserById = asyncHandler(async (req, res) => {
     const { id } = req.params;
-
+    console.log('User ID:', id);
+    console.log('User:', req.user);
     const user = await User.findByPk(id, {
         attributes: { exclude: ['password'] }, // Exclude password
     });
