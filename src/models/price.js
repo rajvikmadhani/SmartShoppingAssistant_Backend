@@ -17,6 +17,12 @@ export default (sequelize) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
+            //Each product can have multiple store listings (Amazon, eBay, Walmart, etc.).
+            // The product price and availability differ by store.
+            product_link: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             price: {
                 type: DataTypes.FLOAT,
                 allowNull: false,
@@ -26,6 +32,10 @@ export default (sequelize) => {
                 defaultValue: 0.0,
             },
             discount: {
+                type: DataTypes.FLOAT,
+                defaultValue: 0.0,
+            },
+            seller_rating: {
                 type: DataTypes.FLOAT,
                 defaultValue: 0.0,
             },

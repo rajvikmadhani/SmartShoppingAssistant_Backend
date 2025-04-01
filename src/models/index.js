@@ -1,5 +1,5 @@
 import { sequelize } from '../db/index.js';
-import UserModel from './user.js';
+import UserModel from './User.js';
 import ProductModel from './product.js';
 import StoreModel from './store.js';
 import PriceModel from './price.js';
