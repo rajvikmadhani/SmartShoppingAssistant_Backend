@@ -1,5 +1,5 @@
 {
-    "name": "pokemon-game-backend",
+    "name": "SmartShoppingAssistant_Backend",
     "version": "1.0.0",
     "main": "server.js",
     "type": "module",
@@ -11,15 +11,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Alireza2A/pokemon-game-backend.git"
+        "url": "git+https://github.com/Alireza2A/SmartShoppingAssistant_Backend.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Alireza2A/pokemon-game-backend/issues"
+        "url": "https://github.com/Alireza2A/SmartShoppingAssistant_Backend/issues"
     },
-    "homepage": "https://github.com/Alireza2A/pokemon-game-backend#readme",
+    "homepage": "https://github.com/Alireza2A/SmartShoppingAssistant_Backend#readme",
     "description": "",
     "dependencies": {
         "axios": "^1.8.4",
