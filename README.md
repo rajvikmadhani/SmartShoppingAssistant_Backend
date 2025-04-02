@@ -1,1 +1,0 @@
-# SmartShoppingAssistant_Backend
