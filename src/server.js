@@ -32,6 +32,10 @@ app.use(logger);
 app.use(cors(corsOptions));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
+//sanity check
+app.get('/', (req, res) => {
+    res.status(200).send('Server is up and running');
+});
 
 // Route handlers
 app.use('/api/auth', authRoutes); // Public routes
