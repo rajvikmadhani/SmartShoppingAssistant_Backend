@@ -1,74 +1,103 @@
-import puppeteer from "puppeteer"; // import the puppeteer library which provides a high-level API to control Chrome/Chromium
+import puppeteer from "puppeteer"; // import Puppeteer library to control headless Chrome/Chromium
 
 /**
- * function to scrape Amazon search results for a given query
- * @param {string} query - The search term to look up on Amazon
- * @returns {Promise<Array>} - Promise resolving to an array of product data objects
+ * function to scrape multiple pages of Amazon search results
+ * @param {string} query - the search term to look up on Amazon
+ * @param {number} maxPages - maximum number of pages to scrape (defaults to 3)
+ * @returns {Promise<Array>} - Promise resolving to an array of product data objects from all pages
  */
-const scrapeAmazon = async (query) => {
-  // launch a new browser instance
-  // headless:true means the browser runs in the background without a visible UI
-  const browser = await puppeteer.launch({ headless: true });
+const scrapeAmazon = async (query, maxPages = 3) => {
+  const browser = await puppeteer.launch({ headless: true }); // launch a headless browser instance (runs invisibly)
+  const page = await browser.newPage(); // create a new browser tab/page
 
-  // create a new page/tab in the browser
-  // this is similar to opening a new tab in a regular browser
-  const page = await browser.newPage();
+  // construct the Amazon search URL with URL-encoded query parameter
+  const baseUrl = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
+  let currentPageUrl = baseUrl; // track the current page URL, starting with the base search URL
+  let currentPage = 1; // initialize page counter to track which page we're on
+  const allResults = []; // initialize empty array to store all collected product data
 
-  // construct the Amazon search URL with the encoded query parameter
-  // encodeURIComponent ensures special characters in the query are properly URL-encoded
-  // using Amazon.de (German site) 
-  const url = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
+  // begin pagination loop - continue until we reach maxPages or there are no more pages
+  while (currentPage <= maxPages && currentPageUrl) {
+    // log which page we're currently scraping for debugging/tracking
+    console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
 
-  // navigate to the Amazon search results page and wait until the page is fully loaded
-  // 'networkidle2' means navigation is considered complete when there are no more than 2 network connections for at least 500ms
-  // this is important because Amazon loads content dynamically
-  await page.goto(url, { waitUntil: "networkidle2" });
+    // navigate to the current page URL and wait for the page to load
+    // 'networkidle2' waits until the page has no more than 2 network connections for at least 500ms
+    await page.goto(currentPageUrl, { waitUntil: "networkidle2" });
 
-  // execute JavaScript code in the context of the page to extract data
-  // everything inside this function runs in the browser's context, not Node.js
-  const results = await page.evaluate(() => {
-    // create an empty array to store the product results
-    const items = [];
+    // handle cookie consent popup if it appears (common on European Amazon sites)
+    try {
+      // wait for the cookie consent button to appear, with a short timeout
+      // timeout of 3000ms (3 seconds) to avoid hanging indefinitely
+      await page.waitForSelector('input[name="accept"]', { timeout: 3000 });
+      // click the accept cookies button
+      await page.click('input[name="accept"]');
+      // log that cookies were accepted for debugging
+      console.log("accepted cookies");
+      // brief pause to ensure the page updates after accepting cookies
+      await page.waitForTimeout(1000);
+    } catch {
+      // if no cookie prompt appears (timeout exceeded), continue without accepting
+      console.log("no cookie prompt");
+    }
 
-    // select all search result items from the page
-    // '.s-main-slot .s-result-item' targets the container elements for each product listing
-    document.querySelectorAll(".s-main-slot .s-result-item").forEach((el) => {
-      // for each product element, extract the following data:
+    // execute code within the browser context to extract product data
+    const results = await page.evaluate(() => {
+      // initialize array to hold product data from this page
+      const items = [];
 
-      // extract the product title text from the h2 span element
-      // the optional chaining (?.) ensures the code doesn't crash if the element doesn't exist
-      const title = el.querySelector("h2 span")?.innerText;
+      // select all product containers on the page
+      // each product on Amazon search results is in an element with these classes
+      document.querySelectorAll(".s-main-slot .s-result-item").forEach((el) => {
+        // extract product details from each container
+        // optional chaining (?.) prevents errors if elements don't exist
+        const title = el.querySelector("h2 span")?.innerText; // Product title text
+        const price = el.querySelector(".a-price .a-offscreen")?.innerText; // Product price
+        const rating = el.querySelector(".a-icon-alt")?.innerText; // Star rating text
 
-      // extract the price from the hidden offscreen element that contains the full price text
-      // amazon uses this element to store the complete price information
-      const price = el.querySelector(".a-price .a-offscreen")?.innerText;
-
-      // extract the product rating text (e.g., "4.5 out of 5 stars")
-      const rating = el.querySelector(".a-icon-alt")?.innerText;
-
-      // only add items to our results if they have both a title and price
-      // this filters out sponsored content or other non-product elements
-      if (title && price) {
-        // create a product object with the extracted data and push it to our items array
-        // 'store: "Amazon"' adds metadata about which store this data came from
-        items.push({ title, price, rating, store: "Amazon" });
-      }
+        // only include products that have both title and price
+        // this filters out sponsored items, category headers, etc.
+        if (title && price) {
+          items.push({ title, price, rating, store: "Amazon" });
+        }
+      });
+      // return all products found on this page
+      return items;
     });
 
-    // return only the first 3 products from our collected items
-    // slice(0, 3) takes elements from index 0 up to (but not including) index 3
-    return items.slice(0, 3);
-  });
+    // log how many products were found on the current page
+    console.log(`page ${currentPage}: ${results.length} items scraped`);
+    allResults.push(...results); // add this page's results to our master array using spread operator
 
-  // close the browser completely to free up system resources
-  // this is important to prevent memory leaks
+    // find the URL for the next page, if it exists
+    const nextUrl = await page.evaluate(() => {
+      // amazon's pagination has a "Next" button inside a list item with class "a-last"
+      const nextLink = document.querySelector("ul.a-pagination li.a-last a");
+      // return the URL of the next page, or null if there isn't one
+      return nextLink ? nextLink.href : null;
+    });
+
+    // if there's no next page link, exit the loop early
+    if (!nextUrl) break;
+
+    // update tracking variables for the next iteration
+    currentPageUrl = nextUrl; // Set the next page URL
+    currentPage++; // Increment the page counter
+  }
+
+  // clean up resources by closing the browser
   await browser.close();
-
-  // return the extracted results to the caller of this function
-  return results;
+  // return the complete collection of results from all pages
+  return allResults;
 };
 
-// example usage: Search for "iphone" on Amazon
-// .then(console.log) will print the results to console if successful
-// .catch(console.error) will print any errors that occur during scraping
-scrapeAmazon("iphone").then(console.log).catch(console.error);
+// execute the scraper function with "iphone" as the search term, scraping up to 3 pages
+scrapeAmazon("iphone", 3)
+  .then((results) => {
+    // when scraping is complete, log the total number of products found
+    console.log(`\ntotal items scraped: ${results.length}`);
+    // log the complete array of product data
+    console.log(results);
+  })
+  // handle and log any errors that occur during scraping
+  .catch(console.error);
