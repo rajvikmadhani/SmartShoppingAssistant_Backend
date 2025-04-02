@@ -17,10 +17,6 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            description: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
             brand: {
                 type: DataTypes.TEXT,
                 allowNull: false,
