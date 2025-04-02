@@ -1,5 +1,5 @@
 // Extracts ScrapingJob creation/updating
-import models from '../../models/index.js';
+import models from '../models/index.js';
 
 export async function createScrapingJob(productId = null, storeId = null) {
     return await models.ScrapingJob.create({

@@ -3,10 +3,10 @@
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import amazonScraper from '../scrapers/amazonScraper.js';
 import ebayScraper from '../scrapers/ebayScraper.js';
-import models from '../models/index.js';
-import updateDatabase from './updateDatabase.js';
+import updateDatabase from './updateDatabase.js'; // Changed path
+import models from '../models/index.js'; // Added import
 
-const fetchProductData = async (productQuery, manualTrigger = false) => {
+export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { brand, name, storage_gb, ram_gb, color, region } = productQuery;
 
     // Determine the correct Amazon domain
@@ -57,5 +57,3 @@ const fetchProductData = async (productQuery, manualTrigger = false) => {
 
     return product;
 };
-
-export default fetchProductData;

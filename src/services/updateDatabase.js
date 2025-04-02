@@ -1,5 +1,6 @@
-// Handles database updates (Products, Prices, PriceHistory)
-const updateDatabase = async (product, scrapedData) => {
+import models from '../models/index.js'; // Added import
+
+export const updateDatabase = async (product, scrapedData) => {
     if (!scrapedData.length) return null;
 
     if (!product) {
@@ -34,4 +35,5 @@ const updateDatabase = async (product, scrapedData) => {
 
     return product;
 };
+
 export default updateDatabase;

@@ -1,12 +1,7 @@
 import { Op } from 'sequelize';
 import models from '../models/index.js';
-import amazonScraper from '../scrapers/amazonScraper.js';
-import ebayScraper from '../scrapers/ebayScraper.js';
-import cron from 'node-cron';
-import { fetchBestPrices } from './scraper/fetchBestPrices.js';
-import { fetchProductData } from './scraper/fetchProductData.js';
-import { updateDatabase } from './scraper/updateDatabase.js';
-import { manageScrapingJob } from './scraper/scrapingJobManager.js';
+import { fetchProductData } from './fetchProductData.js'; // Fixed path
+import { fetchBestPrices } from './fetchBestPrices.js'; // Added import
 
 class ScraperService {
     static async fetchBestPrices() {
@@ -14,6 +9,7 @@ class ScraperService {
     }
 
     static async fetchProductData(productQuery, manualTrigger = false) {
+        // This now directly calls the fetchProductData module
         return fetchProductData(productQuery, manualTrigger);
     }
 
@@ -21,7 +17,7 @@ class ScraperService {
         const outdatedProducts = await models.Price.findAll({
             where: {
                 lastUpdated: {
-                    [Op.lt]: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                    [Op.lt]: new Date(Date.now() - 24 * 60 * 60 * 1000), // check if older than 24 hours
                 },
             },
             include: [models.Product],
@@ -37,15 +33,9 @@ class ScraperService {
             };
 
             console.log(`Updating: ${productQuery.name} (${productQuery.brand})`);
-            await fetchProductData(productQuery);
+            await fetchProductData(productQuery); // Now directly calling fetchProductData
         }
     }
 }
-
-// Schedule the scraping job to run every day at midnight
-cron.schedule('0 0 * * *', async () => {
-    console.log('Running scheduled scraping task...');
-    await ScraperService.runScheduledScraping();
-});
 
 export default ScraperService;

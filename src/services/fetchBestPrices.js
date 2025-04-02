@@ -1,6 +1,7 @@
 // Handles fetching best prices for homepage
-
-const fetchBestPrices = async () => {
+import { Op } from 'sequelize';
+import models from '../models/index.js';
+export const fetchBestPrices = async () => {
     const productsWithBestPrices = await models.Product.findAll({
         attributes: ['id', 'name', 'brand', 'storage_gb', 'ram_gb', 'color', 'mainImgUrl'],
         include: [
@@ -20,4 +21,3 @@ const fetchBestPrices = async () => {
 
     return productsWithBestPrices;
 };
-export default fetchBestPrices;
