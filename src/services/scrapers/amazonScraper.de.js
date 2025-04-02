@@ -87,12 +87,50 @@ const scrapeAmazon = async (query) => {
 
         // extract the product rating text (e.g. "4.5 out of 5 stars")
         const rating = el.querySelector(".a-icon-alt")?.innerText;
+ 
+        // extract the product image URL from the image element
+        const image = el.querySelector(".s-image")?.src;
+        // extract the seller name from the secondary text element
+        const seller = el.querySelector(
+          ".a-row.a-size-base.a-color-secondary"
+        )?.innerText;
+        // extract the badge text (e.g. "Best Seller", "Amazon's Choice")
+        const badge = el.querySelector(".s-badge-text")?.innerText;
+        // check if the product is marked as Prime eligible
+        const isPrime = !!el.querySelector(".a-icon-prime");
+        // extract the delivery information from the text element
+        const delivery = el.querySelector(
+          ".a-color-base.a-text-bold"
+        )?.innerText;
+        // extract the ASIN (Amazon Standard Identification Number) from the data attribute
+        // this is a unique identifier for each product on Amazon
+        // used for creating direct links to product pages
+        // the ASIN is stored in a data attribute on the product element
+        const asin = el.getAttribute("data-asin"); // get ASIN
+        // construct the product detail page link using the ASIN
+        // this link directs to the product's page on Amazon for more details
+        const link = asin ? `https://www.amazon.com/dp/${asin}` : undefined; 
+        // extract the product seller rating from the alt text of the icon
+        // this typically indicates the average rating given by customers
+        const productSellerRate = el.querySelector(".a-icon-alt")?.innerText; // extract the product seller rate
 
         // only add items that have both a title and price to filter out
         // non-product elements like sponsored links, category headers, etc.
         if (title && price) {
           // create a product object and add it to our results array
-          items.push({ title, price, rating, store: "Amazon" });
+          items.push({
+            title,
+            price,
+            rating,
+            link,
+            image,
+            seller,
+            productSellerRate,
+            badge,
+            isPrime,
+            delivery,
+            store: "Amazon",
+          });
         }
       });
       return items; // return the complete array of products back to Node.js context
