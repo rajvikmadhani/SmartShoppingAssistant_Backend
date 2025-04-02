@@ -1,179 +1,168 @@
-import puppeteer from "puppeteer"; // import puppeteer library which allows us to control a headless browser
+import puppeteer from "puppeteer"; // import puppeteer library to control a headless Chrome browser
 
 /**
- * Function to scrape Amazon search results with pagination support
- * This function navigates through multiple pages of search results and extracts product information
+ * function to scrape Amazon search results with automatic pagination
+ * this function will continue scraping until there are no more result pages
  *
- * @param {string} query - The product to search for on Amazon (e.g., "iphone", "laptop")
- * @param {number} maxPages - Maximum number of pages to scrape (default: 3)
- * @returns {Promise<Array>} - Array of product objects containing title, price, rating
+ * @param {string} query - the search term to look up on Amazon
+ * @returns {Promise<Array>} - Promise resolving to an array of product data
  */
-const scrapeAmazon = async (query, maxPages = 3) => {
-  // launch a new instance of Chromium browser in headless mode (no visible UI)
-  // headless:true makes the browser run invisibly in the background
+const scrapeAmazon = async (query) => {
+  // initialize a new headless browser instance
+  // headless:true means the browser runs in the background without visible UI
   const browser = await puppeteer.launch({ headless: true });
 
-  // create a new page (tab) in the browser to work with
-  // this is similar to opening a new tab in a regular browser
+  // create a new page/tab in the browser for navigation
+  // similar to opening a new tab in a regular browser
   const page = await browser.newPage();
 
-  // construct the Amazon search URL with the encoded search query
-  // encodeURIComponent ensures special characters in the query are properly URL-encoded
-  // e.g., "wireless headphones" becomes "wireless%20headphones"
+  // construct the Amazon search URL with the query parameter properly encoded
+  // encodeURIComponent ensures special characters in the search term are properly handled
   const baseUrl = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
 
-  // variable to track the current page URL we're scraping
-  // initially set to the base search URL for the first page
+  // track the current page URL we're scraping, starting with the base search URL
+  // this variable will be updated as we navigate through pagination
   let currentPageUrl = baseUrl;
 
-  // counter to keep track of which page number we're currently processing
-  // starts at 1 for the first page of search results
+  // initialize page counter to track which page number we're currently on
+  // useful for logging and understanding where we are in the pagination sequence
   let currentPage = 1;
 
-  // array to collect all product results across all pages
-  // we'll add items from each page to this array as we go
+  // initialize an empty array to collect all products from all pages
+  // we'll continuously add to this as we scrape each page
   const allResults = [];
 
-  // pagination loop - continue until we hit max pages limit or run out of next pages
-  // the loop will break early if there's no next page link found
-  while (currentPage <= maxPages && currentPageUrl) {
-    // print information about which page we're currently scraping
-    // helps with monitoring the progress of the scraper
+  // begin the pagination loop - continue until there are no more pages (currentPageUrl becomes null)
+  // unlike the previous example, this loop doesn't have a maximum page limit
+  while (currentPageUrl) {
+    // log which page we're currently scraping for tracking/debugging
+    // displays the page number and full URL being accessed
     console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
 
-    // navigate to the current page URL and wait for it to load completely
-    // networkidle2 means wait until there are no more than 2 network connections for 500ms
-    // this ensures the page has loaded all the important content before we start scraping
+    // navigate to the current search results page and wait until it loads completely
+    // networkidle2 means wait until there are no more than 2 network connections for at least 500ms
+    // this ensures the dynamic content has fully loaded before scraping
     await page.goto(currentPageUrl, { waitUntil: "networkidle2" });
 
-    // handle the cookie consent popup which is common on European Amazon sites
-    // this try/catch structure attempts to find and click the accept button, but continues if not found
+    // handle the cookie consent popup if it appears (common on European Amazon sites)
+    // wrapped in try/catch to continue scraping even if cookie handling fails
     try {
-      // wait up to 3 seconds for the cookie acceptance button to appear
-      // if it doesn't appear within this time, the catch block will execute
-      await page.waitForSelector('input[name="accept"]', { timeout: 3000 });
+      // wait up to 500ms for the cookie acceptance button to appear
+      // shorter timeout than previous examples to speed up the process
+      await page.waitForSelector('input[name="accept"]', { timeout: 500 });
 
-      // click the "accept cookies" button to dismiss the cookie popup
-      // this is necessary to see the full page content without overlays
+      // click the accept cookies button to dismiss the popup
+      // this ensures we can access the full page content
       await page.click('input[name="accept"]');
 
-      // log that we successfully dealt with the cookie prompt
-      // useful for debugging and tracking the scraping process
+      // log that cookies were accepted for debugging purposes
       console.log("accepted cookies");
 
-      // wait for 1 second after clicking the accept button
-      // this allows the page to process the cookie acceptance and update the UI
+      // brief pause after accepting cookies to allow the page to update
+      // gives time for the cookie banner to disappear and content to be visible
       await page.waitForTimeout(1000);
     } catch {
-      // if the cookie prompt selector isn't found (timeout or doesn't exist)
-      // log that there was no cookie prompt and continue with scraping
+      // if no cookie prompt appears or we time out waiting for it
+      // we simply continue with the scraping process
       console.log("no cookie prompt");
     }
 
-    // extract product data from the current page
-    // page.evaluate executes the provided function in the browser context
-    // this allows us to use standard DOM methods to access page elements
+    // extract product data from the current page using browser-context JavaScript
+    // page.evaluate runs the provided function in the browser's context, not Node.js
     const results = await page.evaluate(() => {
       // create an empty array to store product data from this page
       const items = [];
 
-      // find all product containers on the page using Amazon's CSS class structure
-      // s-main-slot contains the main search results
-      // s-result-item represents each individual product listing
+      // select all product containers on the page using Amazon's HTML structure
+      // each product is contained in an element matching these selectors
       document.querySelectorAll(".s-main-slot .s-result-item").forEach((el) => {
-        // extract the product title from the h2 heading element
-        // ?. is optional chaining which prevents errors if element doesn't exist
+        // extract key product information using CSS selectors
+        // optional chaining (?.) prevents errors if elements don't exist
+
+        // extract the product title from the h2 heading
         const title = el.querySelector("h2 span")?.innerText;
 
-        // extract the price from a special hidden element containing the price text
-        // Amazon uses .a-offscreen to store accessible text versions of visual elements
+        // extract the price from the hidden accessible text element
         const price = el.querySelector(".a-price .a-offscreen")?.innerText;
 
-        // extract the rating text (e.g., "4.5 out of 5 stars")
-        // this information is stored in the alt text attribute for accessibility
+        // extract the product rating text (e.g. "4.5 out of 5 stars")
         const rating = el.querySelector(".a-icon-alt")?.innerText;
 
-        // only add products to our results if they have both a title and price
-        // this filters out sponsored content, category headers, and incomplete listings
+        // only add items that have both a title and price to filter out
+        // non-product elements like sponsored links, category headers, etc.
         if (title && price) {
-          // create an object with the product details and add it to our results array
-          // each object contains title, price, rating, and store name
+          // create a product object and add it to our results array
           items.push({ title, price, rating, store: "Amazon" });
         }
       });
-
-      // return the complete array of product objects from this page
-      return items;
+      return items; // return the complete array of products back to Node.js context
     });
 
-    // log statistics about how many products were found on the current page
-    // useful for monitoring scraper performance and debugging
+    // log statistics about how many products were found on this page
+    // useful for monitoring the scraper's effectiveness
     console.log(`page ${currentPage}: ${results.length} items scraped`);
 
-    // add all products from this page to our master results array
-    // the spread operator (...) expands the results array into individual elements
+    // add products from this page to our master results array
+    // spread operator (...) unpacks the array into individual elements
     allResults.push(...results);
 
-    // find the path to the next page by checking for pagination links
-    // this code handles both old and new layouts of Amazon's pagination system
+    // determine if there's a next page by looking for pagination controls
+    // handles both old and new Amazon page layouts for better compatibility
     const nextPagePath = await page.evaluate(() => {
-      // try the traditional pagination with "ul.a-pagination li.a-last a" selector
-      // this was the common structure in older Amazon layouts
-      const nextLinkOld = document.querySelector("ul.a-pagination li.a-last a");
+      // try to find the next page link in the traditional pagination controls
+      // these typically appear as a numbered list at the bottom of search results
+      const nextOld = document.querySelector("ul.a-pagination li.a-last a");
 
-      // try the newer pagination with "a.s-pagination-next" selector
-      // Amazon has been updating their site to use this simpler structure
-      const nextLinkNew = document.querySelector("a.s-pagination-next");
+      // try to find the next page link in the newer pagination layout
+      // Amazon has been transitioning to this simplified design
+      const nextNew = document.querySelector("a.s-pagination-next");
 
-      // get the href attribute from whichever selector worked, or null if neither found
-      // we use the || (logical OR) operator to try each option in sequence
+      // return the href attribute from whichever selector worked, or null if neither found
+      // logical OR operator (||) tries each option in sequence
       return (
-        nextLinkOld?.getAttribute("href") ||
-        nextLinkNew?.getAttribute("href") ||
-        null
+        nextOld?.getAttribute("href") || nextNew?.getAttribute("href") || null
       );
     });
 
     // if no next page link was found, we've reached the end of results
-    // break out of the loop early to avoid unnecessary processing
+    // exit the loop as there are no more pages to scrape
     if (!nextPagePath) {
       // log that we've reached the end of pagination
-      console.log("no next page link found.");
+      console.log("no more pages found.");
       break;
     }
 
-    // construct the full URL for the next page
-    // Amazon pagination links are usually relative paths that need to be combined with the domain
+    // construct the full URL for the next page by combining the domain with the path
+    // Amazon pagination links are typically relative URLs that need the domain prepended
     currentPageUrl = `https://www.amazon.de${nextPagePath}`;
 
     // increment the page counter for the next iteration
-    // this tracks which page number we'll be processing next
+    // keeps track of which page number we'll be processing next
     currentPage++;
   }
 
-  // clean up resources by closing the browser
-  // this is important to prevent memory leaks and hanging processes
+  // clean up resources by closing the browser instance
+  // important to prevent memory leaks and orphaned processes
   await browser.close();
 
-  // return the full collection of products from all pages
-  // this is the final output of our scraping function
+  // return the complete collection of products from all pages
+  // this contains all the product data we've scraped
   return allResults;
 };
 
-// execute the scraper with "iphone" as the search query, limiting to 2 pages
-// this demonstrates how to call the function and handle its results
-scrapeAmazon("iphone", 2)
+// execute the scraper function with "iphone" as the search query
+// no page limit is specified, so it will scrape all available pages
+scrapeAmazon("iphone")
+  // handle the successful completion of scraping
   .then((results) => {
-    // when scraping is complete, this callback receives the full results array
-
     // log the total number of products found across all pages
-    // \n adds a blank line before this output for readability
+    // \n adds a blank line before this output for better readability
     console.log(`\ntotal items scraped: ${results.length}`);
 
-    // log the complete array of product objects to the console
-    // this shows all the product information we've collected
+    // log the complete dataset of all products scraped
+    // displays all product information collected during the scraping process
     console.log(results);
   })
-  // handle any errors that occur during the scraping process
-  // errors could be network issues, timeouts, or structural changes to the website
+  // handle any errors that occurred during scraping
+  // ensures failures are properly logged rather than crashing the application
   .catch(console.error);
