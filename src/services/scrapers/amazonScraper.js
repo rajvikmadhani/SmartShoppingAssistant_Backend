@@ -1,55 +1,47 @@
-import puppeteer from 'puppeteer'; // import puppeteer
+import puppeteer from 'puppeteer';
 
-// function to scrape Amazon search results with pagination
-const scrapeAmazon = async (query, maxPages = 3) => {
-    // launch browser
-    const browser = await puppeteer.launch({ headless: true });
-    // create new page
-    const page = await browser.newPage();
+/**
+ * Scrapes Amazon search results with pagination support.
+ *
+ * @param {Object} productQuery - The search query containing brand, name, storage, RAM, and color.
+ * @param {string} amazonDomain - The Amazon domain to scrape (e.g., "amazon.com" or "amazon.de").
+ * @returns {Promise<Array>} - Array of product data.
+ */
+const amazonScraper = async (productQuery, amazonDomain = 'amazon.com') => {
+    const { brand, name, storage_gb, ram_gb, color } = productQuery;
 
-    // set user agent to prevent Amazon from blocking the request
-    await page.setUserAgent(
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    );
+    // Construct search query string
+    const queryString = `${brand} ${name} ${storage_gb || ''}GB ${ram_gb || ''}GB ${color || ''}`.trim();
 
-    const baseUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
-    // current page URL
+    // Construct Amazon search URL
+    const baseUrl = `https://${amazonDomain}/s?k=${encodeURIComponent(queryString)}`;
     let currentPageUrl = baseUrl;
-    // current page number
     let currentPage = 1;
-    // array to store all results
     const allResults = [];
 
-    // loop through pages
-    while (currentPage <= maxPages && currentPageUrl) {
-        // log current page
-        console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
-        // go to the current page
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    while (currentPageUrl) {
+        console.log(`Scraping page ${currentPage} from ${amazonDomain}: ${currentPageUrl}`);
+
         await page.goto(currentPageUrl, { waitUntil: 'networkidle2' });
 
-        // accept cookies
+        // Handle cookie consent (common on Amazon.de)
         try {
-            // wait for the cookie prompt to appear
-            await page.waitForSelector('input[name="accept"]', { timeout: 3000 });
-            // click the accept button
+            await page.waitForSelector('input[name="accept"]', { timeout: 1000 });
             await page.click('input[name="accept"]');
-            // log accepted cookies
-            console.log('accepted cookies');
-            // wait for 1 second
+            console.log('Accepted cookies');
             await page.waitForTimeout(1000);
         } catch {
-            // no cookie prompt
-            console.log('no cookie prompt');
+            console.log('No cookie prompt found');
         }
 
-        // scrape products
+        // Extract product data
         const results = await page.evaluate(() => {
-            // array to store items
             const items = [];
 
-            // loop through each item on the page
             document.querySelectorAll('.s-main-slot .s-result-item').forEach((el) => {
-                // get title, price, rating, link, image, seller, badge, isPrime, and delivery
                 const title = el.querySelector('h2 span')?.innerText;
                 const price = el.querySelector('.a-price .a-offscreen')?.innerText;
                 const rating = el.querySelector('.a-icon-alt')?.innerText;
@@ -58,10 +50,9 @@ const scrapeAmazon = async (query, maxPages = 3) => {
                 const badge = el.querySelector('.s-badge-text')?.innerText;
                 const isPrime = !!el.querySelector('.a-icon-prime');
                 const delivery = el.querySelector('.a-color-base.a-text-bold')?.innerText;
-                const asin = el.getAttribute('data-asin'); // get ASIN
-                const link = asin ? `https://www.amazon.com/dp/${asin}` : undefined; // clean product detail page link
-                const productSellerRate = el.querySelector('.a-icon-alt')?.innerText; // extract the product seller rate
-                // add item to the array if title and price are available
+                const asin = el.getAttribute('data-asin');
+                const link = asin ? `https://${amazonDomain}/dp/${asin}` : undefined;
+
                 if (title && price) {
                     items.push({
                         title,
@@ -70,59 +61,38 @@ const scrapeAmazon = async (query, maxPages = 3) => {
                         link,
                         image,
                         seller,
-                        productSellerRate,
                         badge,
                         isPrime,
                         delivery,
-                        store: 'Amazon',
+                        store: `Amazon (${amazonDomain})`,
                     });
                 }
             });
-            // return the items
+
             return items;
         });
 
-        // log the number of items scraped
-        console.log(`page ${currentPage}: ${results.length} items scraped`);
-        // add results to the allResults array
+        console.log(`Page ${currentPage}: ${results.length} items scraped from ${amazonDomain}`);
         allResults.push(...results);
 
-        // get next page path (try both old and new selectors)
+        // Check for next page
         const nextPagePath = await page.evaluate(() => {
-            // get the next link
-            const nextLinkOld = document.querySelector('ul.a-pagination li.a-last a');
-            // get the next link
-            const nextLinkNew = document.querySelector('a.s-pagination-next');
-            // return the href attribute of the next link
-            return nextLinkOld?.getAttribute('href') || nextLinkNew?.getAttribute('href') || null;
+            const nextOld = document.querySelector('ul.a-pagination li.a-last a');
+            const nextNew = document.querySelector('a.s-pagination-next');
+            return nextOld?.getAttribute('href') || nextNew?.getAttribute('href') || null;
         });
 
-        // if no next page, break the loop
         if (!nextPagePath) {
-            // log no next page
-            console.log('no next page link found.');
+            console.log(`No more pages found on ${amazonDomain}.`);
             break;
         }
 
-        // convert to full URL
-        currentPageUrl = `https://www.amazon.com${nextPagePath}`;
-        // increment page number
+        currentPageUrl = `https://${amazonDomain}${nextPagePath}`;
         currentPage++;
     }
 
-    // close the browser
     await browser.close();
-    // return all results
     return allResults;
 };
 
-// run the scraper
-scrapeAmazon('iphone', 2)
-    .then((results) => {
-        // log the total number of items scraped
-        console.log(`\ntotal items scraped: ${results.length}`);
-        // log the results
-        console.log(results);
-    })
-    // catch and log any errors
-    .catch(console.error);
+export default amazonScraper;

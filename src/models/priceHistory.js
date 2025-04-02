@@ -17,6 +17,9 @@ export default (sequelize) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
+            currency: { type: DataTypes.STRING, allowNull: false, defaultValue: 'USD' },
+
+            availability: { type: DataTypes.BOOLEAN, defaultValue: true },
             price: {
                 type: DataTypes.FLOAT,
                 allowNull: false,

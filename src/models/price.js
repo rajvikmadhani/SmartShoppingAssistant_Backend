@@ -27,6 +27,14 @@ export default (sequelize) => {
                 type: DataTypes.FLOAT,
                 allowNull: false,
             },
+            currency: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            availability: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
+            },
             shippingCost: {
                 type: DataTypes.FLOAT,
                 defaultValue: 0.0,

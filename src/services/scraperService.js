@@ -1,10 +1,22 @@
-import { Op, col, fn } from 'sequelize';
+import { Op } from 'sequelize';
 import models from '../models/index.js';
 import amazonScraper from '../scrapers/amazonScraper.js';
 import ebayScraper from '../scrapers/ebayScraper.js';
 import cron from 'node-cron';
+import { fetchBestPrices } from './scraper/fetchBestPrices.js';
+import { fetchProductData } from './scraper/fetchProductData.js';
+import { updateDatabase } from './scraper/updateDatabase.js';
+import { manageScrapingJob } from './scraper/scrapingJobManager.js';
 
 class ScraperService {
+    static async fetchBestPrices() {
+        return fetchBestPrices();
+    }
+
+    static async fetchProductData(productQuery, manualTrigger = false) {
+        return fetchProductData(productQuery, manualTrigger);
+    }
+
     static async runScheduledScraping() {
         const outdatedProducts = await models.Price.findAll({
             where: {
@@ -25,7 +37,7 @@ class ScraperService {
             };
 
             console.log(`Updating: ${productQuery.name} (${productQuery.brand})`);
-            await ScraperService.fetchProductData(productQuery);
+            await fetchProductData(productQuery);
         }
     }
 }

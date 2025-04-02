@@ -1,8 +1,18 @@
 // Handles product-specific search & scraping
-const fetchProductData = async (productQuery, manualTrigger = false) => {
-    const { brand, name, storage_gb, ram_gb, color } = productQuery;
 
-    // Check if the product exists in DB
+import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
+import amazonScraper from '../scrapers/amazonScraper.js';
+import ebayScraper from '../scrapers/ebayScraper.js';
+import models from '../models/index.js';
+import updateDatabase from './updateDatabase.js';
+
+const fetchProductData = async (productQuery, manualTrigger = false) => {
+    const { brand, name, storage_gb, ram_gb, color, region } = productQuery;
+
+    // Determine the correct Amazon domain
+    const amazonDomain = region === 'DE' ? 'amazon.de' : 'amazon.com';
+
+    // Check if the product exists in the DB
     let product = await models.Product.findOne({
         where: { brand, name, storage_gb, ram_gb, color },
         include: [{ model: models.Price }],
@@ -24,39 +34,28 @@ const fetchProductData = async (productQuery, manualTrigger = false) => {
 
     if (shouldScrape) {
         // Create scraping job entry
-        const scrapingJob = await models.ScrapingJob.create({
-            productId: product?.id || null,
-            storeId: null, // Scraping multiple stores
-            status: 'in_progress',
-            startedAt: new Date(),
-        });
+        const scrapingJob = await createScrapingJob(product?.id);
 
         try {
+            console.log(`Fetching data from Amazon (${amazonDomain}) and eBay for: ${name} ${brand}`);
+
             const [amazonResults, ebayResults] = await Promise.all([
-                amazonScraper(productQuery),
+                amazonScraper(productQuery, amazonDomain), // Pass the region to amazonScraper
                 ebayScraper(productQuery),
             ]);
 
-            const updatedProduct = await this.updateDatabase(product, amazonResults.concat(ebayResults));
+            const updatedProduct = await updateDatabase(product, amazonResults.concat(ebayResults));
 
-            // Mark job as completed
-            await scrapingJob.update({
-                status: 'completed',
-                completedAt: new Date(),
-            });
+            await updateScrapingJob(scrapingJob, 'completed');
 
             return updatedProduct;
         } catch (error) {
-            // Mark job as failed
-            await scrapingJob.update({
-                status: 'failed',
-                errorMessage: error.message,
-                completedAt: new Date(),
-            });
+            await updateScrapingJob(scrapingJob, 'failed', error.message);
             throw error;
         }
     }
 
     return product;
 };
+
 export default fetchProductData;

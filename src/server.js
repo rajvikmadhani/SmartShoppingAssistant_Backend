@@ -25,13 +25,17 @@ const app = express();
 app.use(express.json());
 
 dotenv.config();
-console.log('DATABASE_URL from server.js:', process.env.DATABASE_URL);
+//console.log('DATABASE_URL from server.js:', process.env.DATABASE_URL);
 
 // Middleware
 app.use(logger);
 app.use(cors(corsOptions));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
+//sanity check
+app.get('/', (req, res) => {
+    res.status(200).send('Server is up and running');
+});
 
 // Route handlers
 app.use('/api/auth', authRoutes); // Public routes
