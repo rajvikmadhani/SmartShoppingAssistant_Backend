@@ -1,8 +1,7 @@
 // Handles product-specific search & scraping
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
-import { amazonScraper } from './scrapers/amazonScraper.de.js';
-import { ebayScraper } from './scrapers/ebayScraper.de.js';
+import { amazonScraper, ebayScraper } from './scrapers/index.js';
 import updateDatabase from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 

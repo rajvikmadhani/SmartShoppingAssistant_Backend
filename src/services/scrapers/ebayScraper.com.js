@@ -195,28 +195,28 @@ ______________________________________________*/
 // execute the scraper with "iphone" as the search query, limiting to 20 pages
 // specify a different query or maxPages as needed
 // maxPages is set to 20 for demonstration purposes give more than 1000 results
-scrapeEbay("iphone", 20)
-  .then((scrapedData) => {
-    // when scraping is complete, format and display the results
-    console.log("\nscraped data:");
+scrapeEbay('iphone', 20)
+    .then((scrapedData) => {
+        // when scraping is complete, format and display the results
+        console.log('\nscraped data:');
 
-    // format and print details for each product
-    scrapedData.forEach((item, i) => {
-      console.log(`\nitem ${i + 1}`); // item number for readability
-      console.log(`title: ${item.title}`); // product title
-      console.log(`price: ${item.price}`); // price
-      console.log(`link: ${item.link}`); // URL
-      console.log(`image: ${item.image}`); // image URL
-      console.log(`condition: ${item.condition}`); // condition
-      console.log(`shipping: ${item.shipping}`); // shipping info
-      console.log(`location: ${item.location}`); // seller location
-      console.log(`store: ${item.store}`); // marketplace source
-    });
+        // format and print details for each product
+        scrapedData.forEach((item, i) => {
+            console.log(`\nitem ${i + 1}`); // item number for readability
+            console.log(`title: ${item.title}`); // product title
+            console.log(`price: ${item.price}`); // price
+            console.log(`link: ${item.link}`); // URL
+            console.log(`image: ${item.image}`); // image URL
+            console.log(`condition: ${item.condition}`); // condition
+            console.log(`shipping: ${item.shipping}`); // shipping info
+            console.log(`location: ${item.location}`); // seller location
+            console.log(`store: ${item.store}`); // marketplace source
+        });
 
-    // indicate successful completion
-    console.log("\ndone");
-  })
-  // handle any errors that occur during the scraping process
-  .catch(console.error);
-  */
+        // indicate successful completion
+        console.log('\ndone');
+    })
+    // handle any errors that occur during the scraping process
+    .catch(console.error);
+
 export default scrapeEbay; // export the scrapeEbay function for use in other modules
