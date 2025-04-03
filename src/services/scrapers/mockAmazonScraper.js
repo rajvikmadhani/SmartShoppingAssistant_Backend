@@ -1,7 +1,8 @@
 export const mockAmazonScraper = async (query) => {
-    return [
+    const result = [
         {
-            title: 'iPhone 13',
+            name: 'iPhone 13',
+            brand: 'Apple',
             price: '569,00',
             rating: '4.5',
             link: 'https://www.amazon.com/dp/B09ML6FBCK',
@@ -12,11 +13,14 @@ export const mockAmazonScraper = async (query) => {
             isPrime: true,
             delivery: '12. - 16. Apr.',
             store: 'Amazon',
+            availability: '1',
+            currency: '€',
         },
         {
-            title: 'iPhone 14',
+            name: 'iPhone 14',
             price: '514,51',
             currency: '€',
+            brand: 'Apple',
             availability: '1',
             rating: '4.6',
             link: 'https://www.amazon.com/dp/B0BNMBHM8Z',
@@ -27,11 +31,14 @@ export const mockAmazonScraper = async (query) => {
             isPrime: true,
             delivery: 'Tomorrow',
             store: 'Amazon',
+            availability: '1',
+            currency: '€',
         },
         {
-            title: 'iPhone 15',
+            name: 'iPhone 15',
             price: '836,99',
             currency: '€',
+            brand: 'Apple',
             availability: '1',
             rating: '4.7',
             link: 'https://www.amazon.com/dp/B0CHX3ZTJQ',
@@ -42,10 +49,13 @@ export const mockAmazonScraper = async (query) => {
             isPrime: true,
             delivery: 'Mo., 7. Apr.',
             store: 'Amazon',
+            availability: '1',
+            currency: '€',
         },
         {
-            title: 'iPhone 16',
+            name: 'iPhone 16',
             price: '1.325,99',
+            brand: 'Apple',
             currency: '€',
             availability: '1',
             rating: '4.4',
@@ -57,6 +67,15 @@ export const mockAmazonScraper = async (query) => {
             isPrime: true,
             delivery: 'Mo., 7. Apr.',
             store: 'Amazon',
+            availability: '1',
+            currency: '€',
         },
-    ];
+    ].filter((product) =>
+        Object.entries(query).every(([key, value]) => {
+            //console.log('querykey', key, 'product[key]', product[key], 'query Value:', value); // Debugging line
+            // Check if the product property exists and is a string
+            return typeof product[key] === 'string' && product[key].toLowerCase().includes(value.toLowerCase());
+        })
+    );
+    return result;
 };

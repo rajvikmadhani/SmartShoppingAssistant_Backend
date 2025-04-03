@@ -7,7 +7,7 @@ import puppeteer from 'puppeteer'; // import puppeteer library to control a head
  * @param {string} query - the search term to look up on Amazon
  * @returns {Promise<Array>} - Promise resolving to an array of product data
  */
-export const amazonScraper = async (query) => {
+export const amazonScraper = async (query, domain) => {
     // initialize a new headless browser instance
     // headless:true means the browser runs in the background without visible UI
     const browser = await puppeteer.launch({ headless: true });
@@ -18,7 +18,7 @@ export const amazonScraper = async (query) => {
 
     // construct the Amazon search URL with the query parameter properly encoded
     // encodeURIComponent ensures special characters in the search term are properly handled
-    const baseUrl = `https://www.amazon.de/s?k=${encodeURIComponent(query)}`;
+    const baseUrl = `https://www.amazon.${domain}/s?k=${encodeURIComponent(query)}`;
 
     // track the current page URL we're scraping, starting with the base search URL
     // this variable will be updated as we navigate through pagination

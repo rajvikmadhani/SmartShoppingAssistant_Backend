@@ -1,22 +1,17 @@
 import models from '../models/index.js'; // Added import
-
+import { textToNumber } from '../utils/textToNumberConvertor.js';
 export const updateDatabase = async (product, scrapedData) => {
     if (!scrapedData.length) return null;
-
-    if (!product) {
-        product = await models.Product.create({ ...scrapedData[0] });
-    }
-
+    console.log('Scraped Data length:', scrapedData.length);
     for (const data of scrapedData) {
-        const { price, storeId, product_link, shippingCost, discount, seller_rating } = data;
+        console.log('Scraped Data:', data);
+        const { price, currency, availability, image, storeId, link, shippingCost, discount, seller_rating } = data;
 
         await models.PriceHistory.create({
             productId: product.id,
             storeId,
-            price,
-            product_link,
-            shippingCost,
-            discount,
+            price: textToNumber(price),
+            currency: currency,
             seller_rating,
             lastUpdated: new Date(),
         });
@@ -24,8 +19,11 @@ export const updateDatabase = async (product, scrapedData) => {
         await models.Price.upsert({
             productId: product.id,
             storeId,
-            price,
-            product_link,
+            price: textToNumber(price),
+            currency: currency,
+            availability: availability,
+            product_link: link,
+            mainImgUrl: image,
             shippingCost,
             discount,
             seller_rating,

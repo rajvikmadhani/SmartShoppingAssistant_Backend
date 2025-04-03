@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer'; // import the puppeteer library which allows 
  * @param {number} maxPages - maximum number of pages to scrape (default: 3)
  * @returns {Promise<Array>} - a promise that resolves to an array of all scraped products
  */
-export const ebayScraper = async (query, maxPages = 3) => {
+export const ebayScraper = async (query, domain, maxPages = 3) => {
     // launch a new browser instance in headless mode (no visible UI)
     // the arguments help prevent permission issues in Docker/CI environments
     // options for browser launch
@@ -31,7 +31,7 @@ export const ebayScraper = async (query, maxPages = 3) => {
 
     // initialize pagination variables
     let currentPage = 1; // track which page we're currently on
-    let currentUrl = `https://www.ebay.de/sch/i.html?_nkw=${encodeURIComponent(query)}`; // start with the first page URL
+    let currentUrl = `https://www.ebay.${domain}/sch/i.html?_nkw=${encodeURIComponent(query)}`; // start with the first page URL
     const allItems = []; // master array to store all products from all pages
 
     // main pagination loop - continues until we reach maxPages or there are no more pages

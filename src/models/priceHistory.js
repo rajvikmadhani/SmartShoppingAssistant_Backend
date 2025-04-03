@@ -17,11 +17,11 @@ export default (sequelize) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            currency: { type: DataTypes.STRING, allowNull: false, defaultValue: 'USD' },
+            currency: { type: DataTypes.STRING, allowNull: false, defaultValue: '$' },
 
             availability: { type: DataTypes.BOOLEAN, defaultValue: true },
             price: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2), // 10 digits in total, 2 after decimal
                 allowNull: false,
             },
             recordedAt: {
