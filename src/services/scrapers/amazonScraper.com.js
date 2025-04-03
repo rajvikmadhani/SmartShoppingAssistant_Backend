@@ -50,7 +50,7 @@ const scrapeAmazon = async (query) => {
     // handle the cookie consent popup if it appears (less common on Amazon.com but included for robustness)
     // wrapped in try/catch to continue scraping even if cookie handling fails
     try {
-      // wait up to 1000ms for any of these cookie acceptance button selectors to appear
+      // wait up to 1000ms for the cookie acceptance button to appear
       // Amazon.com uses different selectors than Amazon.de
       await page.waitForSelector(
         '#sp-cc-accept, input[name="accept"], button[name="accept"]',
