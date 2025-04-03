@@ -213,14 +213,40 @@ const scrapeAmazon = async (query) => {
   return allResults;
 };
 
+/*____________________________________________
+
+Example usage of the scrapeAmazon function
+______________________________________________*/
+
+
+
 // execute the scraper function with "iphone" as the search query
 // no page limit is specified, so it will scrape all available pages
 scrapeAmazon("iphone")
   // handle the successful completion of scraping
   .then((results) => {
+    // when scraping is complete, display the results
+    console.log("\nscraped data:");
+
     // log the total number of products found across all pages
     // \n adds a blank line before this output for better readability
     console.log(`\ntotal items scraped: ${results.length}`);
+
+    // format and print details for each product
+    results.forEach((item, i) => {
+      console.log(`\nitem ${i + 1}`); // item counter
+      console.log(`title: ${item.title}`); // product title
+      console.log(`price: ${item.price}`); // price
+      console.log(`rating: ${item.rating}`); // rating
+      console.log(`link: ${item.link}`); // URL
+      console.log(`image: ${item.image}`); // image URL
+      console.log(`seller: ${item.seller}`); // seller name
+      console.log(`productSellerRate: ${item.productSellerRate}`); // product seller rate
+      console.log(`badge: ${item.badge}`); // badge text
+      console.log(`isPrime: ${item.isPrime}`); // isPrime status
+      console.log(`delivery: ${item.delivery}`); // delivery info
+      console.log(`store: ${item.store}`); // marketplace source
+    });
 
     // log the complete dataset of all products scraped
     // displays all product information collected during the scraping process
