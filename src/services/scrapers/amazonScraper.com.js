@@ -222,6 +222,8 @@ ______________________________________________*/
 
 // execute the scraper function with "iphone" as the search query
 // no page limit is specified, so it will scrape all available pages
+// more than 150 results are expected for the search term "iphone"
+// this is a demonstration, you can change the query to any other term
 scrapeAmazon("iphone")
   // handle the successful completion of scraping
   .then((results) => {

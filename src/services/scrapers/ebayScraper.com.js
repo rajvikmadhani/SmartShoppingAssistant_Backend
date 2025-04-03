@@ -191,8 +191,15 @@ const scrapeEbay = async (query, maxPages = 3) => {
   return allItems;
 };
 
-// execute the scraper with "iphone" as the search query, limiting to 3 pages
-scrapeEbay("iphone", 3)
+/*____________________________________________
+
+Example usage of the scrapeEbay function
+______________________________________________*/
+
+// execute the scraper with "iphone" as the search query, limiting to 20 pages
+// specify a different query or maxPages as needed
+// maxPages is set to 20 for demonstration purposes give more than 1000 results
+scrapeEbay("iphone", 20)
   .then((scrapedData) => {
     // when scraping is complete, format and display the results
     console.log("\nscraped data:");
