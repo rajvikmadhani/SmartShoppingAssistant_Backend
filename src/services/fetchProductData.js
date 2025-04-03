@@ -2,7 +2,7 @@
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import { amazonScraper, ebayScraper } from './scrapers/index.js';
-import updateDatabase from './updateDatabase.js'; // Changed path
+import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { brand, name, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
@@ -22,10 +22,12 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         where: whereClause,
         include: [{ model: models.Price }],
     });
+    let newProduct = false; // Flag to indicate if a new product was created
     console.log('Product:', product);
     let shouldScrape = manualTrigger; // Force scrape if triggered manually
     if (!product) {
         product = await CreatePrimaryProduct(name, brand);
+        newProduct = true; // Set the flag to true if a new product was created
         shouldScrape = true;
     } else {
         const latestPrice = await models.Price.findOne({
@@ -81,7 +83,10 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         const allResults = [...amazonResults, ...ebayResults];
 
         if (allResults.length > 0) {
-            const updatedProduct = await updateDatabase(product, allResults);
+            if (newProduct) {
+                updateNewProduct(product, allResults);
+            }
+            const updatedProduct = await updatePrices(product, allResults);
             console.log('Scraping completed and database updated.');
             return updatedProduct;
         } else {
