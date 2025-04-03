@@ -7,7 +7,7 @@ import puppeteer from 'puppeteer'; // import puppeteer library to control a head
  * @param {string} query - the search term to look up on Amazon
  * @returns {Promise<Array>} - Promise resolving to an array of product data
  */
-const scrapeAmazon = async (query) => {
+export const amazonScraper = async (query) => {
     // initialize a new headless browser instance
     // headless:true means the browser runs in the background without visible UI
     const browser = await puppeteer.launch({ headless: true });
@@ -181,10 +181,10 @@ const scrapeAmazon = async (query) => {
     // this contains all the product data we've scraped
     return allResults;
 };
-
+/* Test only, do not use in production 
 // execute the scraper function with "iphone" as the search query
 // no page limit is specified, so it will scrape all available pages
-scrapeAmazon('iphone')
+amazonScraper('iphone')
     // handle the successful completion of scraping
     .then((results) => {
         // log the total number of products found across all pages
@@ -198,3 +198,4 @@ scrapeAmazon('iphone')
     // handle any errors that occurred during scraping
     // ensures failures are properly logged rather than crashing the application
     .catch(console.error);
+*/

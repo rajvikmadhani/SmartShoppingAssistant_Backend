@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer'; // import the puppeteer library which allows 
  * @param {number} maxPages - maximum number of pages to scrape (default: 3)
  * @returns {Promise<Array>} - a promise that resolves to an array of all scraped products
  */
-const scrapeEbay = async (query, maxPages = 3) => {
+export const ebayScraper = async (query, maxPages = 3) => {
     // launch a new browser instance in headless mode (no visible UI)
     // the arguments help prevent permission issues in Docker/CI environments
     // options for browser launch
@@ -171,13 +171,14 @@ const scrapeEbay = async (query, maxPages = 3) => {
 
 /*____________________________________________
 
-Example usage of the scrapeEbay function
+Example usage of the ebayScraper function
 ______________________________________________*/
 
 // execute the scraper with "iphone" as the search query, limiting to 20 pages
 // specify a different query or maxPages as needed
 // maxPages is set to 20 for demonstration purposes give more than 1000 results
-scrapeEbay('iphone', 20)
+/* Test only - comment out in production 
+ebayScraper('iphone', 20)
     .then((scrapedData) => {
         // when scraping is complete, display the results
         console.log('\nscraped data:');
@@ -200,3 +201,4 @@ scrapeEbay('iphone', 20)
     })
     // handle and display any errors that occur during scraping
     .catch(console.error);
+*/
