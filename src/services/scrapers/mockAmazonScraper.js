@@ -15,6 +15,7 @@ export const mockAmazonScraper = async (query) => {
             store: 'Amazon',
             availability: '1',
             currency: '€',
+            seller_rating: '5',
         },
         {
             name: 'iPhone 14',
@@ -34,6 +35,7 @@ export const mockAmazonScraper = async (query) => {
             store: 'Amazon',
             availability: '1',
             currency: '€',
+            seller_rating: '5',
         },
         {
             name: 'iPhone 15',
@@ -52,6 +54,7 @@ export const mockAmazonScraper = async (query) => {
             store: 'Amazon',
             availability: '1',
             currency: '€',
+            seller_rating: '5',
         },
         {
             name: 'iPhone 16',
@@ -70,6 +73,7 @@ export const mockAmazonScraper = async (query) => {
             store: 'Amazon',
             availability: '1',
             currency: '€',
+            seller_rating: '5',
         },
     ].filter((product) =>
         Object.entries(query).every(([key, value]) => {

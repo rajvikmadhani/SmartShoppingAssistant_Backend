@@ -1,4 +1,3 @@
-import { DataTypes } from 'sequelize';
 import { sequelize } from '../db/index.js';
 import UserModel from './User.js';
 import ProductModel from './product.js';
@@ -11,6 +10,7 @@ import CouponModel from './coupon.js';
 import ScrapingJobModel from './scrapingJob.js';
 import NotificationModel from './notification.js';
 import SellerModel from './seller.js';
+import SellerStoreModel from './seller-store.js';
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -24,61 +24,64 @@ const Coupon = CouponModel(sequelize);
 const ScrapingJob = ScrapingJobModel(sequelize);
 const Notification = NotificationModel(sequelize);
 const Seller = SellerModel(sequelize);
+const SellerStore = SellerStoreModel(sequelize);
 
-//fefining the table for the many to many relationship between seller and store
-const SellerStore = sequelize.define(
-    'SellerStore',
-    {
-        rating: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-            validate: { min: 0, max: 5 },
-        },
-    },
-    { timestamps: false }
-);
+/* ============================
+    Model Associations
+============================ */
 
-// Define relationships
-Product.hasMany(Price);
-Price.belongsTo(Product);
+//  Price relationships
+Price.belongsTo(Product, { foreignKey: 'productId' });
+Price.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
+Product.hasMany(Price, { foreignKey: 'productId' });
+SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
 
-Product.hasMany(PriceHistory);
-PriceHistory.belongsTo(Product);
+//  PriceHistory relationships
+PriceHistory.belongsTo(Product, { foreignKey: 'productId' });
+PriceHistory.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
+Product.hasMany(PriceHistory, { foreignKey: 'productId' });
+SellerStore.hasMany(PriceHistory, { foreignKey: 'sellerStoreId' });
 
-Product.belongsToMany(User, { through: Wishlist });
-User.belongsToMany(Product, { through: Wishlist });
+//  Wishlist relationships
+Product.belongsToMany(User, { through: Wishlist, foreignKey: 'productId', otherKey: 'userId' });
+User.belongsToMany(Product, { through: Wishlist, foreignKey: 'userId', otherKey: 'productId' });
 
-Product.belongsToMany(User, { through: PriceAlert });
-User.belongsToMany(Product, { through: PriceAlert });
+//  PriceAlert relationships
+Product.belongsToMany(User, { through: PriceAlert, foreignKey: 'productId', otherKey: 'userId' });
+User.belongsToMany(Product, { through: PriceAlert, foreignKey: 'userId', otherKey: 'productId' });
 
-Store.hasMany(Price);
-Price.belongsTo(Store);
+//  Coupon & SellerStore
+SellerStore.hasMany(Coupon, { foreignKey: 'sellerStoreId' });
+Coupon.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
 
-Store.hasMany(PriceHistory);
-PriceHistory.belongsTo(Store);
+//  ScrapingJob & Product
+Product.hasMany(ScrapingJob, { foreignKey: 'productId' });
+ScrapingJob.belongsTo(Product, { foreignKey: 'productId' });
 
-Store.hasMany(Coupon);
-Coupon.belongsTo(Store);
+//  ScrapingJob & Store
+Store.hasMany(ScrapingJob, { foreignKey: 'storeId' });
+ScrapingJob.belongsTo(Store, { foreignKey: 'storeId' });
 
-Product.hasMany(ScrapingJob);
-ScrapingJob.belongsTo(Product);
+//  User & Notifications
+User.hasMany(Notification, { foreignKey: 'userId' });
+Notification.belongsTo(User, { foreignKey: 'userId' });
 
-Store.hasMany(ScrapingJob);
-ScrapingJob.belongsTo(Store);
+//  Seller & Store (Many-to-Many)
+Seller.belongsToMany(Store, { through: SellerStore, foreignKey: 'sellerId' });
+Store.belongsToMany(Seller, { through: SellerStore, foreignKey: 'storeId' });
 
-User.hasMany(Notification);
-Notification.belongsTo(User);
+/* ============================
+   🛠 Ensuring Models Are Loaded Correctly
+============================ */
 
-Seller.belongsToMany(Store, { through: SellerStore });
-Store.belongsToMany(Seller, { through: SellerStore });
-
-// Ensuring all models are loaded correctly
 const models = {
     User,
     Product,
     Store,
+    Seller,
     Price,
     PriceHistory,
+    SellerStore,
     Wishlist,
     PriceAlert,
     Coupon,
@@ -88,9 +91,9 @@ const models = {
 
 Object.entries(models).forEach(([name, model]) => {
     if (!model) {
-        console.warn(`Warning: Model ${name} was not loaded correctly.`);
+        console.warn(` Warning: Model ${name} was not loaded correctly.`);
     } else {
-        console.log(`Model ${name} loaded successfully.`);
+        console.log(` Model ${name} loaded successfully.`);
     }
 });
 
