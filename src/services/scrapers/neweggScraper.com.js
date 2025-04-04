@@ -88,6 +88,17 @@ const scrapeNewegg = async (query) => {
             }
           }
 
+          // try different selectors for discount
+          let discount = "N/A";
+          const discountSelectors = [".price-save", ".price-was"];
+          for (const s of discountSelectors) {
+            const discountElem = el.querySelector(s);
+            if (discountElem) {
+              discount = discountElem.textContent.trim();
+              break;
+            }
+          }
+
           // try different selectors for link
           let link = null;
           const linkSelectors = [
@@ -104,11 +115,62 @@ const scrapeNewegg = async (query) => {
             }
           }
 
+          // try different selectors for image
+          let image = null;
+          const imageSelectors = [
+            ".item-img img",
+            ".product-image img",
+            ".item-image img",
+          ];
+          for (const s of imageSelectors) {
+            const imageElem = el.querySelector(s);
+            if (imageElem && imageElem.src) {
+              image = imageElem.src;
+              break;
+            }
+          }
+
+          // try different selectors for rating
+          let rating = "N/A";
+          const ratingSelectors = [
+            ".item-rating",
+            ".product-rating",
+            ".rating",
+          ];
+          for (const s of ratingSelectors) {
+            const ratingElem = el.querySelector(s);
+            if (ratingElem) {
+              rating =
+                ratingElem.getAttribute("title") ||
+                ratingElem.textContent.trim();
+              break;
+            }
+          }
+
+          // try different selectors for reviews
+          let reviews = "N/A";
+          const reviewsSelectors = [
+            ".item-rating-num",
+            ".product-reviews",
+            ".reviews",
+          ];
+          for (const s of reviewsSelectors) {
+            const reviewsElem = el.querySelector(s);
+            if (reviewsElem) {
+              reviews = reviewsElem.textContent.trim();
+              break;
+            }
+          }
+
           if (title && link) {
             items.push({
               title,
               price,
+              discount,
               link,
+              image,
+              rating,
+              reviews,
               store: "Newegg",
             });
           }
