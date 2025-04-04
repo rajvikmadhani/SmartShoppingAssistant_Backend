@@ -24,7 +24,7 @@ export default (sequelize) => {
         },
         {
             timestamps: false,
-            tableName: 'seller_stores',
+            tableName: 'SellerStores',
         }
     );
 };

@@ -12,19 +12,29 @@ export default (sequelize) => {
             productId: {
                 type: DataTypes.UUID,
                 allowNull: false,
+                references: {
+                    model: 'Products', // Reference the correct table
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
             },
-            storeId: {
+            sellerStoreId: {
                 type: DataTypes.UUID,
                 allowNull: false,
+                references: {
+                    model: 'SellerStores', // Reference the correct table
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
             },
-            //Each product can have multiple store listings (Amazon, eBay, Walmart, etc.).
-            // The product price and availability differ by store.
             product_link: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
             price: {
-                type: DataTypes.DECIMAL(10, 2), // 10 digits in total, 2 after decimal
+                type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
             currency: {
@@ -41,10 +51,6 @@ export default (sequelize) => {
             },
             discount: {
                 type: DataTypes.DECIMAL(10, 2),
-                defaultValue: 0.0,
-            },
-            seller_rating: {
-                type: DataTypes.FLOAT,
                 defaultValue: 0.0,
             },
             lastUpdated: {

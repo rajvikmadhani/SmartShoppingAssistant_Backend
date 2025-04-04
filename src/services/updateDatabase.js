@@ -1,24 +1,56 @@
-import models from '../models/index.js'; // Added import
+// updateDatabase.js
+import models from '../models/index.js';
 import { textToNumber } from '../utils/textToNumberConvertor.js';
+
+// Function to get or create a SellerStore record
+async function getOrCreateSellerStore(storeId, sellerName, rating) {
+    // First, find or create the seller
+    const [seller] = await models.Seller.findOrCreate({
+        where: { name: sellerName },
+        defaults: { name: sellerName },
+    });
+
+    // Then find or create the SellerStore relationship
+    const [sellerStore] = await models.SellerStore.findOrCreate({
+        where: {
+            sellerId: seller.id,
+            storeId: storeId,
+        },
+        defaults: {
+            sellerId: seller.id,
+            storeId: storeId,
+            rating: rating || 0.0,
+        },
+    });
+
+    return sellerStore;
+}
+
 export const updatePrices = async (product, scrapedData) => {
     if (!scrapedData.length) return null;
     console.log('Scraped Data length:', scrapedData.length);
+
     for (const data of scrapedData) {
         console.log('Scraped Data:', data);
-        const { price, currency, availability, image, storeId, link, shippingCost, discount, seller_rating } = data;
+        const { price, currency, availability, image, storeId, link, shippingCost, discount, seller_rating, seller } =
+            data;
 
+        // Get or create the SellerStore record
+        const sellerStore = await getOrCreateSellerStore(storeId, seller || 'Unknown Seller', seller_rating);
+
+        // Create price history with sellerStoreId
         await models.PriceHistory.create({
             productId: product.id,
-            storeId,
+            sellerStoreId: sellerStore.id,
             price: textToNumber(price),
             currency: currency,
-            seller_rating,
             lastUpdated: new Date(),
         });
 
+        // Update or create price with sellerStoreId
         await models.Price.upsert({
             productId: product.id,
-            storeId,
+            sellerStoreId: sellerStore.id,
             price: textToNumber(price),
             currency: currency,
             availability: availability,
@@ -26,14 +58,13 @@ export const updatePrices = async (product, scrapedData) => {
             mainImgUrl: image,
             shippingCost,
             discount,
-            seller_rating,
+            seller_rating, // Consider removing this since it's in SellerStore
             lastUpdated: new Date(),
         });
     }
 
     return product;
 };
-
 export const updateNewProduct = async (productId, scrapedData) => {
     if (!scrapedData || !scrapedData.length) {
         console.log('No scraped data available');

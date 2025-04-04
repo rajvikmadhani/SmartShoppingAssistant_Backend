@@ -18,6 +18,7 @@ export const mockEbayScraper = async (query) => {
             store: 'Ebay',
             availability: '1',
             currency: '€',
+            seller_rating: '4.5',
         },
     ].filter((product) =>
         Object.entries(query).every(([key, value]) => {
