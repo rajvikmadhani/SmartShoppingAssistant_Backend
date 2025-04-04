@@ -36,11 +36,11 @@ export default (sequelize) => {
                 defaultValue: true,
             },
             shippingCost: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 defaultValue: 0.0,
             },
             discount: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 defaultValue: 0.0,
             },
             seller_rating: {

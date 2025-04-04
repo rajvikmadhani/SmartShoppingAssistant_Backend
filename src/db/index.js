@@ -12,7 +12,7 @@ export const sequelize = new Sequelize(process.env.DATABASE_URL, {
 export const connectDB = async () => {
     try {
         sequelize
-            .sync({ alter: true }) // This will ensure all models are synchronized
+            .sync({ force: true }) // This will ensure all models are synchronized
             .then(() => console.log('Database is up to date'))
             .catch((err) => console.error('Sync error:', err));
         await sequelize.authenticate();

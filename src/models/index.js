@@ -1,4 +1,3 @@
-import { DataTypes } from 'sequelize';
 import { sequelize } from '../db/index.js';
 import UserModel from './User.js';
 import ProductModel from './product.js';
@@ -11,6 +10,7 @@ import CouponModel from './coupon.js';
 import ScrapingJobModel from './scrapingJob.js';
 import NotificationModel from './notification.js';
 import SellerModel from './seller.js';
+import SellerStoreModel from './seller-store.js';
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -24,19 +24,7 @@ const Coupon = CouponModel(sequelize);
 const ScrapingJob = ScrapingJobModel(sequelize);
 const Notification = NotificationModel(sequelize);
 const Seller = SellerModel(sequelize);
-
-//fefining the table for the many to many relationship between seller and store
-const SellerStore = sequelize.define(
-    'SellerStore',
-    {
-        rating: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-            validate: { min: 0, max: 5 },
-        },
-    },
-    { timestamps: false }
-);
+const SellerStore = SellerStoreModel(sequelize);
 
 // Define relationships
 Product.hasMany(Price);
@@ -54,11 +42,11 @@ User.belongsToMany(Product, { through: PriceAlert });
 Store.hasMany(Price);
 Price.belongsTo(Store);
 
-Store.hasMany(PriceHistory);
-PriceHistory.belongsTo(Store);
+SellerStore.hasMany(PriceHistory);
+PriceHistory.belongsTo(SellerStore);
 
-Store.hasMany(Coupon);
-Coupon.belongsTo(Store);
+SellerStore.hasMany(Coupon);
+Coupon.belongsTo(SellerStore);
 
 Product.hasMany(ScrapingJob);
 ScrapingJob.belongsTo(Product);
@@ -69,16 +57,27 @@ ScrapingJob.belongsTo(Store);
 User.hasMany(Notification);
 Notification.belongsTo(User);
 
-Seller.belongsToMany(Store, { through: SellerStore });
-Store.belongsToMany(Seller, { through: SellerStore });
+Seller.belongsToMany(Store, {
+    through: SellerStore,
+    foreignKey: 'sellerId', // Use the existing column
+    otherKey: 'storeId', // Use the existing column
+});
+
+Store.belongsToMany(Seller, {
+    through: SellerStore,
+    foreignKey: 'storeId', // Use the existing column
+    otherKey: 'sellerId', // Use the existing column
+});
 
 // Ensuring all models are loaded correctly
 const models = {
     User,
     Product,
     Store,
+    Seller,
     Price,
     PriceHistory,
+    SellerStore,
     Wishlist,
     PriceAlert,
     Coupon,
