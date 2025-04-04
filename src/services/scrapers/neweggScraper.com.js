@@ -14,8 +14,9 @@ const scrapeNewegg = async (query) => {
 
   const results = [];
   let currentPage = 1;
+  const maxPages = 20;
 
-  while (true) {
+  while (currentPage <= maxPages) {
     const url =
       currentPage === 1
         ? `https://www.newegg.com/p/pl?d=${encodeURIComponent(query)}`
@@ -23,13 +24,13 @@ const scrapeNewegg = async (query) => {
             query
           )}&page=${currentPage}`;
 
-    console.log(`Scraping page ${currentPage}: ${url}`);
+    console.log(`scraping page ${currentPage}: ${url}`);
 
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
     const hasProducts = await page.$(".item-cell");
     if (!hasProducts) {
-      console.log("No more product listings found. Stopping.");
+      console.log("no more product listings found. stopping.");
       break;
     }
 
@@ -79,44 +80,31 @@ const scrapeNewegg = async (query) => {
               rating,
               reviews,
               shipping,
+              store: "Newegg",
             });
           }
-        } catch (err) {
-          // Skip faulty product
-        }
+        } catch (err) {}
       });
       return items;
     });
 
     results.push(...products);
-    console.log(`Found ${products.length} items on page ${currentPage}`);
-
-    // Check if there is a next page by looking for the active page button and checking if a higher number exists
-    const isLastPage = await page.evaluate((currentPage) => {
-      const paginationButtons = Array.from(
-        document.querySelectorAll(".list-tool-pagination .btn")
-      );
-      return !paginationButtons.some((btn) => {
-        const pageNum = parseInt(btn.innerText);
-        return !isNaN(pageNum) && pageNum > currentPage;
-      });
-    }, currentPage);
-
-    if (isLastPage) {
-      console.log("Reached last page.");
-      break;
-    }
+    console.log(`found ${products.length} items on page ${currentPage}`);
 
     currentPage++;
+
+    if (currentPage > maxPages) {
+      console.log("reached Newegg maximum page.");
+      break;
+    }
   }
 
   await browser.close();
   return results;
 };
 
-// Usage
 scrapeNewegg("iphone").then((items) => {
-  console.log(`\nScraped ${items.length} total items:\n`);
+  console.log(`\nscraped ${items.length} total items:\n`);
   items.forEach((item, index) => {
     console.log(`#${index + 1}`);
     console.log(`title   : ${item.title}`);
@@ -125,6 +113,7 @@ scrapeNewegg("iphone").then((items) => {
     console.log(`image   : ${item.image}`);
     console.log(`rating  : ${item.rating}`);
     console.log(`reviews : ${item.reviews}`);
-    console.log(`shipping: ${item.shipping}\n`);
+    console.log(`shipping: ${item.shipping}`);
+    console.log(`store   : ${item.store}\n`);
   });
 });
