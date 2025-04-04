@@ -22,6 +22,7 @@ export const mockAmazonScraper = async (query) => {
             currency: '€',
             brand: 'Apple',
             availability: '1',
+            storage_gb: 128,
             rating: '4.6',
             link: 'https://www.amazon.com/dp/B0BNMBHM8Z',
             image: 'https://m.media-amazon.com/images/I/61tz1qzH++L._AC_UY218_.jpg',

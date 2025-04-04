@@ -4,6 +4,7 @@ import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import { amazonScraper, ebayScraper } from './scrapers/index.js';
 import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
+import { CreatePrimaryProduct } from '../utils/productRepo.js';
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { brand, name, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
 
@@ -95,16 +96,5 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         }
     }
 
-    return product;
-};
-const CreatePrimaryProduct = async (name, brand) => {
-    const product = await models.Product.create({
-        brand: brand,
-        name: name,
-        storage_gb: 0,
-        ram_gb: 0,
-        color: 'No color',
-    });
-    console.log('New product created:', product);
     return product;
 };
