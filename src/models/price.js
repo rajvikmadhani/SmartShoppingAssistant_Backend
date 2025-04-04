@@ -24,8 +24,16 @@ export default (sequelize) => {
                 allowNull: false,
             },
             price: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2), // 10 digits in total, 2 after decimal
                 allowNull: false,
+            },
+            currency: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            availability: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
             },
             shippingCost: {
                 type: DataTypes.FLOAT,

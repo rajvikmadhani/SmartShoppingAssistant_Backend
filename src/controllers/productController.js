@@ -1,10 +1,9 @@
-// controllers/productController.js
 import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 import Product from '../models/product.js';
 import Price from '../models/price.js';
 import ScrapingJob from '../models/scrapingJob.js';
-import { scrapeProductData } from '../services/scraperService.js';
+import ScraperService from '../services/scraperService.js'; // Fixed import
 
 // Get all products
 export const getAllProducts = asyncHandler(async (req, res, next) => {
@@ -47,20 +46,23 @@ export const searchProduct = asyncHandler(async (req, res, next) => {
         status: 'pending',
     });
 
-    // Scrape product data asynchronously
-    scrapeProductData(query, scrapingJob.id);
-
-    res.json({ message: 'Product search initiated. Check back later for results.' });
+    // Fetch product data asynchronously
+    try {
+        const updatedProduct = await ScraperService.fetchProductData({ name: query }, true); // Fixed method call
+        res.json({ message: 'Product search initiated. Check back later for results.', product: updatedProduct });
+    } catch (error) {
+        await ScrapingJob.update({ status: 'failed', errorMessage: error.message }, { where: { id: scrapingJob.id } });
+        return next(new ErrorResponse('Scraping job failed', 500));
+    }
 });
 
-// Add a new product
+// Rest of controller code remains unchanged
 export const addProduct = asyncHandler(async (req, res, next) => {
     const { name, description, category } = req.body;
     const product = await Product.create({ name, description, category });
     res.status(201).json(product);
 });
 
-// Delete a product
 export const deleteProduct = asyncHandler(async (req, res, next) => {
     const product = await Product.findByPk(req.params.id);
     if (!product) {
@@ -70,23 +72,19 @@ export const deleteProduct = asyncHandler(async (req, res, next) => {
     res.json({ message: 'Product deleted successfully' });
 });
 
-// Update a product
 export const updateProduct = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { name, description, category } = req.body;
 
-    // Find the product by ID
     const product = await Product.findByPk(id);
     if (!product) {
         return next(new ErrorResponse('Product not found', 404));
     }
 
-    // Update the product details
     product.name = name || product.name;
     product.description = description || product.description;
     product.category = category || product.category;
 
-    // Save the updated product
     await product.save();
 
     res.json({ message: 'Product updated successfully', product });

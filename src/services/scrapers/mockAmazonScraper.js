@@ -1,0 +1,82 @@
+export const mockAmazonScraper = async (query) => {
+    const result = [
+        {
+            name: 'iPhone 13',
+            brand: 'Apple',
+            price: '569,00',
+            rating: '4.5',
+            link: 'https://www.amazon.com/dp/B09ML6FBCK',
+            image: 'https://m.media-amazon.com/images/I/615csgQKj5L._AC_UY218_.jpg',
+            seller: 'Apple',
+            productSellerRate: '3.4',
+            badge: 'Best Seller',
+            isPrime: true,
+            delivery: '12. - 16. Apr.',
+            store: 'Amazon',
+            availability: '1',
+            currency: '€',
+        },
+        {
+            name: 'iPhone 14',
+            price: '514,51',
+            currency: '€',
+            brand: 'Apple',
+            availability: '1',
+            storage_gb: 128,
+            rating: '4.6',
+            link: 'https://www.amazon.com/dp/B0BNMBHM8Z',
+            image: 'https://m.media-amazon.com/images/I/61tz1qzH++L._AC_UY218_.jpg',
+            seller: 'Apple',
+            productSellerRate: '4.1',
+            badge: "Amazon's Choice",
+            isPrime: true,
+            delivery: 'Tomorrow',
+            store: 'Amazon',
+            availability: '1',
+            currency: '€',
+        },
+        {
+            name: 'iPhone 15',
+            price: '836,99',
+            currency: '€',
+            brand: 'Apple',
+            availability: '1',
+            rating: '4.7',
+            link: 'https://www.amazon.com/dp/B0CHX3ZTJQ',
+            image: 'https://m.media-amazon.com/images/I/713xdJGERML._AC_UY218_.jpg',
+            seller: 'Apple',
+            productSellerRate: '4.6',
+            badge: 'Best Seller',
+            isPrime: true,
+            delivery: 'Mo., 7. Apr.',
+            store: 'Amazon',
+            availability: '1',
+            currency: '€',
+        },
+        {
+            name: 'iPhone 16',
+            price: '1.325,99',
+            brand: 'Apple',
+            currency: '€',
+            availability: '1',
+            rating: '4.4',
+            link: 'https://www.amazon.com/dp/B0DGHR9VG2',
+            image: 'https://m.media-amazon.com/images/I/61cUeqowwZL._AC_UY218_.jpg',
+            seller: 'Apple',
+            productSellerRate: '4.4',
+            badge: 'No info',
+            isPrime: true,
+            delivery: 'Mo., 7. Apr.',
+            store: 'Amazon',
+            availability: '1',
+            currency: '€',
+        },
+    ].filter((product) =>
+        Object.entries(query).every(([key, value]) => {
+            //console.log('querykey', key, 'product[key]', product[key], 'query Value:', value); // Debugging line
+            // Check if the product property exists and is a string
+            return typeof product[key] === 'string' && product[key].toLowerCase().includes(value.toLowerCase());
+        })
+    );
+    return result;
+};

@@ -21,10 +21,20 @@ export default (sequelize) => {
                     isUrl: true,
                 },
             },
+            createdAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+                allowNull: false,
+            },
+            updatedAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+                allowNull: false,
+            },
         },
         {
             tableName: 'stores',
-            timestamps: true,
+            timestamps: true, // This enables createdAt and updatedAt auto-handling
         }
     );
 
