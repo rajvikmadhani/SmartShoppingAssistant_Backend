@@ -49,9 +49,13 @@ const scrapeNewegg = async (query) => {
           )?.innerText;
           const priceFraction =
             el.querySelector(".price-current sup")?.innerText;
-          const price = priceWhole
-            ? `${priceWhole}${priceFraction ? "." + priceFraction : ""}`
-            : "N/A";
+
+          const price =
+            priceWhole && !isNaN(priceWhole)
+              ? `${parseFloat(`${priceWhole}.${priceFraction || "00"}`).toFixed(
+                  2
+                )}$`
+              : "N/A";
 
           const imgEl = el.querySelector("img");
           let image =
