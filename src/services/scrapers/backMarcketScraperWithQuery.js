@@ -3,9 +3,36 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth"; // import stealth pl
 
 puppeteer.use(StealthPlugin()); // use stealth plugin to avoid detection
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms)); // sleep function to pause execution for a given time
+// helper function to scroll down the page to load all content
+async function autoScroll(page) {
+  // scroll down the page by a certain distance until the end of the page is reached
+  await page.evaluate(async () => {
+    // resolve the promise when the scroll is complete
+    await new Promise((resolve) => {
+      let totalHeight = 0; // total height scrolled
+      const distance = 100; // distance to scroll each time
+      const timer = setInterval(() => {
+        // set an interval to scroll down the page
+        const scrollHeight = document.body.scrollHeight; // total height of the page
 
-const scrapeBackMarket = async () => {
+        window.scrollBy(0, distance); // scroll down by the distance
+        totalHeight += distance; // update the total height scrolled
+
+        // if the total height scrolled is greater than or equal to the total height of the page, clear the interval and resolve the promise
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer); // clear the interval
+          resolve(); // resolve the promise
+        }
+      }, 100); // scroll every 100 milliseconds
+    });
+  });
+}
+
+// helper function to sleep for a certain amount of time
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+// function to scrape BackMarket website
+const scraperBackMarket = async (searchQuery) => {
   // launch a new browser instance with Puppeteer
   // headless mode is set to "new" for better performance
   // args are set to disable sandboxing for better compatibility with some environments
@@ -15,125 +42,201 @@ const scrapeBackMarket = async () => {
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
-  const page = await browser.newPage(); // create a new page in the browser
+  // create a new page in the browser
+  // set user agent to mimic a real browser
+  const page = await browser.newPage();
 
   // set user agent to mimic a real browser
-  // this is important to avoid detection by the website
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
   );
 
-  // url to scrape
-  const url = "https://www.backmarket.com/en-us/search?q=iphone";
-  // navigate to the url
-  console.log("navigating to:", url);
-  // wait for the page to load
-  // wait for the DOM content to be loaded
-  // set timeout to 60 seconds to avoid timeout errors
-  // this is important to avoid detection by the website
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+  // Store all products in this array
+  let allProducts = [];
+  let currentPage = 1;
+  let hasNextPage = true;
 
-  // wait for the page to load
-  await sleep(6000);
-  // scroll down the page to load more products
-  // this is important to load more products
-  await page.evaluate(() => window.scrollBy(0, 2000));
+  // URL to scrape with query parameter and page parameter
+  const encodedQuery = encodeURIComponent(searchQuery);
+  const baseUrl = `https://www.backmarket.com/en-us/search?q=${encodedQuery}`;
 
-  // wait for the page to load
-  await sleep(4000);
+  console.log(`scrape BackMarket : "${searchQuery}"...`);
 
-  // scroll down the page to load more products
-  // this is important to load more products
-  await page.waitForSelector('div[data-qa="productCard"]', { timeout: 15000 });
+  // continue scraping while there are more pages
+  while (hasNextPage) {
+    // construct the URL for the current page
+    const url = `${baseUrl}&page=${currentPage}`;
+    //log the URL
+    console.log(`\nnavigating to page ${currentPage}: ${url}`);
 
-  // evaluate the page to extract product information
+    // navigate to the URL
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    // wait for the page to load
+    await sleep(6000);
 
-  const products = await page.evaluate(() => {
-    // items array to store product information
-    const items = [];
+    // scroll down to load all products
+    await autoScroll(page);
+    // wait for the page to load
+    await sleep(2000);
 
-    // select all product cards on the page
-    const cards = document.querySelectorAll('div[data-qa="productCard"]');
+    try {
+      // wait for product cards to appear
+      await page.waitForSelector('div[data-qa="productCard"]', {
+        timeout: 15000,
+      });
 
-    //  loop through each product card and extract information
-    for (const card of cards) {
-      const title = card.querySelector("h2 a span")?.innerText?.trim(); // extract product title
-      const price = card
-        .querySelector('[data-qa="productCardPrice"]')
-        ?.innerText?.trim(); // extract product price
+      // extract products from current page
+      const products = await page.evaluate(() => {
+        // items array to store product information
+        const items = [];
 
-      const aTag = card.querySelector('h2 a[href^="/en-us/p/"]'); // select the anchor tag that contains the product link
-      const href = aTag?.getAttribute("href"); // extract the href attribute from the anchor tag
-      const link = href ? `https://www.backmarket.com${href}` : null; // construct the full product link
+        // cards array to store product cards
+        const cards = document.querySelectorAll('div[data-qa="productCard"]');
 
-      let image = null; // initialize image variable to null
-      const img = card.querySelector("img"); // select the image element within the product card
+        // loop through each product card and extract information
+        for (const card of cards) {
+          // basic information
+          const title = card.querySelector("h2 a span")?.innerText?.trim();
+          const price = card
+            .querySelector('[data-qa="productCardPrice"]')
+            ?.innerText?.trim();
+          const originalPrice =
+            card
+              .querySelector('[data-qa="productCardOriginalPrice"]')
+              ?.innerText?.trim() || null;
 
-      // if the image element exists, extract the srcset and src attributes
-      // and extract the image URL from them
-      if (img) {
-        const srcset = img.getAttribute("srcset"); // extract the srcset attribute from the image element
-        const rawSrc = img.getAttribute("src"); // extract the src attribute from the image element
+          // get product link
+          const aTag = card.querySelector('h2 a[href^="/en-us/p/"]');
+          const href = aTag?.getAttribute("href");
+          const link = href ? `https://www.backmarket.com${href}` : null;
 
-        // function to extract the image URL from the srcset or src attributes
-        // it decodes the URL and matches it with a regex pattern to extract the URL
-        const extractImageURL = (val) => {
-          const decoded = decodeURIComponent(val);
-          const match = decoded.match(/https:\/\/[^ ]+/);
-          return match ? match[0] : null;
-        };
+          // get product image
+          let image = null;
+          const img = card.querySelector("img");
 
-        // if the srcset attribute exists, split it by commas and extract the last URL
-        // if the srcset attribute does not exist, extract the URL from the src attribute
-        // if neither exists, set image to null
-        if (srcset) {
-          const srcs = srcset.split(",").map((s) => s.trim().split(" ")[0]);
-          const highRes = srcs[srcs.length - 1];
-          image = extractImageURL(highRes);
+          if (img) {
+            const srcset = img.getAttribute("srcset");
+            const rawSrc = img.getAttribute("src");
+
+            const extractImageURL = (val) => {
+              if (!val) return null;
+              const decoded = decodeURIComponent(val);
+              const match = decoded.match(/https:\/\/[^ ]+/);
+              return match ? match[0] : null;
+            };
+
+            if (srcset) {
+              const srcs = srcset.split(",").map((s) => s.trim().split(" ")[0]);
+              const highRes = srcs[srcs.length - 1];
+              image = extractImageURL(highRes);
+            }
+
+            if (!image && rawSrc) {
+              image = extractImageURL(rawSrc);
+            }
+          }
+
+          // rating information
+          const rating =
+            card
+              .querySelector('[data-spec="rating"] span.caption-bold')
+              ?.innerText?.trim() || "No rating";
+
+          // extract storage information from specs
+          const specs = Array.from(
+            card.querySelectorAll('[data-test="productspecs"] li')
+          ).map((li) => li.textContent.trim());
+          const storage =
+            specs
+              .find(
+                (spec) =>
+                  spec.includes("GB") ||
+                  spec.includes("TB") ||
+                  spec.includes("Storage")
+              )
+              ?.trim() || null;
+
+          // calculate discount percentage if original price exists
+          let discount = null;
+          if (price && originalPrice) {
+            const priceValue = parseFloat(price.replace(/[^0-9.]/g, ""));
+            const originalPriceValue = parseFloat(
+              originalPrice.replace(/[^0-9.]/g, "")
+            );
+            if (
+              !isNaN(priceValue) &&
+              !isNaN(originalPriceValue) &&
+              originalPriceValue > 0
+            ) {
+              discount = Math.round(
+                ((originalPriceValue - priceValue) / originalPriceValue) * 100
+              );
+            }
+          }
+
+          // check if all required fields are present
+          if (title && price && link) {
+            items.push({
+              title,
+              price,
+              originalPrice,
+              discount,
+              image,
+              link,
+              rating,
+              storage,
+            });
+          }
         }
 
-        // if the srcset attribute does not exist, extract the URL from the src attribute
-        // if neither exists, set image to null
-        if (!image && rawSrc) {
-          image = extractImageURL(rawSrc);
-        }
+        return items;
+      });
+
+      // add products from current page to all products
+      allProducts = [...allProducts, ...products];
+      // log the number of products scraped from the current page
+      console.log(
+        `scraped ${products.length} products from page ${currentPage}`
+      );
+
+      // check if there is a next page
+      hasNextPage = await page.evaluate(() => {
+        // look for next page button that's not disabled
+        const nextButton = document.querySelector(
+          '[data-qa="pagination-next-button"]:not([disabled])'
+        );
+        return !!nextButton;
+      });
+
+      if (hasNextPage) {
+        currentPage++;
+        await sleep(3000); // wait between page navigations to avoid rate limiting
       }
-
-      // extract the rating from the product card
-      const rating =
-        card
-          .querySelector('[data-spec="rating"] span.caption-bold')
-          ?.innerText?.trim() || "No rating";
-      const store = "BackMarket"; // set store name to "BackMarket"
-
-      // check if all required fields are present
-      if (title && price && link && image) {
-        items.push({ title, price, image, link, rating, store }); // push the product information to the items array
-      }
-
-      // check if the items array has reached the maximum limit of 10 products
-      if (items.length >= 10) break;
+    } catch (error) {
+      console.error(`error on page ${currentPage}:`, error.message);
+      hasNextPage = false;
     }
+  }
 
-    // return the items array containing the product information
-    return items;
-  });
-
-  // close the browser instance
   await browser.close();
 
-  // log the number of products scraped and their information to the console
-  console.log(`\nscraped ${products.length} products:\n`);
-  products.forEach((product, index) => {
-    console.log(`item : ${index + 1}`); // log the product number
-    console.log(`title  : ${product.title}`); // log the product title
-    console.log(`price  : ${product.price}`); // log the product price
-    console.log(`image  : ${product.image}`); // log the product image URL
-    console.log(`link   : ${product.link}`); // log the product link
-    console.log(`rating : ${product.rating}`); //  log the product rating
-    console.log(`store  : ${product.store} \n`); // log the store name
+  // log the results
+  console.log(`\ntotal products scraped: ${allProducts.length}\n`);
+  allProducts.forEach((p, i) => {
+    console.log(`iItem ${i + 1}`);
+    console.log(`title    : ${p.title}`);
+    console.log(`price    : ${p.price}`);
+    console.log(`original price : ${p.originalPrice}`);
+    console.log(`discount : ${p.discount}%`);
+    console.log(`image    : ${p.image}`);
+    console.log(`link     : ${p.link}`);
+    console.log(`rating   : ${p.rating}`);
+    console.log(`storage  : ${p.storage} \n`);
   });
+
+  return allProducts;
 };
 
-// scrapeBackMarket function is called to start the scraping process
-scrapeBackMarket();
+scraperBackMarket("iphone").then((products) => {
+  console.log(`\nscraping completed. total products: ${products.length}`);
+});
