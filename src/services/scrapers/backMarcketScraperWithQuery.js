@@ -1,3 +1,17 @@
+/***************************
+ * this script is a web scraper for Back Market
+ * it uses puppeteer-extra with the stealth plugin to avoid bot detection
+ * and scrape product data from the site
+ * the scraper is designed to handle dynamic content and lazy loading
+ * it extracts product details like title, price, image, and specifications
+ * the script includes error handling and logging for debugging purposes
+ * the example function demonstrates how to use the scraper
+ * and prints the results in a structured format
+ *
+ * 93 items scraped from 3 pages
+ * 3 pages of products with detailed information
+ ***************************/
+
 // import puppeteer-extra instead of regular puppeteer to enable plugins
 // puppeteer-extra extends functionality of the standard puppeteer package
 import puppeteer from "puppeteer-extra";
@@ -48,13 +62,13 @@ async function autoScroll(page) {
  *
  * @param {Object} productQuery - search parameters for finding products
  * @param {string} backMarketDomain - which Back Market domain to use (defaults to US)
- * @param {number} pagesToScrape - how many pages to scrape (defaults to 2)
+ * @param {number} pagesToScrape - how many pages to scrape (updated default to 3)
  * @returns {Array} - collection of all product objects with their details
  */
-const backMarketScraper = async (
+export const backMarketScraper = async (
   productQuery,
   backMarketDomain = "backmarket.com",
-  pagesToScrape = 2 // default to scraping 2 pages - can be increased for more results
+  pagesToScrape = 3 // UPDATED: default to scraping 3 pages instead of 2
 ) => {
   // extract individual search parameters from the query object
   // this allows flexible searching by different product attributes
@@ -104,6 +118,10 @@ const backMarketScraper = async (
   // wait 5 seconds for dynamic content like JavaScript-loaded products to appear
   // back Market uses React/JS frameworks that need time to render content
   await sleep(5000);
+
+  // ==============================================================
+  // page 1 scraping
+  // ==============================================================
 
   // scroll to load all products on the current page
   // this triggers lazy loading of product images and data
@@ -238,8 +256,7 @@ const backMarketScraper = async (
 
         // only add products that have the essential details
         // this avoids cluttering results with incomplete data
-        // w
-        //we require at minimum a title, price and link to be useful
+        // we require at minimum a title, price and link to be useful
         if (title && price && link) {
           items.push({
             title,
@@ -250,10 +267,7 @@ const backMarketScraper = async (
             link,
             rating,
             storage,
-            store: `Back Market (${window.location.hostname})`,
-            // NOTE: Missing 'page: 1' property for first page products
-            // this is a bug in the code - we should add page: 1 here
-            // without this, we can't reliably tell which page a product came from
+            store: `Back Market`,
           });
         }
       }
@@ -268,20 +282,20 @@ const backMarketScraper = async (
     // the spread operator (...) unpacks the array into individual items
     allResults.push(...results);
 
-    // check if we should scrape more pages (based on pagesToScrape parameter)
-    // this allows flexibility to scrape just one page or multiple pages
-    if (currentPage < pagesToScrape) {
-      console.log(" navigating to page 2..."); // log that we're moving to page 2
+    // ==============================================================
+    // page 2 scraping
+    // ==============================================================
 
-      // IMPORTANT: Instead of clicking the "next page" button which can be unreliable,
-      // we directly construct the URL for page 2 by adding &page=2 parameter
-      // this approach avoids problems with buttons not being clickable or visible
-      // it is a common scraping technique when direct URL manipulation is possible
+    // check if we should scrape more pages (based on pagesToScrape parameter)
+    if (currentPage < pagesToScrape) {
+      console.log("navigating to page 2..."); // log that we're moving to page 2
+
+      // directly construct the URL for page 2 by adding &page=2 parameter
+      // this approach is more reliable than clicking navigation buttons
       const page2Url = `${baseUrl}&page=2`;
-      console.log(`going to ${page2Url}`); // log the URL we're navigating to for debugging
+      console.log(`going to ${page2Url}`); // log the URL for debugging
 
       // navigate to page 2 and wait for it to load
-      // this is like typing the URL directly in the browser
       await page.goto(page2Url, {
         waitUntil: "domcontentloaded", // wait for DOM content to be ready
         timeout: 60000, // allow up to 60 seconds for the page to load
@@ -289,7 +303,6 @@ const backMarketScraper = async (
       await sleep(5000); // wait additional time for JavaScript to initialize components
 
       // verify we're on page 2 by logging the current URL
-      // this helps confirm we successfully navigated to page 2
       const currentUrl = page.url();
       console.log(`now on URL: ${currentUrl}`);
 
@@ -297,27 +310,19 @@ const backMarketScraper = async (
       currentPage++;
 
       // scroll to load all products on page 2, just like we did for page 1
-      // pagination pages often have the same lazy loading behavior
       await autoScroll(page);
-      await sleep(1500); // Wait for content to stabilize
+      await sleep(1500); // wait for content to stabilize
 
       // wait for product cards to appear on page 2
-      // the same selector works here since the page structure is consistent
       await page.waitForSelector('div[data-qa="productCard"]', {
         timeout: 10000,
       });
 
-      // extract product data from page 2 using the same technique as page 1
-      // we repeat the same code block because the data extraction logic is identical
       const page2Results = await page.evaluate(() => {
         const items = [];
         const cards = document.querySelectorAll('div[data-qa="productCard"]');
 
         for (const card of cards) {
-          // this is the same extraction logic as used for page 1
-          // we repeat it because page.evaluate creates a new context each time
-          // variables and functions from previous evaluate calls aren't available
-
           const title = card.querySelector("h2 a span")?.innerText?.trim();
           const price = card
             .querySelector('[data-qa="productCardPrice"]')
@@ -400,7 +405,7 @@ const backMarketScraper = async (
               link,
               rating,
               storage,
-              store: `Back Market (${window.location.hostname})`,
+              store: `Back Market`,
             });
           }
         }
@@ -411,19 +416,159 @@ const backMarketScraper = async (
       // log how many products were found on page 2
       console.log(`page ${currentPage}: ${page2Results.length} items scraped`);
 
-      // now our allResults contains products from both pages
+      // add page 2 results to our overall results array
       allResults.push(...page2Results);
+
+      // ==============================================================
+      // page 3 scraping
+      // ==============================================================
+
+      if (currentPage < pagesToScrape) {
+        console.log("navigating to page 3..."); // log that we're moving to page 3
+
+        // construct the URL for page 3 using the same pattern
+        const page3Url = `${baseUrl}&page=3`;
+        console.log(`going to ${page3Url}`);
+
+        // navigate to page 3 using the same approach as page 2
+        await page.goto(page3Url, {
+          waitUntil: "domcontentloaded",
+          timeout: 60000,
+        });
+        await sleep(5000); // wait for page to load fully
+
+        // verify we're on page 3
+        const currentUrl = page.url();
+        console.log(`now on URL: ${currentUrl}`);
+
+        // increment page counter to track that we're now on page 3
+        currentPage++;
+
+        // scroll to load all products on page 3
+        await autoScroll(page);
+        await sleep(1500);
+
+        // wait for product cards to appear on page 3
+        await page.waitForSelector('div[data-qa="productCard"]', {
+          timeout: 10000,
+        });
+
+        // extract product data from page 3 using the same technique
+        const page3Results = await page.evaluate(() => {
+          const items = [];
+          const cards = document.querySelectorAll('div[data-qa="productCard"]');
+
+          // extract products using the same logic as previous pages
+          for (const card of cards) {
+            const title = card.querySelector("h2 a span")?.innerText?.trim();
+            const price = card
+              .querySelector('[data-qa="productCardPrice"]')
+              ?.innerText?.trim();
+            const originalPrice =
+              card
+                .querySelector('[data-qa="productCardOriginalPrice"]')
+                ?.innerText?.trim() || null;
+
+            const aTag = card.querySelector('h2 a[href^="/en-us/p/"]');
+            const href = aTag?.getAttribute("href");
+            const link = href ? `https://www.backmarket.com${href}` : null;
+
+            let image = null;
+            const img = card.querySelector("img");
+
+            if (img) {
+              const srcset = img.getAttribute("srcset");
+              const rawSrc = img.getAttribute("src");
+
+              const extractImageURL = (val) => {
+                if (!val) return null;
+                const decoded = decodeURIComponent(val);
+                const match = decoded.match(/https:\/\/[^ ]+/);
+                return match ? match[0] : null;
+              };
+
+              if (srcset) {
+                const srcs = srcset
+                  .split(",")
+                  .map((s) => s.trim().split(" ")[0]);
+                const highRes = srcs[srcs.length - 1];
+                image = extractImageURL(highRes);
+              }
+
+              if (!image && rawSrc) {
+                image = extractImageURL(rawSrc);
+              }
+            }
+
+            const rating =
+              card
+                .querySelector('[data-spec="rating"] span.caption-bold')
+                ?.innerText?.trim() || "No rating";
+
+            const specs = Array.from(
+              card.querySelectorAll('[data-test="productspecs"] li')
+            ).map((li) => li.textContent.trim());
+
+            const storage =
+              specs.find(
+                (spec) =>
+                  spec.includes("GB") ||
+                  spec.includes("TB") ||
+                  spec.includes("Storage")
+              ) || null;
+
+            let discount = null;
+            if (price && originalPrice) {
+              const priceValue = parseFloat(price.replace(/[^0-9.]/g, ""));
+              const originalPriceValue = parseFloat(
+                originalPrice.replace(/[^0-9.]/g, "")
+              );
+              if (
+                !isNaN(priceValue) &&
+                !isNaN(originalPriceValue) &&
+                originalPriceValue > 0
+              ) {
+                discount = Math.round(
+                  ((originalPriceValue - priceValue) / originalPriceValue) * 100
+                );
+              }
+            }
+
+            if (title && price && link) {
+              items.push({
+                title,
+                price,
+                originalPrice,
+                discount,
+                image,
+                link,
+                rating,
+                storage,
+                store: `Back Market`,
+              });
+            }
+          }
+
+          return items;
+        });
+
+        // log how many products were found on page 3
+        console.log(
+          `page ${currentPage}: ${page3Results.length} items scraped`
+        );
+
+        // add page 3 results to our overall results array
+        allResults.push(...page3Results);
+      }
+      // end of page 3 scraping
+      // ==============================================================
     }
   } catch (error) {
     // log any errors that occurred during scraping
-    // this helps with debugging if something goes wrong
-    console.error(`error during scraping:`, error.message);
-    // qe don't throw the error, but instead return whatever results we gathered so far
-    // this makes the scraper more resilient - partial results are better than none
+    console.error(`Error during scraping:`, error.message);
   }
 
-  //  close the browser to free resources
-  // this is important to avoid memory leaks and zombie processes
+  // close the browser to free resources
   await browser.close();
 
   // return all collected products from all pages
@@ -432,12 +577,9 @@ const backMarketScraper = async (
 
 /**
  * example function demonstrating how to use the scraper
- * this shows the proper way to call the scraper with search parameters
- * and process the results
  */
 const exampleUsage = async () => {
-  // example product search criteria - adjust these to search for different products
-  // more specific criteria will give more targeted results
+  // example product search criteria
   const productQuery = {
     brand: "Apple", // brand name
     name: "iPhone", // product model/name
@@ -447,34 +589,25 @@ const exampleUsage = async () => {
   };
 
   // run the scraper with the example query
-  // this will search and extract products matching the above criteria
+  // the default is now 3 pages, but you could also explicitly set it:
+  // const products = await backMarketScraper(productQuery, "backmarket.com", 3);
   const products = await backMarketScraper(productQuery);
 
   // log the total number of products found across all pages
   console.log(`\ntotal products scraped: ${products.length}`);
 
-  // group products by the page they came from
-  // IMPORTANT: This filtering has a bug - it will only work properly if all products have a page property!
-  const page1Products = products.filter((p) => p.page === 1);
-  const page2Products = products.filter((p) => p.page === 2);
-
-  // log summary of products by page
-  // due to the bug mentioned above, page1Products count will likely be 0
-  console.log(`\npage 1 products: ${page1Products.length}`);
-  console.log(`page 2 products: ${page2Products.length}`);
-
   // print details of each product found
-  // this formats the data nicely in the console
   products.forEach((product, index) => {
-    console.log(`\nproduct ${index + 1} (page ${p.page || "unknown"}):`); // shows which page the product came from
-    console.log(`title      : ${product.title}`); // product name
-    console.log(`price      : ${product.price}`); // current price
-    console.log(`original   : ${product.originalPrice}`); // original price before discount
-    console.log(`discount   : ${product.discount}%`); // discount percentage
-    console.log(`image      : ${product.image}`); // image URL
-    console.log(`link       : ${product.link}`); // direct product link
-    console.log(`rating     : ${product.rating}`); // user rating
-    console.log(`storage    : ${product.storage}`); // storage capacity
+    console.log(`\nproduct ${index + 1} :`);
+    console.log(`title      : ${product.title}`);
+    console.log(`price      : ${product.price}`);
+    console.log(`original   : ${product.originalPrice}`);
+    console.log(`discount   : ${product.discount}%`);
+    console.log(`image      : ${product.image}`);
+    console.log(`link       : ${product.link}`);
+    console.log(`rating     : ${product.rating}`);
+    console.log(`storage    : ${product.storage}`);
+    console.log(`store      : ${product.store}`);
   });
 };
 
