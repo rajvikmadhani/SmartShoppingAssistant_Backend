@@ -23,13 +23,6 @@ async function autoScroll(page) {
   });
 }
 
-/**
- * scrapes Back Market search results with pagination support.
- *
- * @param {Object} productQuery - the search query containing brand, name, storage, RAM, and color.
- * @param {string} backMarketDomain - the Back Market domain to scrape (default is 'backmarket.com').
- * @returns {Promise<Array>} - array of product data.
- */
 const backMarketScraper = async (
   productQuery,
   backMarketDomain = "backmarket.com"
@@ -54,19 +47,12 @@ const backMarketScraper = async (
 
   let allResults = [];
   let currentPage = 1;
-  let hasNextPage = true;
 
-  while (hasNextPage) {
-    const currentPageUrl = `${baseUrl}&page=${currentPage}`;
-    console.log(
-      `scraping page ${currentPage} from ${backMarketDomain}: ${currentPageUrl}`
-    );
+  console.log(`scraping page ${currentPage} from ${baseUrl}`);
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+  await sleep(5000);
 
-    await page.goto(currentPageUrl, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await sleep(5000);
+  while (true) {
     await autoScroll(page);
     await sleep(1500);
 
@@ -77,8 +63,8 @@ const backMarketScraper = async (
 
       const results = await page.evaluate(() => {
         const items = [];
-
         const cards = document.querySelectorAll('div[data-qa="productCard"]');
+
         for (const card of cards) {
           const title = card.querySelector("h2 a span")?.innerText?.trim();
           const price = card
@@ -169,25 +155,33 @@ const backMarketScraper = async (
         return items;
       });
 
-      console.log(
-        `page ${currentPage}: ${results.length} items scraped from ${backMarketDomain}`
-      );
+      console.log(`page ${currentPage}: ${results.length} items scraped`);
       allResults.push(...results);
 
-      hasNextPage = await page.evaluate(() => {
-        const nextButton = document.querySelector(
-          '[data-qa="pagination-next-button"]:not([disabled])'
-        );
-        return !!nextButton;
-      });
+      const nextButton = await page.$(
+        '[data-qa="pagination-next-button"]:not([disabled])'
+      );
 
-      if (hasNextPage) {
+      if (nextButton) {
         currentPage++;
+        await Promise.all([
+          nextButton.click(),
+          page.waitForResponse(
+            (res) =>
+              res.url().includes("/api/catalog/search") && res.status() === 200
+          ),
+          page.waitForSelector('div[data-qa="productCard"]', {
+            timeout: 10000,
+          }),
+        ]);
         await sleep(3000);
+      } else {
+        console.log("no more pages.");
+        break;
       }
     } catch (error) {
-      console.error(`error scraping page ${currentPage}:`, error.message);
-      hasNextPage = false;
+      console.error(`error on page ${currentPage}:`, error.message);
+      break;
     }
   }
 
@@ -195,14 +189,14 @@ const backMarketScraper = async (
   return allResults;
 };
 
-// Example usage
+
 const exampleUsage = async () => {
   const productQuery = {
     brand: "Apple",
     name: "iPhone",
     storage_gb: "128",
     ram_gb: "",
-    color: "black",
+    color: "white",
   };
 
   const products = await backMarketScraper(productQuery);
