@@ -6,7 +6,7 @@ export const scrapeProduct = asyncHandler(async (req, res, next) => {
     if (!productQuery.name || !productQuery.brand) {
         return res
             .status(400)
-            .json({ error: 'Missing required name and brand attributes. e.g, products?name=iPhone&brand=Apple 13' });
+            .json({ error: 'Missing required name and brand attributes. e.g, products?name=iPhone 13&brand=Apple' });
     }
 
     const product = await ScraperService.fetchProductData(productQuery);

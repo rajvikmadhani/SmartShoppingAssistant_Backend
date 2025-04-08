@@ -1,26 +1,28 @@
 // Handles product-specific search & scraping
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
-import { amazonScraper, ebayScraper } from './scrapers/index.js';
+import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/index.js';
 import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct } from '../utils/productRepo.js';
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
-    const { brand, name, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
-
+    const { name, brand, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
+    console.log('productQuery:', productQuery);
     // Determine the correct Amazon domain
     const domain = region === 'DE' ? 'de' : 'com';
     //filter the null valuse
-    let whereClause = {};
-    if (brand) whereClause.brand = brand;
-    if (name) whereClause.name = name;
-    if (storage_gb) whereClause.storage_gb = storage_gb;
-    if (ram_gb) whereClause.ram_gb = ram_gb;
-    if (color) whereClause.color = color;
+    let filter = {};
+    if (brand) filter.brand = brand;
+    if (storage_gb) filter.storage_gb = storage_gb;
+    if (ram_gb) filter.ram_gb = ram_gb;
+    if (color) filter.color = color;
 
+    let scrappedDataFilter = { ...filter, title: name };
+    let productfilter = { ...filter, name: name };
+    console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
     let product = await models.Product.findOne({
-        where: whereClause,
+        where: productfilter,
         include: [{ model: models.Price }],
     });
     let newProduct = false; // Flag to indicate if a new product was created
@@ -50,11 +52,15 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
 
         let amazonResults = [];
         let ebayResults = [];
+        let scraperQuery = [name, brand, storage_gb ? `${storage_gb}GB` : '', ram_gb ? `${ram_gb}GB` : '', color]
+            .filter(Boolean) // removes falsy values like '', null, undefined
+            .join(' ') // joins them with a single space
+            .trim(); // trims leading/trailing whitespace
 
         // Try scraping from Amazon
         try {
             console.log(`Fetching data from Amazon (${domain}) for: ${name} ${brand}`);
-            amazonResults = await amazonScraper(whereClause, domain);
+            amazonResults = await amazonScraper(scraperQuery, domain);
             amazonResults = amazonResults.map((result) => ({
                 ...result,
                 storeId: amazonScrapingJob.storeId, // Assuming Amazon has storeId 1
@@ -68,7 +74,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         // Try scraping from eBay
         try {
             console.log(`Fetching data from eBay (${domain}) for: ${name} ${brand}`);
-            ebayResults = await ebayScraper(whereClause, domain);
+            ebayResults = await ebayScraper(scraperQuery, domain);
             ebayResults = ebayResults.map((result) => ({
                 ...result,
                 storeId: ebayScrapingJob.storeId, // Assuming eBay has storeId 2
@@ -87,7 +93,11 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
             if (newProduct) {
                 updateNewProduct(product, allResults);
             }
-            const updatedProduct = await updatePrices(product, allResults);
+            console.log('Fetched data:', allResults);
+            console.log('scrappedDataFilter:', scrappedDataFilter);
+            console.log('filterd data:', filterScrapperResults(allResults, scrappedDataFilter));
+
+            const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
             console.log('Scraping completed and database updated.');
             return updatedProduct;
         } else {

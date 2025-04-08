@@ -20,10 +20,5 @@ export const mockEbayScraper = async (query) => {
             currency: '€',
             seller_rating: '4.5',
         },
-    ].filter((product) =>
-        Object.entries(query).every(([key, value]) => {
-            // Check if the product property exists and is a string
-            return typeof product[key] === 'string' && product[key].toLowerCase().includes(value.toLowerCase());
-        })
-    );
+    ];
 };
