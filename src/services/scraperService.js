@@ -1,13 +1,8 @@
 import { Op } from 'sequelize';
 import models from '../models/index.js';
 import { fetchProductData } from './fetchProductData.js'; // Fixed path
-import { fetchBestPrices } from './fetchBestPrices.js'; // Added import
 
 class ScraperService {
-    static async fetchBestPrices() {
-        return fetchBestPrices();
-    }
-
     static async fetchProductData(productQuery, manualTrigger = false) {
         // This now directly calls the fetchProductData module
         return fetchProductData(productQuery, manualTrigger);
