@@ -44,6 +44,28 @@ All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifi
 - Real-time Updates: WebSockets / Polling
 - Notifications: Email (Nodemailer) & Push (Firebase)
 
+## Folder Structure
+
+````bash
+SmartShoppingAssistant_Backend/
+├── .gitignore               # Files and folders to ignore in Git
+├── README.md                # Project documentation and overview
+├── package.json             # Project metadata, dependencies, and scripts
+├── package-lock.json        # Ensures consistent installs across environments
+
+└── src/                     # Main source code directory
+    ├── config/              # App configuration (DB, Redis, BullMQ, etc.)
+    ├── controllers/         # Route controllers — request handlers
+    ├── db/                  # DB init files, connection logic, seeders
+    ├── middleware/          # Express middleware (auth, validation, error handling)
+    ├── models/              # Sequelize models — define DB schema
+    ├── routes/              # API route definitions and modular route files
+    ├── schemas/             # Joi validation schemas for request validation
+    ├── services/            # Business logic and services (scrapers, notifications, etc.)
+    ├── test/                # Unit and integration test files
+    ├── utils/               # Utility functions and helpers
+    └── server.js            # Main Express app entry point
+
 ## Prerequisites
 
 Before running this server, ensure you have the following installed:
@@ -58,7 +80,7 @@ Before running this server, ensure you have the following installed:
    ```bash
    git@github.com:Alireza2A/SmartShoppingAssistant_Backend.git
    cd SmartShoppingAssistant_Backend
-   ```
+````
 
 2. Install dependencies:
 
