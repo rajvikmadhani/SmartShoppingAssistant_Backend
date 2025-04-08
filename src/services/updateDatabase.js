@@ -54,8 +54,7 @@ export const updatePrices = async (product, scrapedData) => {
             price: textToNumber(price),
             currency: currency,
             availability: availability,
-            product_link: link,
-            mainImgUrl: image,
+            product_link: link || 'Not Available',
             shippingCost,
             discount,
             seller_rating, // Consider removing this since it's in SellerStore
@@ -66,6 +65,7 @@ export const updatePrices = async (product, scrapedData) => {
     return product;
 };
 export const updateNewProduct = async (productId, scrapedData) => {
+    console.log('Updating new product with ID:', productId);
     if (!scrapedData || !scrapedData.length) {
         console.log('No scraped data available');
         return null;
@@ -75,8 +75,8 @@ export const updateNewProduct = async (productId, scrapedData) => {
 
     try {
         // Find the product by ID
-        const product = await Product.findByPk(productId);
-
+        const product = await models.Product.findByPk(productId);
+        console.log('Product in updataDatabase method:', product);
         if (!product) {
             console.log(`Product with ID ${productId} not found`);
             return null;

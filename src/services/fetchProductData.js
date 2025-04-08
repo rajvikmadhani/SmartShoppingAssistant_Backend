@@ -5,6 +5,8 @@ import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/in
 import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct } from '../utils/productRepo.js';
+import { isRealSmartphone } from './filters/smartphoneFilter.js';
+
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { name, brand, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
     console.log('productQuery:', productQuery);
@@ -55,19 +57,23 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
             .join(' ') // joins them with a single space
             .trim(); // trims leading/trailing whitespace
 
-        let amazonResults = ScrapFromAmazon(domain, name, brand, scraperQuery, amazonScrapingJob);
-        let ebayResults = ScrapFromEbay(domain, name, brand, scraperQuery, ebayScrapingJob);
+        let amazonResults = await ScrapFromAmazon(domain, name, brand, scraperQuery, amazonScrapingJob);
+        let ebayResults = await ScrapFromEbay(domain, name, brand, scraperQuery, ebayScrapingJob);
 
         // Combine results and update the database if any data was fetched
-        const allResults = [...Array.from(amazonResults), ...Array.from(ebayResults)];
-
+        const amazonArray = Array.isArray(amazonResults) ? amazonResults : Array.from(amazonResults || []);
+        const ebayArray = Array.isArray(ebayResults) ? ebayResults : Array.from(ebayResults || []);
+        let allResults = [...amazonArray, ...ebayArray];
+        allResults = allResults.filter((prod) => isRealSmartphone(prod));
         if (allResults.length > 0) {
+            console.log('i am here 0');
+            //console.log('Scraped and filter and clean Data:', allResults);
             if (newProduct) {
-                updateNewProduct(product, allResults);
+                updateNewProduct(product.id, allResults);
             }
-
+            console.log('i am here1');
             const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
-            console.log('Scraping completed and database updated.');
+            //console.log('Scraping completed and database updated.');
             return updatedProduct;
         } else {
             console.log('Both scrapers failed. No data updated.');
