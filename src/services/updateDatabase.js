@@ -40,9 +40,8 @@ export const updatePrices = async (product, scrapedData) => {
             image,
             storeId,
             link,
-            color,
-            shippingCost,
-            discount,
+            shippingCost = '-1',
+            discount = '0',
             seller_rating,
             seller,
         } = data;

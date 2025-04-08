@@ -40,7 +40,10 @@ app.get('/', (req, res) => {
 
 // Route handlers
 app.use('/api/auth', authRoutes); // Public routes
-app.use('/api/products', authMiddleware, productRoutes);
+
+// app.use('/api/products', authMiddleware, productRoutes);
+app.use('/api/products', productRoutes);
+
 // app.use('/api/liveData', authMiddleware, liveDataRoutes);
 app.use('/api/liveData', liveDataRoutes);
 app.use('/api/notifications', authMiddleware, notificationRoutes);
