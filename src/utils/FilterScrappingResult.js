@@ -17,35 +17,41 @@ export function testFilterScrapedResults(products) {
 }
 
 export function extractColorFromTitle(title = '') {
-    const colors = [
-        'Black',
-        'White',
-        'Blue',
-        'Green',
-        'Red',
-        'Yellow',
-        'Purple',
-        'Pink',
-        'Gray',
-        'Grey',
-        'Silver',
-        'Gold',
-        'Midnight',
-        'Starlight',
-        'Graphite',
-        'Space Gray',
-        'Pacific Blue',
-        'Sierra Blue',
-        'Coral',
-        'Orange',
-        'Lavender',
-    ];
+    const colorMap = {
+        Black: 'Schwarz',
+        White: 'Weiß',
+        Blue: 'Blau',
+        Green: 'Grün',
+        Red: 'Rot',
+        Yellow: 'Gelb',
+        Purple: 'Lila', // or "Violett"
+        Pink: 'Rosa',
+        Gray: 'Grau',
+        Grey: 'Grau',
+        Silver: 'Silber',
+        Gold: 'Gold',
+        Midnight: 'Mitternacht',
+        Starlight: 'Sternenlicht',
+        Graphite: 'Graphit',
+        'Space Gray': 'Space Grau',
+        'Pacific Blue': 'Pazifikblau',
+        'Sierra Blue': 'Sierra Blau',
+        Coral: 'Koralle',
+        Orange: 'Orange',
+        Lavender: 'Lavendel',
+    };
 
     const lowerTitle = title.toLowerCase();
-    const matched = colors.find((color) => lowerTitle.includes(color.toLowerCase()));
 
-    return matched || 'Not Available';
+    for (const [english, german] of Object.entries(colorMap)) {
+        if (lowerTitle.includes(english.toLowerCase()) || lowerTitle.includes(german.toLowerCase())) {
+            return english; // or return german if you prefer localizing the result
+        }
+    }
+
+    return 'Not Available';
 }
+
 export function extractBrandFromTitle(title = '') {
     const knownBrands = [
         'Apple',

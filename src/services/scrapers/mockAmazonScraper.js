@@ -64,8 +64,7 @@ export const mockAmazonScraper = async (query) => {
             seller_rating: '5',
         },
         {
-            title: 'iPhone 15 pink',
-            title: 'iPhone 16 ',
+            title: 'iPhone 16 schwarz',
             price: '1325,99',
             brand: 'Apple',
             currency: '€',
@@ -84,6 +83,8 @@ export const mockAmazonScraper = async (query) => {
             availability: '1',
             currency: '€',
             seller_rating: '5',
+            shippingCost: '0',
+            discount: '0',
         },
     ];
     return result;
