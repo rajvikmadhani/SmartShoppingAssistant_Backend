@@ -18,7 +18,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     if (color) filter.color = color;
 
     let scrappedDataFilter = { ...filter, title: name };
-    let productfilter = { ...filter, name: name };
+    let productfilter = { ...filter, name: name, brand: 'Apple' };
     console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
     let product = await models.Product.findOne({
@@ -29,7 +29,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     console.log('Product:', product);
     let shouldScrape = manualTrigger; // Force scrape if triggered manually
     if (!product) {
-        product = await CreatePrimaryProduct(name, brand);
+        product = await CreatePrimaryProduct(name, 'Apple');
         newProduct = true; // Set the flag to true if a new product was created
         shouldScrape = true;
     } else {
