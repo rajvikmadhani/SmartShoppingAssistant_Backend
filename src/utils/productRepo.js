@@ -10,3 +10,30 @@ export const CreatePrimaryProduct = async (name, brand) => {
     console.log('New product created:', product);
     return product;
 };
+
+export const getProductWithPricesAndSeller = async (productfilter) => {
+    const foundproduct = await models.Product.findOne({
+        where: productfilter,
+        include: [
+            {
+                model: models.Price,
+                required: false,
+                include: [
+                    {
+                        model: models.SellerStore,
+                        required: false,
+                        include: [
+                            {
+                                model: models.Seller,
+                                required: false,
+                                attributes: ['name'],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    });
+
+    return foundproduct;
+};

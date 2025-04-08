@@ -66,10 +66,10 @@ export const updatePrices = async (product, scrapedData) => {
             currency: currency,
             availability: availability,
             mainImgUrl: image || 'Not Available',
-            color: extractColorFromTitle(data.title),
+            color: extractColorFromTitle(title),
             product_link: link || 'Not Available',
-            shippingCost,
-            discount,
+            shippingCost: textToNumber(shippingCost),
+            discount: textToNumber(discount),
             seller_rating, // Consider removing this since it's in SellerStore
             lastUpdated: new Date(),
         });
