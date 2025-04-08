@@ -118,6 +118,17 @@ The server will start running at [http://localhost:5001](http://localhost:5001)
 
   - connectDB test database connection on startup. Print `"database connected successfully."` if client is connected or `"database connection failed", err.message` if connection do not work.
 
+##  API Overview
+
+| Endpoint             | Method | Description                         |
+| -------------------- | ------ | ----------------------------------- |
+| `/api/auth/register` | POST   | Register a new user                 |
+| `/api/auth/login`    | POST   | Authenticate and return a JWT token |
+| `/api/products`      | GET    | Get all available products          |
+| `/api/liveData`      | POST   | Trigger live scraping by query      |
+| `/api/price-alerts`  | POST   | Create a new price alert            |
+| `/api/wishlist`      | GET    | Get user wishlist items             |
+
 # Database
 
 We use [Neon](https://console.neon.tech/) with postgresql.
