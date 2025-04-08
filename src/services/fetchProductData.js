@@ -2,9 +2,11 @@
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/index.js';
-import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
+import { updatePrices, updateProducts } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct } from '../utils/productRepo.js';
+import { isRealSmartphone } from './filters/smartphoneFilter.js';
+
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { name, brand, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
     console.log('productQuery:', productQuery);
@@ -18,7 +20,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     if (color) filter.color = color;
 
     let scrappedDataFilter = { ...filter, title: name };
-    let productfilter = { ...filter, name: name, brand: 'Apple' };
+    let productfilter = { ...filter, name: name };
     console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
     let product = await models.Product.findOne({
@@ -29,7 +31,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     console.log('Product:', product);
     let shouldScrape = manualTrigger; // Force scrape if triggered manually
     if (!product) {
-        product = await CreatePrimaryProduct(name, 'Apple');
+        product = await CreatePrimaryProduct(name, 'Unknown');
         newProduct = true; // Set the flag to true if a new product was created
         shouldScrape = true;
     } else {
@@ -50,55 +52,28 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
 
         console.log('Scraping jobs created for stores:', amazonScrapingJob.storeId, ebayScrapingJob.storeId);
 
-        let amazonResults = [];
-        let ebayResults = [];
         let scraperQuery = [name, brand, storage_gb ? `${storage_gb}GB` : '', ram_gb ? `${ram_gb}GB` : '', color]
             .filter(Boolean) // removes falsy values like '', null, undefined
             .join(' ') // joins them with a single space
             .trim(); // trims leading/trailing whitespace
 
-        // Try scraping from Amazon
-        try {
-            console.log(`Fetching data from Amazon (${domain}) for: ${name} ${brand}`);
-            amazonResults = await amazonScraper(scraperQuery, domain);
-            amazonResults = amazonResults.map((result) => ({
-                ...result,
-                storeId: amazonScrapingJob.storeId, // Assuming Amazon has storeId 1
-            }));
-            await updateScrapingJob(amazonScrapingJob, 'completed');
-        } catch (error) {
-            console.error(`Amazon scraping failed: ${error.message}`);
-            await updateScrapingJob(amazonScrapingJob, 'failed', error.message);
-        }
-
-        // Try scraping from eBay
-        try {
-            console.log(`Fetching data from eBay (${domain}) for: ${name} ${brand}`);
-            ebayResults = await ebayScraper(scraperQuery, domain);
-            ebayResults = ebayResults.map((result) => ({
-                ...result,
-                storeId: ebayScrapingJob.storeId, // Assuming eBay has storeId 2
-            }));
-
-            await updateScrapingJob(ebayScrapingJob, 'completed');
-        } catch (error) {
-            console.error(`eBay scraping failed: ${error.message}`);
-            await updateScrapingJob(ebayScrapingJob, 'failed', error.message);
-        }
+        let amazonResults = await ScrapFromAmazon(domain, name, brand, scraperQuery, amazonScrapingJob);
+        let ebayResults = await ScrapFromEbay(domain, name, brand, scraperQuery, ebayScrapingJob);
 
         // Combine results and update the database if any data was fetched
-        const allResults = [...amazonResults, ...ebayResults];
-
+        const amazonArray = Array.isArray(amazonResults) ? amazonResults : Array.from(amazonResults || []);
+        const ebayArray = Array.isArray(ebayResults) ? ebayResults : Array.from(ebayResults || []);
+        let allResults = [...amazonArray, ...ebayArray];
+        allResults = allResults.filter((prod) => isRealSmartphone(prod));
         if (allResults.length > 0) {
+            console.log('i am here 0');
+            //console.log('Scraped and filter and clean Data:', allResults);
             if (newProduct) {
-                updateNewProduct(product, allResults);
+                updateProducts(product.id, allResults);
             }
-            console.log('Fetched data:', allResults);
-            console.log('scrappedDataFilter:', scrappedDataFilter);
-            console.log('filterd data:', filterScrapperResults(allResults, scrappedDataFilter));
-
+            console.log('i am here1');
             const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
-            console.log('Scraping completed and database updated.');
+            //console.log('Scraping completed and database updated.');
             return updatedProduct;
         } else {
             console.log('Both scrapers failed. No data updated.');
@@ -107,4 +82,37 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     }
 
     return product;
+};
+const ScrapFromAmazon = async (domain, name, brand, scraperQuery, amazonScrapingJob) => {
+    let amazonResults = [];
+    try {
+        console.log(`Fetching data from Amazon (${domain}) for: ${name} ${brand}`);
+        amazonResults = await amazonScraper(scraperQuery, domain);
+        amazonResults = amazonResults.map((result) => ({
+            ...result,
+            storeId: amazonScrapingJob.storeId, // Assuming Amazon has storeId 1
+        }));
+        await updateScrapingJob(amazonScrapingJob, 'completed');
+    } catch (error) {
+        console.error(`Amazon scraping failed: ${error.message}`);
+        await updateScrapingJob(amazonScrapingJob, 'failed', error.message);
+    }
+    return amazonResults;
+};
+const ScrapFromEbay = async (domain, name, brand, scraperQuery, ebayScrapingJob) => {
+    let ebayResults = [];
+    try {
+        console.log(`Fetching data from eBay (${domain}) for: ${name} ${brand}`);
+        ebayResults = await ebayScraper(scraperQuery, domain);
+        ebayResults = ebayResults.map((result) => ({
+            ...result,
+            storeId: ebayScrapingJob.storeId, // Assuming eBay has storeId 2
+        }));
+
+        await updateScrapingJob(ebayScrapingJob, 'completed');
+    } catch (error) {
+        console.error(`eBay scraping failed: ${error.message}`);
+        await updateScrapingJob(ebayScrapingJob, 'failed', error.message);
+    }
+    return ebayResults;
 };

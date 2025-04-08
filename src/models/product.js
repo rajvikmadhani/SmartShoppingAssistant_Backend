@@ -29,13 +29,6 @@ export default (sequelize) => {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
-            color: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            mainImgUrl: {
-                type: DataTypes.STRING,
-            },
         },
         { timestamps: true }
     );

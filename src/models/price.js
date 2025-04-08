@@ -19,6 +19,13 @@ export default (sequelize) => {
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE',
             },
+            mainImgUrl: {
+                type: DataTypes.STRING,
+            },
+            color: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             sellerStoreId: {
                 type: DataTypes.UUID,
                 allowNull: false,

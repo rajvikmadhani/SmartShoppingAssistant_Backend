@@ -1,7 +1,7 @@
 // updateDatabase.js
 import models from '../models/index.js';
 import { textToNumber } from '../utils/textToNumberConvertor.js';
-
+import { extractColorFromTitle, extractBrandFromTitle } from '../utils/FilterScrappingResult.js';
 // Function to get or create a SellerStore record
 async function getOrCreateSellerStore(storeId, sellerName, rating) {
     // First, find or create the seller
@@ -32,9 +32,20 @@ export const updatePrices = async (product, scrapedData) => {
 
     for (const data of scrapedData) {
         console.log('Scraped Data:', data);
-        const { price, currency, availability, image, storeId, link, shippingCost, discount, seller_rating, seller } =
-            data;
-
+        const {
+            title,
+            price,
+            currency,
+            availability,
+            image,
+            storeId,
+            link,
+            color,
+            shippingCost,
+            discount,
+            seller_rating,
+            seller,
+        } = data;
         // Get or create the SellerStore record
         const sellerStore = await getOrCreateSellerStore(storeId, seller || 'Unknown Seller', seller_rating);
 
@@ -54,8 +65,9 @@ export const updatePrices = async (product, scrapedData) => {
             price: textToNumber(price),
             currency: currency,
             availability: availability,
-            product_link: link,
-            mainImgUrl: image,
+            mainImgUrl: image || 'Not Available',
+            color: extractColorFromTitle(data.title),
+            product_link: link || 'Not Available',
             shippingCost,
             discount,
             seller_rating, // Consider removing this since it's in SellerStore
@@ -65,18 +77,16 @@ export const updatePrices = async (product, scrapedData) => {
 
     return product;
 };
-export const updateNewProduct = async (productId, scrapedData) => {
+export const updateProducts = async (productId, scrapedData) => {
+    console.log('Updating new product with ID:', productId);
     if (!scrapedData || !scrapedData.length) {
         console.log('No scraped data available');
         return null;
     }
 
-    console.log('Scraped Data length:', scrapedData.length);
-
     try {
         // Find the product by ID
-        const product = await Product.findByPk(productId);
-
+        const product = await models.Product.findByPk(productId);
         if (!product) {
             console.log(`Product with ID ${productId} not found`);
             return null;
@@ -90,9 +100,7 @@ export const updateNewProduct = async (productId, scrapedData) => {
         product.brand = data.brand || product.brand;
         product.ram_gb = data.ram_gb || product.ram_gb;
         product.storage_gb = data.storage_gb || product.storage_gb;
-        product.color = data.color || product.color;
-        product.mainImgUrl = data.mainImgUrl || data.image || product.mainImgUrl;
-
+        product.brand = extractBrandFromTitle(data.title) || product.brand;
         // Save the updated product
         await product.save();
 

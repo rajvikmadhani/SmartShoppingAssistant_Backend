@@ -15,3 +15,56 @@ export function filterScrapedResults(products, query) {
 export function testFilterScrapedResults(products) {
     return products.filter((product) => product.price > 400);
 }
+
+export function extractColorFromTitle(title = '') {
+    const colors = [
+        'Black',
+        'White',
+        'Blue',
+        'Green',
+        'Red',
+        'Yellow',
+        'Purple',
+        'Pink',
+        'Gray',
+        'Grey',
+        'Silver',
+        'Gold',
+        'Midnight',
+        'Starlight',
+        'Graphite',
+        'Space Gray',
+        'Pacific Blue',
+        'Sierra Blue',
+        'Coral',
+        'Orange',
+        'Lavender',
+    ];
+
+    const lowerTitle = title.toLowerCase();
+    const matched = colors.find((color) => lowerTitle.includes(color.toLowerCase()));
+
+    return matched || 'Not Available';
+}
+export function extractBrandFromTitle(title = '') {
+    const knownBrands = [
+        'Apple',
+        'Samsung',
+        'Google',
+        'OnePlus',
+        'Xiaomi',
+        'Huawei',
+        'Sony',
+        'Motorola',
+        'Nokia',
+        'Asus',
+        'Realme',
+        'Honor',
+        'Oppo',
+        'Lenovo',
+    ];
+
+    const matchedBrand = knownBrands.find((b) => title.toLowerCase().includes(b.toLowerCase()));
+
+    return matchedBrand || 'Unknown';
+}
