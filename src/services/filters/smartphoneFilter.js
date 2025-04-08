@@ -58,7 +58,7 @@ export function isRealSmartphone(product) {
     const isValid = !isJunk && passesBrandCheck && passesPriceCheck && passesStorageCheck && hasImage;
 
     if (!isValid) {
-        console.log('[Filtered Out]', {
+        console.log('[Excluded from clean list]', {
             title,
             brand,
             price,

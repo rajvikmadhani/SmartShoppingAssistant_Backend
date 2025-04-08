@@ -62,6 +62,8 @@ export const amazonScraper = async (query, domain) => {
                 // Try to detect storage
                 const storageMatch = title?.match(/(\d+) ?(GB|Gb|gb|Go)/);
                 const storage_gb = storageMatch ? parseInt(storageMatch[1]) : null;
+                const ramMatch = title?.match(/(?:^|\\s)(\\d{1,2})\\s?(?:GB|Gb|gb)\\s?(?:RAM)?/i);
+                const ram_gb = ramMatch ? parseInt(ramMatch[1]) : null;
 
                 // Placeholder availability
                 const availability =
@@ -76,6 +78,8 @@ export const amazonScraper = async (query, domain) => {
                         brand: detectedBrand,
                         availability,
                         storage_gb,
+                        ram_gb,
+                        ramMatch,
                         rating,
                         link,
                         image,
