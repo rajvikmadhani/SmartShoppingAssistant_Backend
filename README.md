@@ -46,7 +46,7 @@ All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifi
 
 ## Folder Structure
 
-````bash
+```bash
 SmartShoppingAssistant_Backend/
 ├── .gitignore               # Files and folders to ignore in Git
 ├── README.md                # Project documentation and overview
@@ -65,6 +65,7 @@ SmartShoppingAssistant_Backend/
     ├── test/                # Unit and integration test files
     ├── utils/               # Utility functions and helpers
     └── server.js            # Main Express app entry point
+```
 
 ## Prerequisites
 
@@ -80,7 +81,7 @@ Before running this server, ensure you have the following installed:
    ```bash
    git@github.com:Alireza2A/SmartShoppingAssistant_Backend.git
    cd SmartShoppingAssistant_Backend
-````
+   ```
 
 2. Install dependencies:
 
@@ -118,7 +119,7 @@ The server will start running at [http://localhost:5001](http://localhost:5001)
 
   - connectDB test database connection on startup. Print `"database connected successfully."` if client is connected or `"database connection failed", err.message` if connection do not work.
 
-##  API Overview
+## API Overview
 
 | Endpoint             | Method | Description                         |
 | -------------------- | ------ | ----------------------------------- |
@@ -168,7 +169,7 @@ Here’s a sample from the `iphone` search:
 
 ### Amazon.de Product Scraper (with Puppeteer & Pagination)
 
-This is a powerful web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.de** based on any search term.  
+This is a powerful web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.de** based on any search term.
 It supports **automatic pagination**, meaning it will go through all result pages and collect structured product data into a single array.
 
 #### 🚀 Features
@@ -343,9 +344,6 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - [puppeteer-extra (npm)](https://www.npmjs.com/package/puppeteer-extra)
 - [puppeteer-extra-plugin-stealth (npm)](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth)
 
-  <!-- - [Cheerio Documentation](https://cheerio.js.org/) -->
-  <!-- - [Avoiding Bot Detection](https://www.scraperapi.com/blog/how-to-avoid-bot-detection/) -->
-
 #### Background Jobs & Queues
 
 - [BullMQ Docs](https://docs.bullmq.io/)
@@ -362,3 +360,7 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - [WebSockets Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - [Nodemailer Guide](https://nodemailer.com/about/)
 - [Firebase Push Notifications](https://firebase.google.com/docs/cloud-messaging)
+
+```
+
+```
