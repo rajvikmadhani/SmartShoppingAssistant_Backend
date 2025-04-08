@@ -1,6 +1,6 @@
 # SmartShoppingAssistant_Backend - Project Summary: SSA
 
-The SSA Backend is a Node.js + Express.js powered system designed to support a smart shopping assistant web application. It enables real-time product price comparisons, historical price tracking, and personalized deal notifications by scraping data from e-commerce sites like Amazon, eBay, Newegg.
+The SSA Backend is a Node.js + Express.js powered system designed to support a smart shopping assistant web application. It enables real-time product price comparisons, historical price tracking, and personalized deal notifications by scraping data from e-commerce sites like Amazon, eBay, Newegg and BackMarket.
 
 ### Contributions
 
@@ -23,7 +23,7 @@ The backend is live and hosted on [Render](https://render.com/):
 **Base API URL**:  
 [https://smartshoppingassistant-backend.onrender.com/](https://smartshoppingassistant-backend.onrender.com/)
 
-All API routes (e.g., `/api/products`, `/api/users`, etc.) are accessible from this domain.
+All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifications`,`/api/price-alerts`, `/api/scrapingJob`,`/api/coupons`, `/api/wishlist`, `/api/users` ) are accessible from this domain.
 
 ---
 
@@ -108,8 +108,6 @@ Set the following queries in [Neon](https://console.neon.tech/).
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **all available result pages**, collecting key product information into a structured format.
 
----
-
 #### 🚀 Features
 
 - ✅ Scrapes search results from **Amazon.com**
@@ -127,20 +125,18 @@ This project is a robust web scraper built with **Node.js** and **Puppeteer** th
   - Product seller rating
   - Store label (`"Amazon"`)
 
----
-
 ##### 📥 Output Example
 
 Here’s a sample from the `iphone` search:
 
 `title: Apple iPhone 13 (128GB, Blue) price: $799.00 rating: 4.7 out of 5 stars link: https://www.amazon.com/dp/B09V3HN1MZ image: https://m.media-amazon.com/images/... seller: Visit the Apple Store productSellerRate: 4.7 out of 5 stars badge: Best Seller isPrime: true delivery: FREE delivery Tomorrow store: Amazon`
 
+---
+
 ### Amazon.de Product Scraper (with Puppeteer & Pagination)
 
 This is a powerful web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.de** based on any search term.  
 It supports **automatic pagination**, meaning it will go through all result pages and collect structured product data into a single array.
-
----
 
 #### 🚀 Features
 
@@ -159,19 +155,17 @@ It supports **automatic pagination**, meaning it will go through all result page
   - Product seller rating
   - Store label (`"Amazon"`)
 
----
-
 ##### 📥 Output Example
 
 Here’s a sample output from the `iphone` search:
 
 `title: Apple iPhone 13 (128 GB) - Blue price: 849,00 € rating: 4.6 out of 5 stars link: https://www.amazon.de/dp/B09V3HN1MZ image: https://m.media-amazon.com/images/... seller: Visit the Apple Store productSellerRate: 4.6 out of 5 stars badge: Bestseller isPrime: true delivery: FREE delivery tomorrow store: Amazon`
 
+---
+
 ### eBay.com Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple pages of results**, collecting key product information into a structured format.
-
----
 
 #### 🚀 Features
 
@@ -187,19 +181,17 @@ This project is a robust web scraper built with **Node.js** and **Puppeteer** th
   - Seller location
   - Store label (`"eBay"`)
 
----
-
 ##### 📥 Output Example
 
 Here’s a sample from the `iphone` search:
 
 `title: Apple iPhone 13 128GB - Factory Unlocked price: $589.00 link: https://www.ebay.com/itm/123456789 image: https://i.ebayimg.com/images/... condition: New shipping: Free shipping location: Miami, Florida store: eBay`
 
+---
+
 ### eBay.de Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.de** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple result pages**, collecting key product information into a structured format.
-
----
 
 #### 🚀 Features
 
@@ -215,19 +207,17 @@ This project is a robust web scraper built with **Node.js** and **Puppeteer** th
   - Seller location
   - Store label (`"eBay"`)
 
----
-
 ##### 📥 Output Example
 
 Here’s a sample from the `iphone` search:
 
 `title: Apple iPhone 13 128GB - Ohne Simlock - Verschiedene Farben price: 589,00 € link: https://www.ebay.de/itm/123456789 image: https://i.ebayimg.com/images/... condition: Neu shipping: Kostenloser Versand location: Berlin, Deutschland store: eBay`
 
+---
+
 ### Newegg.com Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Newegg.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **up to 20 pages of results**, collecting key product information into a structured format.
-
----
 
 #### 🚀 Features
 
@@ -243,13 +233,42 @@ This project is a robust web scraper built with **Node.js** and **Puppeteer** th
   - Shipping information
   - Store label (`"Newegg"`)
 
----
-
 ##### 📥 Output Example
 
 Here’s a sample from the `iphone` search:
 
 `title: Apple iPhone 13 128GB (Factory Unlocked) price: 799.00$ rating: 4 out of 5 reviews: 157 link: https://www.newegg.com/p/123456789 image: https://c1.neweggimages.com/... shipping: Free Shipping store: Newegg`
+
+---
+
+### BackMarket.com Product Scraper (with Puppeteer Extra & Stealth Plugin)
+
+This project is a robust web scraper built with **Node.js**, **puppeteer-extra**, and the **stealth plugin**, specifically designed to extract product listings from **BackMarket.com**. It supports **query-based search** and scrapes **multiple result pages**, collecting detailed product data into a structured format.
+
+#### 🚀 Features
+
+- ✅ Scrapes product listings from **BackMarket.com**
+- 🔎 Supports query-based searches (brand, name, storage, color, etc.)
+- 🛡️ Uses `puppeteer-extra` with `stealth-plugin` to bypass bot detection
+- 🔄 Automatically paginates through multiple result pages
+- 📦 Extracts:
+  - Product title
+  - Price
+  - Original price
+  - Discount percentage
+  - Rating
+  - Storage specification
+  - Image URL
+  - Product detail link
+  - Store label (`"Back Market"`)
+
+##### 📥 Output Example
+
+Here’s a sample from the `Apple iPhone 128GB white` search:
+
+`title: Apple iPhone 13 128GB - White price: €489.00 original: €749.00 discount: 35% image: https://www.backmarket.com/image/iphone13.jpg link: https://www.backmarket.com/en-us/p/iphone-13/123456 rating: 4.5/5 storage: 128GB store: Back Market`
+
+---
 
 ## Dependencies
 
@@ -258,6 +277,8 @@ Here’s a sample from the `iphone` search:
 - [**sequelize**](https://sequelize.org/) – A powerful ORM for Node.js, simplifies database operations with models, relationships, and migrations.
 - [**axios**](https://www.npmjs.com/package/axios) – A promise-based HTTP client for making API requests, often used for fetching external data or services.
 - [**puppeteer**](https://pptr.dev/) – A Node.js library that provides a high-level API to control headless Chrome or Chromium for web scraping and automation.
+- [**puppeteer-extra**](https://www.npmjs.com/package/puppeteer-extra) – A plugin framework built around Puppeteer to extend its capabilities, often used for stealth mode and bypassing detection.
+- [**puppeteer-extra-plugin-stealth**](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth) – A plugin for `puppeteer-extra` that helps bypass bot detection by mimicking real browser behavior.
 - [**cheerio**](https://cheerio.js.org/) – Fast, flexible, and lean implementation of core jQuery designed for server-side HTML manipulation and scraping.
 - [**jsonwebtoken**](https://www.npmjs.com/package/jsonwebtoken) – Implements JSON Web Tokens for secure authentication and authorization in APIs.
 - [**bcrypt**](https://www.npmjs.com/package/bcrypt) – A library to hash and compare passwords securely using the bcrypt algorithm.
@@ -286,6 +307,9 @@ Here’s a sample from the `iphone` search:
 #### Web Scraping
 
 - [Puppeteer Docs](https://pptr.dev/)
+- [puppeteer-extra (npm)](https://www.npmjs.com/package/puppeteer-extra)
+- [puppeteer-extra-plugin-stealth (npm)](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth)
+
   <!-- - [Cheerio Documentation](https://cheerio.js.org/) -->
   <!-- - [Avoiding Bot Detection](https://www.scraperapi.com/blog/how-to-avoid-bot-detection/) -->
 
