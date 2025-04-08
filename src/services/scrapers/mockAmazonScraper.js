@@ -66,7 +66,7 @@ export const mockAmazonScraper = async (query) => {
         {
             title: 'iPhone 15 pink',
             title: 'iPhone 16 ',
-            price: '1.325,99',
+            price: '1325,99',
             brand: 'Apple',
             currency: '€',
             storage_gb: 128,

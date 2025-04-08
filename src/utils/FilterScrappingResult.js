@@ -46,3 +46,25 @@ export function extractColorFromTitle(title = '') {
 
     return matched || 'Not Available';
 }
+export function extractBrandFromTitle(title = '') {
+    const knownBrands = [
+        'Apple',
+        'Samsung',
+        'Google',
+        'OnePlus',
+        'Xiaomi',
+        'Huawei',
+        'Sony',
+        'Motorola',
+        'Nokia',
+        'Asus',
+        'Realme',
+        'Honor',
+        'Oppo',
+        'Lenovo',
+    ];
+
+    const matchedBrand = knownBrands.find((b) => title.toLowerCase().includes(b.toLowerCase()));
+
+    return matchedBrand || 'Unknown';
+}

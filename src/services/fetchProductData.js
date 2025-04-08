@@ -2,7 +2,7 @@
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/index.js';
-import { updatePrices, updateNewProduct } from './updateDatabase.js'; // Changed path
+import { updatePrices, updateProducts } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct } from '../utils/productRepo.js';
 import { isRealSmartphone } from './filters/smartphoneFilter.js';
@@ -20,7 +20,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     if (color) filter.color = color;
 
     let scrappedDataFilter = { ...filter, title: name };
-    let productfilter = { ...filter, name: name, brand: 'Apple' };
+    let productfilter = { ...filter, name: name };
     console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
     let product = await models.Product.findOne({
@@ -31,7 +31,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     console.log('Product:', product);
     let shouldScrape = manualTrigger; // Force scrape if triggered manually
     if (!product) {
-        product = await CreatePrimaryProduct(name, 'Apple');
+        product = await CreatePrimaryProduct(name, 'Unknown');
         newProduct = true; // Set the flag to true if a new product was created
         shouldScrape = true;
     } else {
@@ -69,7 +69,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
             console.log('i am here 0');
             //console.log('Scraped and filter and clean Data:', allResults);
             if (newProduct) {
-                updateNewProduct(product.id, allResults);
+                updateProducts(product.id, allResults);
             }
             console.log('i am here1');
             const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
