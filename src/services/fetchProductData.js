@@ -4,8 +4,9 @@ import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
 import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/index.js';
 import { updatePrices, updateProducts } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
-import { CreatePrimaryProduct } from '../utils/productRepo.js';
+import { CreatePrimaryProduct, getProductWithPricesAndSeller } from '../utils/productRepo.js';
 import { isRealSmartphone } from './filters/smartphoneFilter.js';
+import { Op } from 'sequelize'; // Added import
 
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { name, brand, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
@@ -23,10 +24,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     let productfilter = { ...filter, name: name };
     console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
-    let product = await models.Product.findOne({
-        where: productfilter,
-        include: [{ model: models.Price }],
-    });
+    let product = await getProductWithPricesAndSeller(productfilter);
     let newProduct = false; // Flag to indicate if a new product was created
     console.log('Product:', product);
     let shouldScrape = manualTrigger; // Force scrape if triggered manually

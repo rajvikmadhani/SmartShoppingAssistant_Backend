@@ -70,6 +70,16 @@ Notification.belongsTo(User, { foreignKey: 'userId' });
 Seller.belongsToMany(Store, { through: SellerStore, foreignKey: 'sellerId' });
 Store.belongsToMany(Seller, { through: SellerStore, foreignKey: 'storeId' });
 
+//Fixing the seller and store association
+// Price relationships
+Price.belongsTo(Product, { foreignKey: 'productId' });
+Price.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
+Product.hasMany(Price, { foreignKey: 'productId' });
+SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
+
+// Connect SellerStore → Seller
+SellerStore.belongsTo(Seller, { foreignKey: 'sellerId' }); // ✅ Add this line
+
 /* ============================
    🛠 Ensuring Models Are Loaded Correctly
 ============================ */

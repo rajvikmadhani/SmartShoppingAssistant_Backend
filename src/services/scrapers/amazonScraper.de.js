@@ -42,6 +42,27 @@ export const amazonScraper = async (query, domain) => {
                 const link = asin ? `https://www.amazon.de/dp/${asin}` : undefined;
                 const productSellerRate = rating;
 
+                //Discount and shipping cost
+                const deliveryText = el.innerText.toLowerCase();
+                let shippingCost = '0.00';
+
+                if (deliveryText.includes('free delivery') || deliveryText.includes('gratis')) {
+                    shippingCost = '0.00';
+                } else {
+                    const shippingMatch = deliveryText.match(/(?:delivery|shipping).*?(€|\$|£)?\s?(\d+([.,]\d+)?)/i);
+                    if (shippingMatch) {
+                        shippingCost = shippingMatch[2].replace(',', '.');
+                    }
+                }
+                const originalPriceText = el.querySelector('.a-price.a-text-price span')?.innerText || '';
+                const currentPriceText = el.querySelector('.a-price .a-offscreen')?.innerText || '';
+                const original = parseFloat(originalPriceText.replace(/[^\d,.-]/g, '').replace(',', '.'));
+                const current = parseFloat(currentPriceText.replace(/[^\d,.-]/g, '').replace(',', '.'));
+                const discount =
+                    !isNaN(original) && !isNaN(current) && original > current
+                        ? (original - current).toFixed(2)
+                        : '0.00';
+
                 // Normalize price and currency
                 const currencyMatch = priceText?.match(/(€|\$|£)/);
                 const currency = currencyMatch ? currencyMatch[1] : '€';
@@ -81,6 +102,8 @@ export const amazonScraper = async (query, domain) => {
                         ram_gb,
                         ramMatch,
                         rating,
+                        shippingCost,
+                        discount,
                         link,
                         image,
                         seller,
