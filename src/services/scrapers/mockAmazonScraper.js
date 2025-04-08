@@ -1,7 +1,7 @@
 export const mockAmazonScraper = async (query) => {
     const result = [
         {
-            name: 'iPhone 13',
+            title: 'iPhone 13',
             brand: 'Apple',
             price: '569,00',
             rating: '4.5',
@@ -18,7 +18,7 @@ export const mockAmazonScraper = async (query) => {
             seller_rating: '5',
         },
         {
-            name: 'iPhone 14',
+            title: 'iPhone 14',
             price: '514,51',
             currency: '€',
             brand: 'Apple',
@@ -38,7 +38,7 @@ export const mockAmazonScraper = async (query) => {
             seller_rating: '5',
         },
         {
-            name: 'iPhone 15',
+            title: 'iPhone 15',
             price: '836,99',
             currency: '€',
             brand: 'Apple',
@@ -57,7 +57,7 @@ export const mockAmazonScraper = async (query) => {
             seller_rating: '5',
         },
         {
-            name: 'iPhone 16',
+            title: 'iPhone 16',
             price: '1.325,99',
             brand: 'Apple',
             currency: '€',
@@ -75,12 +75,6 @@ export const mockAmazonScraper = async (query) => {
             currency: '€',
             seller_rating: '5',
         },
-    ].filter((product) =>
-        Object.entries(query).every(([key, value]) => {
-            //console.log('querykey', key, 'product[key]', product[key], 'query Value:', value); // Debugging line
-            // Check if the product property exists and is a string
-            return typeof product[key] === 'string' && product[key].toLowerCase().includes(value.toLowerCase());
-        })
-    );
+    ];
     return result;
 };
