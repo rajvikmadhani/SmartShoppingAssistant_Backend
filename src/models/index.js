@@ -43,8 +43,14 @@ Product.hasMany(PriceHistory, { foreignKey: 'productId' });
 SellerStore.hasMany(PriceHistory, { foreignKey: 'sellerStoreId' });
 
 //  Wishlist relationships
-Product.belongsToMany(User, { through: Wishlist, foreignKey: 'productId', otherKey: 'userId' });
-User.belongsToMany(Product, { through: Wishlist, foreignKey: 'userId', otherKey: 'productId' });
+User.hasMany(Wishlist, { foreignKey: 'userId' });
+Wishlist.belongsTo(User, { foreignKey: 'userId' });
+
+Product.hasMany(Wishlist, { foreignKey: 'productId' });
+Wishlist.belongsTo(Product, { foreignKey: 'productId' });
+
+Price.hasMany(Wishlist, { foreignKey: 'priceId' });
+Wishlist.belongsTo(Price, { foreignKey: 'priceId' });
 
 //  PriceAlert relationships
 Product.belongsToMany(User, { through: PriceAlert, foreignKey: 'productId', otherKey: 'userId' });
@@ -79,6 +85,8 @@ SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
 
 // Connect SellerStore → Seller
 SellerStore.belongsTo(Seller, { foreignKey: 'sellerId' }); // ✅ Add this line
+SellerStore.belongsTo(Store, { foreignKey: 'storeId' });
+Store.hasMany(SellerStore, { foreignKey: 'storeId' });
 
 /* ============================
    🛠 Ensuring Models Are Loaded Correctly
