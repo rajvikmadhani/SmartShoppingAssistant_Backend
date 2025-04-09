@@ -21,14 +21,6 @@ export default (sequelize) => {
                 type: DataTypes.TEXT,
                 allowNull: false,
             },
-            ram_gb: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            storage_gb: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
         },
         { timestamps: true }
     );
