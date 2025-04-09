@@ -5,6 +5,11 @@
   "type": "module",
   "scripts": {
     "test": "jest --watchAll",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage:watch": "jest --coverage --watch",
+    "test:coverage:ci": "jest --coverage --ci",
+    "test:coverage:ci:report": "jest --coverage --ci --reporters=default --reporters=jest-junit",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed": "node seeders/seedUsers.js"
