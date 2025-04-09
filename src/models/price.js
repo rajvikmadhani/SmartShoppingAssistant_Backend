@@ -26,6 +26,14 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            ram_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            storage_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
             sellerStoreId: {
                 type: DataTypes.UUID,
                 allowNull: false,

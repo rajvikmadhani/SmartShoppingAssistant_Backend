@@ -63,13 +63,12 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         const ebayArray = Array.isArray(ebayResults) ? ebayResults : Array.from(ebayResults || []);
         let allResults = [...amazonArray, ...ebayArray];
         allResults = allResults.filter((prod) => isRealSmartphone(prod));
+        console.log('The length of the scraped and filter and clean Data:', allResults.length);
+
         if (allResults.length > 0) {
-            console.log('i am here 0');
-            //console.log('Scraped and filter and clean Data:', allResults);
             if (newProduct) {
                 updateProducts(product.id, allResults);
             }
-            console.log('i am here1');
             const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
             //console.log('Scraping completed and database updated.');
             return updatedProduct;

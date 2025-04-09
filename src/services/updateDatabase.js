@@ -38,6 +38,8 @@ export const updatePrices = async (product, scrapedData) => {
             currency,
             availability,
             image,
+            ram_gb,
+            storage_gb,
             storeId,
             link,
             shippingCost = '-1',
@@ -65,6 +67,8 @@ export const updatePrices = async (product, scrapedData) => {
             currency: currency,
             availability: availability,
             mainImgUrl: image || 'Not Available',
+            ram_gb: ram_gb || 0,
+            storage_gb: storage_gb || 0,
             color: extractColorFromTitle(title),
             product_link: link || 'Not Available',
             shippingCost: textToNumber(shippingCost),
@@ -97,8 +101,6 @@ export const updateProducts = async (productId, scrapedData) => {
         product.name = data.name || product.name;
         product.description = data.description || product.description;
         product.brand = data.brand || product.brand;
-        product.ram_gb = data.ram_gb || product.ram_gb;
-        product.storage_gb = data.storage_gb || product.storage_gb;
         product.brand = extractBrandFromTitle(data.title) || product.brand;
         // Save the updated product
         await product.save();
