@@ -325,8 +325,15 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 
 ## Dev Dependencies
 
+## Dev Dependencies
+
 - [**dotenv**](https://www.npmjs.com/package/dotenv) – Loads environment variables from a `.env` file into `process.env`, keeping sensitive config out of your code.
 - [**nodemon**](https://nodemon.io/) – Monitors your source files and restarts the server automatically on changes, speeding up development.
+- [**jest**](https://jestjs.io/) – A delightful JavaScript testing framework with built-in assertion, mocking, snapshot testing, and more.
+- [**supertest**](https://www.npmjs.com/package/supertest) – A high-level abstraction for testing HTTP endpoints in Node.js apps, ideal for Express APIs.
+- [**babel-jest**](https://www.npmjs.com/package/babel-jest) – A Jest transformer that allows using Babel to preprocess your tests written in modern JavaScript.
+- [**@babel/preset-env**](https://babeljs.io/docs/en/babel-preset-env) – A smart preset that compiles modern JavaScript based on your target environments.
+- [**@babel/core**](https://www.npmjs.com/package/@babel/core) – The core compiler module of Babel used for transforming ES6/ESNext code into backward-compatible JavaScript.
 
 # Project Resources
 
@@ -344,6 +351,12 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - [puppeteer-extra (npm)](https://www.npmjs.com/package/puppeteer-extra)
 - [puppeteer-extra-plugin-stealth (npm)](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth)
 
+#### Testing
+
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [Supertest (HTTP assertions)](/https://www.npmjs.com/package/supertest)
+- [Using Babel with Jest](https://jestjs.io/docs/configuration)
+
 #### Background Jobs & Queues
 
 - [BullMQ Docs](https://docs.bullmq.io/)
@@ -360,7 +373,3 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - [WebSockets Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - [Nodemailer Guide](https://nodemailer.com/about/)
 - [Firebase Push Notifications](https://firebase.google.com/docs/cloud-messaging)
-
-```
-
-```
