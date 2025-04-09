@@ -56,6 +56,10 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
+            product_rating: {
+                type: DataTypes.STRING, // or DECIMAL if you want to parse to a float later
+                allowNull: true,
+            },
             availability: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,

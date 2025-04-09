@@ -37,10 +37,8 @@ Product.hasMany(Price, { foreignKey: 'productId' });
 SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
 
 //  PriceHistory relationships
-PriceHistory.belongsTo(Product, { foreignKey: 'productId' });
-PriceHistory.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
-Product.hasMany(PriceHistory, { foreignKey: 'productId' });
-SellerStore.hasMany(PriceHistory, { foreignKey: 'sellerStoreId' });
+Price.hasMany(PriceHistory, { foreignKey: 'priceId' });
+PriceHistory.belongsTo(Price, { foreignKey: 'priceId' });
 
 //  Wishlist relationships
 User.hasMany(Wishlist, { foreignKey: 'userId' });
