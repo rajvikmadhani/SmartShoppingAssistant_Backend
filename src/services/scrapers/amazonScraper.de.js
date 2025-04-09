@@ -34,7 +34,16 @@ export const amazonScraper = async (query, domain) => {
                 const priceText = el.querySelector('.a-price .a-offscreen')?.innerText;
                 const rating = el.querySelector('.a-icon-alt')?.innerText;
                 const image = el.querySelector('.s-image')?.src;
-                const seller = el.querySelector('.a-row.a-size-base.a-color-secondary')?.innerText;
+                const secondaryInfo = el.querySelector('.a-row.a-size-base.a-color-secondary')?.innerText;
+                let seller = 'Unknown Seller';
+                const sellerSection = el.querySelector('.a-row.a-size-base.a-color-secondary')?.innerText || '';
+                const soldByMatch = sellerSection.match(/Verkauf(?:t)? durch ([^\n\r]+)(?: und|,|$)/i);
+                if (soldByMatch && soldByMatch[1]) {
+                    seller = soldByMatch[1].trim();
+                } else if (sellerSection.includes('Versand durch Amazon')) {
+                    seller = 'Amazon';
+                }
+
                 const badge = el.querySelector('.s-badge-text')?.innerText;
                 const isPrime = !!el.querySelector('.a-icon-prime');
                 const delivery = el.querySelector('.a-color-base.a-text-bold')?.innerText;
@@ -73,7 +82,7 @@ export const amazonScraper = async (query, domain) => {
                 for (const b of knownBrands) {
                     if (
                         title?.toLowerCase().includes(b.toLowerCase()) ||
-                        seller?.toLowerCase().includes(b.toLowerCase())
+                        secondaryInfo?.toLowerCase().includes(b.toLowerCase())
                     ) {
                         detectedBrand = b;
                         break;
@@ -88,7 +97,12 @@ export const amazonScraper = async (query, domain) => {
 
                 // Placeholder availability
                 const availability =
-                    el.innerText.includes('In stock') || el.innerText.includes('Available') ? '1' : '0';
+                    el.innerText.includes('Auf Lager') ||
+                    el.innerText.includes('Derzeit verfügbar') ||
+                    el.innerText.includes('Nur noch')
+                        ? '1'
+                        : '0';
+
                 const seller_rating = rating;
 
                 if (title && price) {

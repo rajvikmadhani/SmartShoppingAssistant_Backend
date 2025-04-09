@@ -10,27 +10,17 @@ export default (sequelize) => {
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            productId: {
+            priceId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    model: 'Products', // Reference the correct table
+                    model: 'Prices',
                     key: 'id',
                 },
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE',
             },
-            sellerStoreId: {
-                // Changed from storeId
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'SellerStores', // Reference the correct table
-                    key: 'id',
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'CASCADE',
-            },
+
             currency: {
                 type: DataTypes.STRING,
                 allowNull: false,

@@ -37,6 +37,7 @@ export const updatePrices = async (product, scrapedData) => {
             price,
             currency,
             availability,
+            productSellerRate,
             image,
             ram_gb,
             storage_gb,
@@ -50,31 +51,36 @@ export const updatePrices = async (product, scrapedData) => {
         // Get or create the SellerStore record
         const sellerStore = await getOrCreateSellerStore(storeId, seller || 'Unknown Seller', seller_rating);
 
-        // Create price history with sellerStoreId
-        await models.PriceHistory.create({
-            productId: product.id,
-            sellerStoreId: sellerStore.id,
-            price: textToNumber(price),
-            currency: currency,
-            lastUpdated: new Date(),
-        });
+        // Insert or update the Price row, and return the instance
+        const [priceEntry, created] = await models.Price.upsert(
+            {
+                productId: product.id,
+                sellerStoreId: sellerStore.id,
+                price: textToNumber(price),
+                currency,
+                availability,
+                mainImgUrl: image || 'Not Available',
+                ram_gb: ram_gb || 0,
+                storage_gb: storage_gb || 0,
+                color: extractColorFromTitle(title),
+                product_link: link || 'Not Available',
+                shippingCost: textToNumber(shippingCost),
+                discount: textToNumber(discount),
+                product_rating: productSellerRate,
+                lastUpdated: new Date(),
+            },
+            {
+                returning: true,
+            }
+        );
 
-        // Update or create price with sellerStoreId
-        await models.Price.upsert({
-            productId: product.id,
-            sellerStoreId: sellerStore.id,
+        // Use the returned priceId directly for history
+        await models.PriceHistory.create({
+            priceId: priceEntry.id,
             price: textToNumber(price),
-            currency: currency,
-            availability: availability,
-            mainImgUrl: image || 'Not Available',
-            ram_gb: ram_gb || 0,
-            storage_gb: storage_gb || 0,
-            color: extractColorFromTitle(title),
-            product_link: link || 'Not Available',
-            shippingCost: textToNumber(shippingCost),
-            discount: textToNumber(discount),
-            seller_rating, // Consider removing this since it's in SellerStore
-            lastUpdated: new Date(),
+            currency,
+            availability,
+            recordedAt: new Date(),
         });
     }
 
