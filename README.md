@@ -50,6 +50,8 @@ All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifi
 SmartShoppingAssistant_Backend/
 ├── .gitignore               # Files and folders to ignore in Git
 ├── README.md                # Project documentation and overview
+├── babel.config.js          # Babel configuration for transforming modern JS
+├── jest.config.js           # Jest configuration for running tests
 ├── package.json             # Project metadata, dependencies, and scripts
 ├── package-lock.json        # Ensures consistent installs across environments
 
@@ -119,9 +121,6 @@ The server will start running at [http://localhost:5001](http://localhost:5001)
 
   - connectDB test database connection on startup. Print `"database connected successfully."` if client is connected or `"database connection failed", err.message` if connection do not work.
 
-
-
-
 ## 📡 API Endpoints Overview
 
 This section outlines the available backend API routes for the SmartShoppingAssistant project. These endpoints support key functionalities such as fetching products, searching in real-time, user authentication, profile management, wishlist actions, and price tracking.
@@ -131,14 +130,17 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 ### 🛍️ Product Endpoints
 
 #### 🔹 Fetch All Products
+
 - **GET** `/api/products`  
   Returns all products from the **database only**.
 
 #### 🔹 Search Products (Live Scrape or DB)
+
 - **GET** `/api/liveData/?name=iPhone&brand=Apple`  
   Searches a product by query. May return results from the **database** or **scraped live** from external sources depending on availability.
 
 #### 🔹 Best Price Products (Homepage)
+
 - **GET** `/api/products/best-prices`  
   Returns a selection of products with the **best available prices** for homepage display.
 
@@ -147,43 +149,50 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 ### 🙍‍♂️ Authentication & User
 
 #### 🔹 Register a New User
+
 - **POST** `/api/auth/register`  
   **Body Parameters:**  
   Required: `name`, `email`, `password`  
   Optional: `surname`, `street`, `city`, `zipcode`, `about`, `phone`
 
 #### 🔹 Login
+
 - **POST** `/api/auth/login`  
   **Body Parameters:**  
   Required: `email`, `password`
 
 #### 🔹 User Profile (Get & Update)
+
 - **GET** `/api/users/profile`  
-  Returns the logged-in user's profile.  
+  Returns the logged-in user's profile.
 - **PUT** `/api/users/profile`  
-  **Body Parameters:** *(All optional)*  
-  `name`, `surname`, `email`, `street`, `city`, `zipcode`, `about`, `phone`  
+  **Body Parameters:** _(All optional)_  
+  `name`, `surname`, `email`, `street`, `city`, `zipcode`, `about`, `phone`
 
 ---
 
 ### ❤️ Wishlist
 
 #### 🔹 View Wishlist
+
 - **GET** `/api/wishlist`  
   Returns all wishlist items for the current user.
 
 #### 🔹 Add to Wishlist
+
 - **POST** `/api/wishlist`  
   **Body Parameters:**  
   Required: `productId`, `priceId`  
   Optional: `note`
 
 #### 🔹 Update Wishlist Note
+
 - **PUT** `/api/wishlist/:id`  
   **Body Parameters:**  
   Required: `note`
 
 #### 🔹 Remove from Wishlist
+
 - **DELETE** `/api/wishlist/:id`  
   Deletes a wishlist item by ID.
 
@@ -192,19 +201,19 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 ### 📊 Price History
 
 #### 🔹 Get Product Price Chart
+
 - **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`  
   Returns time-series data points:  
-  `{ label: <Date>, value: <price> }`  
+  `{ label: <Date>, value: <price> }`
 
 #### 🔹 Get Raw Price History
+
 - **GET** `/api/price-history/:productId?storage=512`  
-  **Query Parameters:**  
-  - Required: `productId`, `storage`  
+  **Query Parameters:**
+  - Required: `productId`, `storage`
   - Optional: `ram`, `color`
 
 ---
-
-
 
 # Database
 
