@@ -119,16 +119,92 @@ The server will start running at [http://localhost:5001](http://localhost:5001)
 
   - connectDB test database connection on startup. Print `"database connected successfully."` if client is connected or `"database connection failed", err.message` if connection do not work.
 
-## API Overview
 
-| Endpoint             | Method | Description                         |
-| -------------------- | ------ | ----------------------------------- |
-| `/api/auth/register` | POST   | Register a new user                 |
-| `/api/auth/login`    | POST   | Authenticate and return a JWT token |
-| `/api/products`      | GET    | Get all available products          |
-| `/api/liveData`      | POST   | Trigger live scraping by query      |
-| `/api/price-alerts`  | POST   | Create a new price alert            |
-| `/api/wishlist`      | GET    | Get user wishlist items             |
+
+
+## 📡 API Endpoints Overview
+
+This section outlines the available backend API routes for the SmartShoppingAssistant project. These endpoints support key functionalities such as fetching products, searching in real-time, user authentication, profile management, wishlist actions, and price tracking.
+
+---
+
+### 🛍️ Product Endpoints
+
+#### 🔹 Fetch All Products
+- **GET** `/api/products`  
+  Returns all products from the **database only**.
+
+#### 🔹 Search Products (Live Scrape or DB)
+- **GET** `/api/liveData/?name=iPhone&brand=Apple`  
+  Searches a product by query. May return results from the **database** or **scraped live** from external sources depending on availability.
+
+#### 🔹 Best Price Products (Homepage)
+- **GET** `/api/products/best-prices`  
+  Returns a selection of products with the **best available prices** for homepage display.
+
+---
+
+### 🙍‍♂️ Authentication & User
+
+#### 🔹 Register a New User
+- **POST** `/api/auth/register`  
+  **Body Parameters:**  
+  Required: `name`, `email`, `password`  
+  Optional: `surname`, `street`, `city`, `zipcode`, `about`, `phone`
+
+#### 🔹 Login
+- **POST** `/api/auth/login`  
+  **Body Parameters:**  
+  Required: `email`, `password`
+
+#### 🔹 User Profile (Get & Update)
+- **GET** `/api/users/profile`  
+  Returns the logged-in user's profile.  
+- **PUT** `/api/users/profile`  
+  **Body Parameters:** *(All optional)*  
+  `name`, `surname`, `email`, `street`, `city`, `zipcode`, `about`, `phone`  
+
+---
+
+### ❤️ Wishlist
+
+#### 🔹 View Wishlist
+- **GET** `/api/wishlist`  
+  Returns all wishlist items for the current user.
+
+#### 🔹 Add to Wishlist
+- **POST** `/api/wishlist`  
+  **Body Parameters:**  
+  Required: `productId`, `priceId`  
+  Optional: `note`
+
+#### 🔹 Update Wishlist Note
+- **PUT** `/api/wishlist/:id`  
+  **Body Parameters:**  
+  Required: `note`
+
+#### 🔹 Remove from Wishlist
+- **DELETE** `/api/wishlist/:id`  
+  Deletes a wishlist item by ID.
+
+---
+
+### 📊 Price History
+
+#### 🔹 Get Product Price Chart
+- **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`  
+  Returns time-series data points:  
+  `{ label: <Date>, value: <price> }`  
+
+#### 🔹 Get Raw Price History
+- **GET** `/api/price-history/:productId?storage=512`  
+  **Query Parameters:**  
+  - Required: `productId`, `storage`  
+  - Optional: `ram`, `color`
+
+---
+
+
 
 # Database
 
