@@ -5,7 +5,7 @@ export async function enqueueScrapingJob(productId, sourceUrl) {
         'scrape-product',
         { productId, sourceUrl },
         {
-            attempts: 3,
+            attempts: 1,
             backoff: { type: 'exponential', delay: 3000 },
         }
     );
