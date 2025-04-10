@@ -6,8 +6,7 @@ import { updatePrices, updateProducts } from './updateDatabase.js'; // Changed p
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct, getProductWithPricesAndSeller } from '../utils/productRepo.js';
 import { isRealSmartphone } from './filters/smartphoneFilter.js';
-import { Op } from 'sequelize'; // Added import
-
+import { getInsensitiveMatch } from '../utils/textHelper.js';
 export const fetchProductData = async (productQuery, manualTrigger = false) => {
     const { name, brand, storage_gb, ram_gb, color, region = 'DE' } = productQuery;
     console.log('productQuery:', productQuery);
@@ -21,7 +20,7 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     if (color) filter.color = color;
 
     let scrappedDataFilter = { ...filter, title: name };
-    let productfilter = { ...filter, name: name };
+    let productfilter = getInsensitiveMatch(name, filter);
     console.log('scrappedDataFilter:', scrappedDataFilter);
     // Check if the product exists in the DB
     let product = await getProductWithPricesAndSeller(productfilter);
