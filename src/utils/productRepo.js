@@ -43,7 +43,7 @@ export const getBestPrices = async () => {
     console.log('Fetching best prices...');
 
     const products = await models.Product.findAll({
-        attributes: ['id', 'name', 'brand', 'ram_gb', 'storage_gb'],
+        attributes: ['id', 'name', 'brand'],
         include: [
             {
                 model: models.Price,
