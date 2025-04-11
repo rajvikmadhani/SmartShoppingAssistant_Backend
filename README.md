@@ -1,73 +1,85 @@
-# SmartShoppingAssistant_Backend - Project Summary: SSA
+# 🛍️ SmartShoppingAssistant_Backend - Project Summary: SSA
 
-The SSA Backend is a Node.js + Express.js powered system designed to support a smart shopping assistant web application. It enables real-time product price comparisons, historical price tracking, and personalized deal notifications by scraping data from e-commerce sites like Amazon, eBay, Newegg and BackMarket.
+The SSA Backend is a **Node.js** + **Express.js** powered system designed to support a smart shopping assistant web application. It enables:
 
-### Contributions
+- 💰 Real-time product price comparisons
+- 📈 Historical price tracking
+- 🔔 Personalized deal notifications
 
-- [Mounika](https://github.com/Mounika-Nanjala)
-- [Rajvi](https://github.com/rajvikmadhani)
-- [Alireza](https://github.com/Alireza2A)
-- [Andrei](https://github.com/raizy21)
-
-are maintainers for this repository.
-
-## Deployment
-
-### Backend
-
-**GitHub Repository**:  
-[https://github.com/Alireza2A/SmartShoppingAssistant_Backend](https://github.com/Alireza2A/SmartShoppingAssistant_Backend)
-
-The backend is live and hosted on [Render](https://render.com/):
-
-**Base API URL**:  
-[https://smartshoppingassistant-backend.onrender.com/](https://smartshoppingassistant-backend.onrender.com/)
-
-All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifications`,`/api/price-alerts`, `/api/scrapingJob`,`/api/coupons`, `/api/wishlist`, `/api/users` ) are accessible from this domain.
+It scrapes data from e-commerce sites like **Amazon**, **eBay**, **Newegg**, and **BackMarket**.
 
 ---
 
-### Frontend
+### 👥 Contributions
 
-**GitHub Repository**:  
-[https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend](https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend)
+- 👩‍💻 [Mounika](https://github.com/Mounika-Nanjala)
+- 👩‍💻 [Rajvi](https://github.com/rajvikmadhani)
+- 👨‍💻 [Alireza](https://github.com/Alireza2A)
+- 👨‍💻 [Andrei](https://github.com/raizy21)
 
-**Live Deployment**:  
-[https://smartshoppingassistant-frontend.onrender.com/](https://smartshoppingassistant-frontend.onrender.com/)
+_Are maintainers for this repository._
 
-# Key Technologies
+---
 
-- Backend: Node.js + Express.js
-- Database: PostgreSQL (hosted on Neon)
-- Web Scraping: Puppeteer
-- Queue & Background Jobs: BullMQ + Redis
-- Real-time Updates: WebSockets / Polling
-- Notifications: Email (Nodemailer) & Push (Firebase)
+## 🚀 Deployment
 
-## Folder Structure
+### 🧠 Backend
 
-```bash
+**📦 GitHub Repository**:  
+🔗 [https://github.com/Alireza2A/SmartShoppingAssistant_Backend](https://github.com/Alireza2A/SmartShoppingAssistant_Backend)
+
+🌍 **Live Backend (Render)**:  
+🔗 [https://smartshoppingassistant-backend.onrender.com/](https://smartshoppingassistant-backend.onrender.com/)
+
+🧪 API routes available from this domain include:  
+`/api/auth`, `/api/products`, `/api/liveData`, `/api/notifications`, `/api/price-alerts`, `/api/scrapingJob`, `/api/coupons`, `/api/wishlist`, `/api/users`
+
+---
+
+### 🖥️ Frontend
+
+**📦 GitHub Repository**:  
+🔗 [https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend](https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend)
+
+🌍 **Live Frontend**:  
+🔗 [https://smartshoppingassistant-frontend.onrender.com/](https://smartshoppingassistant-frontend.onrender.com/)
+
+---
+
+# 🧰 Key Technologies
+
+- ⚙️ **Backend**: Node.js + Express.js
+- 🗃️ **Database**: PostgreSQL (hosted on Neon)
+- 🕷️ **Web Scraping**: Puppeteer
+- ⏱️ **Background Jobs**: BullMQ + Redis
+- 🔄 **Real-time Updates**: WebSockets / Polling
+- 📬 **Notifications**: Email (Nodemailer) & Push (Firebase)
+
+---
+
+## 🗂️ Folder Structure
+
+````bash
 SmartShoppingAssistant_Backend/
-├── .gitignore               # Files and folders to ignore in Git
-├── README.md                # Project documentation and overview
-├── babel.config.js          # Babel configuration for transforming modern JS
-├── jest.config.js           # Jest configuration for running tests
-├── package.json             # Project metadata, dependencies, and scripts
-├── package-lock.json        # Ensures consistent installs across environments
+├── 📄 .gitignore               # Files and folders to ignore in Git
+├── 📄 README.md                # Project documentation and overview
+├── ⚙️ babel.config.js          # Babel configuration for transforming modern JS
+├── ⚙️ jest.config.js           # Jest configuration for running tests
+├── 📦 package.json             # Project metadata, dependencies, and scripts
+├── 📦 package-lock.json        # Ensures consistent installs across environments
 
-└── src/                     # Main source code directory
-    ├── config/              # App configuration (DB, Redis, BullMQ, etc.)
-    ├── controllers/         # Route controllers — request handlers
-    ├── db/                  # DB init files, connection logic, seeders
-    ├── middleware/          # Express middleware (auth, validation, error handling)
-    ├── models/              # Sequelize models — define DB schema
-    ├── routes/              # API route definitions and modular route files
-    ├── schemas/             # Joi validation schemas for request validation
-    ├── services/            # Business logic and services (scrapers, notifications, etc.)
-    ├── test/                # Unit and integration test files
-    ├── utils/               # Utility functions and helpers
-    └── server.js            # Main Express app entry point
-```
+└── 📁 src/                     # Main source code directory
+    ├── ⚙️ config/              # App configuration (DB, Redis, BullMQ, etc.)
+    ├── 🧠 controllers/         # Route controllers — request handlers
+    ├── 🗃️ db/                  # DB init files, connection logic, seeders
+    ├── 🧩 middleware/          # Express middleware (auth, validation, error handling)
+    ├── 🧬 models/              # Sequelize models — define DB schema
+    ├── 🛣️ routes/              # API route definitions and modular route files
+    ├── 📜 schemas/             # Joi validation schemas for request validation
+    ├── 🛠️ services/            # Business logic and services (scrapers, notifications, etc.)
+    ├── 🧪 test/                # Unit and integration test files
+    ├── 🔧 utils/               # Utility functions and helpers
+    └── 🚀 server.js            # Main Express app entry point
 
 ## Prerequisites
 
@@ -83,7 +95,7 @@ Before running this server, ensure you have the following installed:
    ```bash
    git@github.com:Alireza2A/SmartShoppingAssistant_Backend.git
    cd SmartShoppingAssistant_Backend
-   ```
+````
 
 2. Install dependencies:
 
