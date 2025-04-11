@@ -1,107 +1,147 @@
-# SmartShoppingAssistant_Backend - Project Summary: SSA
+# 🛍️ SmartShoppingAssistant_Backend - Project Summary: SSA
 
-The SSA Backend is a Node.js + Express.js powered system designed to support a smart shopping assistant web application. It enables real-time product price comparisons, historical price tracking, and personalized deal notifications by scraping data from e-commerce sites like Amazon, eBay, Newegg and BackMarket.
+The SSA Backend is a **Node.js** + **Express.js** powered system designed to support a smart shopping assistant web application. It enables:
 
-### Contributions
+- 💰 Real-time product price comparisons
+- 📈 Historical price tracking
+- 🔔 Personalized deal notifications
 
-- [Mounika](https://github.com/Mounika-Nanjala)
-- [Rajvi](https://github.com/rajvikmadhani)
-- [Alireza](https://github.com/Alireza2A)
-- [Andrei](https://github.com/raizy21)
-
-are maintainers for this repository.
-
-## Deployment
-
-### Backend
-
-**GitHub Repository**:  
-[https://github.com/Alireza2A/SmartShoppingAssistant_Backend](https://github.com/Alireza2A/SmartShoppingAssistant_Backend)
-
-The backend is live and hosted on [Render](https://render.com/):
-
-**Base API URL**:  
-[https://smartshoppingassistant-backend.onrender.com/](https://smartshoppingassistant-backend.onrender.com/)
-
-All API routes (e.g., `/api/auth`, `/api/products`,`/api/liveData`, `/api/notifications`,`/api/price-alerts`, `/api/scrapingJob`,`/api/coupons`, `/api/wishlist`, `/api/users` ) are accessible from this domain.
+It scrapes data from e-commerce sites like **Amazon**, **eBay**, **Newegg**, and **BackMarket**.
 
 ---
 
-### Frontend
+# 📚 Table of Contents
 
-**GitHub Repository**:  
-[https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend](https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend)
+- 🛍️ [Project Summary](#-smartshoppingassistant_backend---project-summary-ssa)
+- 👥 [Contributions](#-contributions)
+- 🚀 [Deployment](#-deployment)
+  - 🧠 [Backend](#-backend)
+  - 🖥️ [Frontend](#-frontend)
+- 🧰 [Key Technologies](#-key-technologies)
+- 🗂️ [Folder Structure](#-folder-structure)
+- 🧾 [Prerequisites, Installation & Configuration](#-prerequisites-installation--configuration)
+- ⚙️ [Backend Details](#-backend-1)
+- 🛢️ [Database Setup](#-database)
+- 🔎 [Scraper Overview](#-scraper)
+  - 🛒 Amazon.com Scraper
+  - 🇩🇪 Amazon.de Scraper
+  - 🌍 eBay.com Scraper
+  - 🇩🇪 eBay.de Scraper
+  - 💻 Newegg.com Scraper
+  - 🧲 BackMarket.com Scraper
+- 🔌 [API Endpoints](#-api-endpoints-overview)
+- 📦 [Dependencies](#-dependencies)
+- 🧪 [Dev Dependencies](#-dev-dependencies)
+- 📚 [Project Resources](#-project-resources)
 
-**Live Deployment**:  
-[https://smartshoppingassistant-frontend.onrender.com/](https://smartshoppingassistant-frontend.onrender.com/)
+### 👥 Contributions
 
-# Key Technologies
+- 👩‍💻 [Mounika](https://github.com/Mounika-Nanjala)
+- 👩‍💻 [Rajvi](https://github.com/rajvikmadhani)
+- 👨‍💻 [Alireza](https://github.com/Alireza2A)
+- 👨‍💻 [Andrei](https://github.com/raizy21)
 
-- Backend: Node.js + Express.js
-- Database: PostgreSQL (hosted on Neon)
-- Web Scraping: Puppeteer
-- Queue & Background Jobs: BullMQ + Redis
-- Real-time Updates: WebSockets / Polling
-- Notifications: Email (Nodemailer) & Push (Firebase)
+_Are maintainers for this repository._
 
-## Folder Structure
+---
+
+## 🚀 Deployment
+
+### 🧠 Backend
+
+**📦 GitHub Repository**:  
+🔗 [https://github.com/Alireza2A/SmartShoppingAssistant_Backend](https://github.com/Alireza2A/SmartShoppingAssistant_Backend)
+
+🌍 **Live Backend (Render)**:  
+🔗 [https://smartshoppingassistant-backend.onrender.com/](https://smartshoppingassistant-backend.onrender.com/)
+
+🧪 API routes available from this domain include:  
+`/api/auth`, `/api/products`, `/api/liveData`, `/api/notifications`, `/api/price-alerts`, `/api/scrapingJob`, `/api/coupons`, `/api/wishlist`, `/api/users`
+
+---
+
+### 🖥️ Frontend
+
+**📦 GitHub Repository**:  
+🔗 [https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend](https://github.com/rajvikmadhani/SmartShoppingAssistant_Frontend)
+
+🌍 **Live Frontend**:  
+🔗 [https://smartshoppingassistant-frontend.onrender.com/](https://smartshoppingassistant-frontend.onrender.com/)
+
+---
+
+# 🧰 Key Technologies
+
+- ⚙️ **Backend**: Node.js + Express.js
+- 🗃️ **Database**: PostgreSQL (hosted on Neon)
+- 🕷️ **Web Scraping**: Puppeteer
+- ⏱️ **Background Jobs**: BullMQ + Redis
+- 🔄 **Real-time Updates**: WebSockets / Polling
+- 📬 **Notifications**: Email (Nodemailer) & Push (Firebase)
+
+---
+
+## 🗂️ Folder Structure
 
 ```bash
 SmartShoppingAssistant_Backend/
-├── .gitignore               # Files and folders to ignore in Git
-├── README.md                # Project documentation and overview
-├── babel.config.js          # Babel configuration for transforming modern JS
-├── jest.config.js           # Jest configuration for running tests
-├── package.json             # Project metadata, dependencies, and scripts
-├── package-lock.json        # Ensures consistent installs across environments
+├── 📄 .gitignore               # Files and folders to ignore in Git
+├── 📄 README.md                # Project documentation and overview
+├── ⚙️ babel.config.js          # Babel configuration for transforming modern JS
+├── ⚙️ jest.config.js           # Jest configuration for running tests
+├── 📦 package.json             # Project metadata, dependencies, and scripts
+├── 📦 package-lock.json        # Ensures consistent installs across environments
 
-└── src/                     # Main source code directory
-    ├── config/              # App configuration (DB, Redis, BullMQ, etc.)
-    ├── controllers/         # Route controllers — request handlers
-    ├── db/                  # DB init files, connection logic, seeders
-    ├── middleware/          # Express middleware (auth, validation, error handling)
-    ├── models/              # Sequelize models — define DB schema
-    ├── routes/              # API route definitions and modular route files
-    ├── schemas/             # Joi validation schemas for request validation
-    ├── services/            # Business logic and services (scrapers, notifications, etc.)
-    ├── test/                # Unit and integration test files
-    ├── utils/               # Utility functions and helpers
-    └── server.js            # Main Express app entry point
+└── 📁 src/                     # Main source code directory
+    ├── ⚙️ config/              # App configuration (DB, Redis, BullMQ, etc.)
+    ├── 🧠 controllers/         # Route controllers — request handlers
+    ├── 🗃️ db/                  # DB init files, connection logic, seeders
+    ├── 🧩 middleware/          # Express middleware (auth, validation, error handling)
+    ├── 🧬 models/              # Sequelize models — define DB schema
+    ├── 🛣️ routes/              # API route definitions and modular route files
+    ├── 📜 schemas/             # Joi validation schemas for request validation
+    ├── 🛠️ services/            # Business logic and services (scrapers, notifications, etc.)
+    ├── 🧪 test/                # Unit and integration test files
+    ├── 🔧 utils/               # Utility functions and helpers
+    └── 🚀 server.js            # Main Express app entry point
+
 ```
 
-## Prerequisites
+## 🧰 Prerequisites
 
 Before running this server, ensure you have the following installed:
 
-- [nodejs](https://nodejs.org/)
-- [npm](https://www.npmjs.com/)
+- 🟢 [nodejs](https://nodejs.org/)
+- 📦 [npm](https://www.npmjs.com/)
 
-## Installation
+---
 
-1. Clone the repository:
+## 📥 Installation
+
+1. 📂 Clone the repository:
 
    ```bash
    git@github.com:Alireza2A/SmartShoppingAssistant_Backend.git
    cd SmartShoppingAssistant_Backend
    ```
 
-2. Install dependencies:
+2. 📦 Install dependencies:
 
    ```bash
    npm install
    ```
 
-## Configuration
+## ⚙️ Configuration
 
 Environment-specific configurations are set in `.env` file. This file is not available.
 
-Create a new `.env` file, you may add the following variable the `DATABASE_URL` ,`JWT_SECRET` and `NODE_ENV` values.
+🛠️ Create a new `.env` file, you may add the following variable the `DATABASE_URL` ,`JWT_SECRET` and `NODE_ENV` values.
 
 - `DATABASE_URL=URL from Neon`
 - `JWT_SECRET=whatever you like as a secret key `
 - `NODE_ENV=development`
 
-## Running the Server
+## 🚀 Running the Server
 
 To start the server, run the following command:
 
@@ -109,17 +149,22 @@ To start the server, run the following command:
 npm run dev
 ```
 
-The server will start running at [http://localhost:5001](http://localhost:5001)
+🌐 The server will start running at [http://localhost:5001](http://localhost:5001)
 
-## Backend
+## 🧠 Backend
 
-- Set up a Node.js server using the built-in http module in package.json.
+- 🏗️ Set up a Node.js server using the built-in `http` module in `package.json`.
   `"type": "module",`
 
-- The sequelize package connect your PostgreSQL database.
-  Variable sequelize , create new instance Sequelize. Attributes: `dialect: "postgres"`, specify the database that we use and `logging: false,`, disable SQL logging in the console
+- 🛢️ The `sequelize` package connects your PostgreSQL database.
+  🧬 Create a new instance of `Sequelize` with attributes like:
 
-  - connectDB test database connection on startup. Print `"database connected successfully."` if client is connected or `"database connection failed", err.message` if connection do not work.
+  - `dialect: "postgres"` to specify the database type
+  - `logging: false` to disable SQL logging in the console
+
+- 🔌 `connectDB` tests the database connection on startup:
+  - ✅ Logs `"database connected successfully."` if successful
+  - ❌ Logs `"database connection failed", err.message` if it fails
 
 ## 📡 API Endpoints Overview
 
@@ -131,17 +176,17 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 #### 🔹 Fetch All Products
 
-- **GET** `/api/products`  
+- **GET** `/api/products`
   Returns all products from the **database only**.
 
 #### 🔹 Search Products (Live Scrape or DB)
 
-- **GET** `/api/liveData/?name=iPhone&brand=Apple`  
+- **GET** `/api/liveData/?name=iPhone&brand=Apple`
   Searches a product by query. May return results from the **database** or **scraped live** from external sources depending on availability.
 
 #### 🔹 Best Price Products (Homepage)
 
-- **GET** `/api/products/best-prices`  
+- **GET** `/api/products/best-prices`
   Returns a selection of products with the **best available prices** for homepage display.
 
 ---
@@ -150,23 +195,23 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 #### 🔹 Register a New User
 
-- **POST** `/api/auth/register`  
-  **Body Parameters:**  
-  Required: `name`, `email`, `password`  
+- **POST** `/api/auth/register`
+  **Body Parameters:**
+  Required: `name`, `email`, `password`
   Optional: `surname`, `street`, `city`, `zipcode`, `about`, `phone`
 
 #### 🔹 Login
 
-- **POST** `/api/auth/login`  
-  **Body Parameters:**  
+- **POST** `/api/auth/login`
+  **Body Parameters:**
   Required: `email`, `password`
 
 #### 🔹 User Profile (Get & Update)
 
-- **GET** `/api/users/profile`  
-  Returns the logged-in user's profile.
-- **PUT** `/api/users/profile`  
-  **Body Parameters:** _(All optional)_  
+- **GET** `/api/users/profile`
+  Returns the logged-in user is profile.
+- **PUT** `/api/users/profile`
+  **Body Parameters:** _(All optional)_
   `name`, `surname`, `email`, `street`, `city`, `zipcode`, `about`, `phone`
 
 ---
@@ -175,25 +220,25 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 #### 🔹 View Wishlist
 
-- **GET** `/api/wishlist`  
+- **GET** `/api/wishlist`
   Returns all wishlist items for the current user.
 
 #### 🔹 Add to Wishlist
 
-- **POST** `/api/wishlist`  
-  **Body Parameters:**  
-  Required: `productId`, `priceId`  
+- **POST** `/api/wishlist`
+  **Body Parameters:**
+  Required: `productId`, `priceId`
   Optional: `note`
 
 #### 🔹 Update Wishlist Note
 
-- **PUT** `/api/wishlist/:id`  
-  **Body Parameters:**  
+- **PUT** `/api/wishlist/:id`
+  **Body Parameters:**
   Required: `note`
 
 #### 🔹 Remove from Wishlist
 
-- **DELETE** `/api/wishlist/:id`  
+- **DELETE** `/api/wishlist/:id`
   Deletes a wishlist item by ID.
 
 ---
@@ -202,28 +247,30 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 #### 🔹 Get Product Price Chart
 
-- **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`  
-  Returns time-series data points:  
+- **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`
+  Returns time-series data points:
   `{ label: <Date>, value: <price> }`
 
 #### 🔹 Get Raw Price History
 
-- **GET** `/api/price-history/:productId?storage=512`  
+- **GET** `/api/price-history/:productId?storage=512`
   **Query Parameters:**
   - Required: `productId`, `storage`
   - Optional: `ram`, `color`
 
 ---
 
-# Database
+# 🗃️ Database
 
-We use [Neon](https://console.neon.tech/) with postgresql.
+We use [🌐 Neon](https://console.neon.tech/) with **PostgreSQL**.
 
-Set the following queries in [Neon](https://console.neon.tech/).
+🛠️ Set the following queries in [Neon Console](https://console.neon.tech/).
 
-# Scraper
+---
 
-### Amazon.com Product Scraper (with Puppeteer & Pagination)
+# 🔎 Scraper
+
+### 🛍️ Amazon.com Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **all available result pages**, collecting key product information into a structured format.
 
@@ -252,7 +299,7 @@ Here’s a sample from the `iphone` search:
 
 ---
 
-### Amazon.de Product Scraper (with Puppeteer & Pagination)
+### 🛍️ Amazon.de Product Scraper (with Puppeteer & Pagination)
 
 This is a powerful web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.de** based on any search term.
 It supports **automatic pagination**, meaning it will go through all result pages and collect structured product data into a single array.
@@ -282,7 +329,7 @@ Here’s a sample output from the `iphone` search:
 
 ---
 
-### eBay.com Product Scraper (with Puppeteer & Pagination)
+### 🛍️ eBay.com Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple pages of results**, collecting key product information into a structured format.
 
@@ -308,7 +355,7 @@ Here’s a sample from the `iphone` search:
 
 ---
 
-### eBay.de Product Scraper (with Puppeteer & Pagination)
+### 🛍️ eBay.de Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.de** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple result pages**, collecting key product information into a structured format.
 
@@ -334,7 +381,7 @@ Here’s a sample from the `iphone` search:
 
 ---
 
-### Newegg.com Product Scraper (with Puppeteer & Pagination)
+### 🛍️ Newegg.com Product Scraper (with Puppeteer & Pagination)
 
 This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Newegg.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **up to 20 pages of results**, collecting key product information into a structured format.
 
@@ -360,7 +407,7 @@ Here’s a sample from the `iphone` search:
 
 ---
 
-### BackMarket.com Product Scraper (with Puppeteer Extra & Stealth Plugin)
+### 🛍️ BackMarket.com Product Scraper (with Puppeteer Extra & Stealth Plugin)
 
 This project is a robust web scraper built with **Node.js**, **puppeteer-extra**, and the **stealth plugin**, specifically designed to extract product listings from **BackMarket.com**. It supports **query-based search** and scrapes **multiple result pages**, collecting detailed product data into a structured format.
 
@@ -389,72 +436,74 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 
 ---
 
-## Dependencies
+## 📦 Dependencies
 
-- [**Express.js**](https://expressjs.com/) – A fast and minimalist Node.js web framework used to build robust RESTful APIs.
-- [**pg**](https://www.npmjs.com/package/pg) – PostgreSQL client for Node.js used to communicate with the PostgreSQL database.
-- [**sequelize**](https://sequelize.org/) – A powerful ORM for Node.js, simplifies database operations with models, relationships, and migrations.
-- [**axios**](https://www.npmjs.com/package/axios) – A promise-based HTTP client for making API requests, often used for fetching external data or services.
-- [**puppeteer**](https://pptr.dev/) – A Node.js library that provides a high-level API to control headless Chrome or Chromium for web scraping and automation.
-- [**puppeteer-extra**](https://www.npmjs.com/package/puppeteer-extra) – A plugin framework built around Puppeteer to extend its capabilities, often used for stealth mode and bypassing detection.
-- [**puppeteer-extra-plugin-stealth**](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth) – A plugin for `puppeteer-extra` that helps bypass bot detection by mimicking real browser behavior.
-- [**cheerio**](https://cheerio.js.org/) – Fast, flexible, and lean implementation of core jQuery designed for server-side HTML manipulation and scraping.
-- [**jsonwebtoken**](https://www.npmjs.com/package/jsonwebtoken) – Implements JSON Web Tokens for secure authentication and authorization in APIs.
-- [**bcrypt**](https://www.npmjs.com/package/bcrypt) – A library to hash and compare passwords securely using the bcrypt algorithm.
-- [**bcryptjs**](https://www.npmjs.com/package/bcryptjs) – A pure JavaScript implementation of bcrypt for environments where native modules aren’t supported.
-- [**joi**](https://www.npmjs.com/package/joi) – A data validation library that helps define clear and robust validation rules for user input and API data.
-- [**cors**](https://www.npmjs.com/package/cors) – A middleware to enable Cross-Origin Resource Sharing, allowing your API to be accessed from different origins.
-- [**helmet**](https://helmetjs.github.io/) – Enhances your app’s security by setting various HTTP headers.
-- [**body-parser**](https://www.npmjs.com/package/body-parser) – Middleware to parse incoming request bodies in a middleware before your handlers.
-- [**morgan**](https://www.npmjs.com/package/morgan) – An HTTP request logger middleware for Node.js, helpful for debugging and monitoring.
+- [**Express.js**](https://expressjs.com/) – ⚙️ A fast and minimalist Node.js web framework used to build robust RESTful APIs.
+- [**pg**](https://www.npmjs.com/package/pg) – 🗃️ PostgreSQL client for Node.js used to communicate with the PostgreSQL database.
+- [**sequelize**](https://sequelize.org/) – 🧬 A powerful ORM for Node.js, simplifies database operations with models, relationships, and migrations.
+- [**axios**](https://www.npmjs.com/package/axios) – 🌐 A promise-based HTTP client for making API requests, often used for fetching external data or services.
+- [**puppeteer**](https://pptr.dev/) – 🕷️ A Node.js library that provides a high-level API to control headless Chrome or Chromium for web scraping and automation.
+- [**puppeteer-extra**](https://www.npmjs.com/package/puppeteer-extra) – 🛡️ A plugin framework built around Puppeteer to extend its capabilities, often used for stealth mode and bypassing detection.
+- [**puppeteer-extra-plugin-stealth**](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth) – 🕵️ A plugin for `puppeteer-extra` that helps bypass bot detection by mimicking real browser behavior.
+- [**cheerio**](https://cheerio.js.org/) – 🍃 Fast, flexible, and lean implementation of core jQuery designed for server-side HTML manipulation and scraping.
+- [**jsonwebtoken**](https://www.npmjs.com/package/jsonwebtoken) – 🔐 Implements JSON Web Tokens for secure authentication and authorization in APIs.
+- [**bcrypt**](https://www.npmjs.com/package/bcrypt) – 🔒 A library to hash and compare passwords securely using the bcrypt algorithm.
+- [**bcryptjs**](https://www.npmjs.com/package/bcryptjs) – 🔐 A pure JavaScript implementation of bcrypt for environments where native modules aren’t supported.
+- [**joi**](https://www.npmjs.com/package/joi) – ✅ A data validation library that helps define clear and robust validation rules for user input and API data.
+- [**cors**](https://www.npmjs.com/package/cors) – 🌍 A middleware to enable Cross-Origin Resource Sharing, allowing your API to be accessed from different origins.
+- [**helmet**](https://helmetjs.github.io/) – 🛡️ Enhances your app’s security by setting various HTTP headers.
+- [**body-parser**](https://www.npmjs.com/package/body-parser) – 🧾 Middleware to parse incoming request bodies in a middleware before your handlers.
+- [**morgan**](https://www.npmjs.com/package/morgan) – 📋 An HTTP request logger middleware for Node.js, helpful for debugging and monitoring.
 
-## Dev Dependencies
+## 🧪 Dev Dependencies
 
-## Dev Dependencies
+- [**dotenv**](https://www.npmjs.com/package/dotenv) – 🌱 Loads environment variables from a `.env` file into `process.env`, keeping sensitive config out of your code.
+- [**nodemon**](https://nodemon.io/) – 🔁 Monitors your source files and restarts the server automatically on changes, speeding up development.
+- [**jest**](https://jestjs.io/) – 🧪 A delightful JavaScript testing framework with built-in assertion, mocking, snapshot testing, and more.
+- [**supertest**](https://www.npmjs.com/package/supertest) – 🌐 A high-level abstraction for testing HTTP endpoints in Node.js apps, ideal for Express APIs.
+- [**babel-jest**](https://www.npmjs.com/package/babel-jest) – 🧬 A Jest transformer that allows using Babel to preprocess your tests written in modern JavaScript.
+- [**@babel/preset-env**](https://babeljs.io/docs/en/babel-preset-env) – 🛠️ A smart preset that compiles modern JavaScript based on your target environments.
+- [**@babel/core**](https://www.npmjs.com/package/@babel/core) – ⚙️ The core compiler module of Babel used for transforming ES6/ESNext code into backward-compatible JavaScript.
 
-- [**dotenv**](https://www.npmjs.com/package/dotenv) – Loads environment variables from a `.env` file into `process.env`, keeping sensitive config out of your code.
-- [**nodemon**](https://nodemon.io/) – Monitors your source files and restarts the server automatically on changes, speeding up development.
-- [**jest**](https://jestjs.io/) – A delightful JavaScript testing framework with built-in assertion, mocking, snapshot testing, and more.
-- [**supertest**](https://www.npmjs.com/package/supertest) – A high-level abstraction for testing HTTP endpoints in Node.js apps, ideal for Express APIs.
-- [**babel-jest**](https://www.npmjs.com/package/babel-jest) – A Jest transformer that allows using Babel to preprocess your tests written in modern JavaScript.
-- [**@babel/preset-env**](https://babeljs.io/docs/en/babel-preset-env) – A smart preset that compiles modern JavaScript based on your target environments.
-- [**@babel/core**](https://www.npmjs.com/package/@babel/core) – The core compiler module of Babel used for transforming ES6/ESNext code into backward-compatible JavaScript.
+# 📚 Project Resources
 
-# Project Resources
+### ⚙️ Node.js, Express, Joi & APIs
 
-#### Node.js, Express, Joi & APIs
+- 📘 [Node.js Official Docs](https://nodejs.org/en/docs)
+- 🚀 [Express.js Guide](https://expressjs.com/en/starter/guide.html)
+- 📡 [REST API Tutorial](https://restfulapi.net/)
+- 📏 [JOI Documentation](https://joi.dev/)
+- 📬 [Postman Collections](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection/)
 
-- [Node.js Official Docs](https://nodejs.org/en/docs)
-- [Express.js Guide](https://expressjs.com/en/starter/guide.html)
-- [REST API Tutorial](https://restfulapi.net/)
-- [JOI Documentation](https://joi.dev/)
-- [Postman Collections](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection/)
+### 🕷️ Web Scraping
 
-#### Web Scraping
+- 🧰 [Puppeteer Docs](https://pptr.dev/)
+- 🛠️ [puppeteer-extra (npm)](https://www.npmjs.com/package/puppeteer-extra)
+- 🕵️ [puppeteer-extra-plugin-stealth (npm)](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth)
 
-- [Puppeteer Docs](https://pptr.dev/)
-- [puppeteer-extra (npm)](https://www.npmjs.com/package/puppeteer-extra)
-- [puppeteer-extra-plugin-stealth (npm)](https://www.npmjs.com/package/puppeteer-extra-plugin-stealth)
+### ⏱️ Background Jobs & Queues
 
-#### Testing
+- 📥 [BullMQ Docs](https://docs.bullmq.io/)
+- 🔄 [Redis for Node.js](https://redis.io/docs/clients/node/)
 
-- [Jest Documentation](https://jestjs.io/docs/getting-started)
-- [Supertest (HTTP assertions)](/https://www.npmjs.com/package/supertest)
-- [Using Babel with Jest](https://jestjs.io/docs/configuration)
+### 🗄️ PostgreSQL & Sequelize
 
-#### Background Jobs & Queues
+- 📚 [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
+- 📖 [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- 🔗 [Sequelize Documentation](https://sequelize.org/)
 
-- [BullMQ Docs](https://docs.bullmq.io/)
-- [Redis for Node.js](https://redis.io/docs/clients/node/)
+### 🔔 Real-time & Notifications
 
-#### PostgreSQL & Sequelize
+- 🌐 [WebSockets Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+- ✉️ [Nodemailer Guide](https://nodemailer.com/about/)
+- 📲 [Firebase Push Notifications](https://firebase.google.com/docs/cloud-messaging)
 
-- [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Sequelize Documentation](https://sequelize.org/)
+### 🧪 Testing
 
-#### Real-time & Notifications
+- 🧬 [Jest Documentation](https://jestjs.io/docs/getting-started)
+- 🧾 [Supertest (HTTP assertions)](https://www.npmjs.com/package/supertest)
+- ⚙️ [Using Babel with Jest](https://jestjs.io/docs/configuration)
 
-- [WebSockets Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-- [Nodemailer Guide](https://nodemailer.com/about/)
-- [Firebase Push Notifications](https://firebase.google.com/docs/cloud-messaging)
+```
+
+```
