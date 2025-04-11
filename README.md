@@ -10,6 +10,30 @@ It scrapes data from e-commerce sites like **Amazon**, **eBay**, **Newegg**, and
 
 ---
 
+# 📚 Table of Contents
+
+- 🛍️ [Project Summary](#-smartshoppingassistant_backend---project-summary-ssa)
+- 👥 [Contributions](#-contributions)
+- 🚀 [Deployment](#-deployment)
+  - 🧠 [Backend](#-backend)
+  - 🖥️ [Frontend](#-frontend)
+- 🧰 [Key Technologies](#-key-technologies)
+- 🗂️ [Folder Structure](#-folder-structure)
+- 🧾 [Prerequisites, Installation & Configuration](#-prerequisites-installation--configuration)
+- ⚙️ [Backend Details](#-backend-1)
+- 🛢️ [Database Setup](#-database)
+- 🔎 [Scraper Overview](#-scraper)
+  - 🛒 Amazon.com Scraper
+  - 🇩🇪 Amazon.de Scraper
+  - 🌍 eBay.com Scraper
+  - 🇩🇪 eBay.de Scraper
+  - 💻 Newegg.com Scraper
+  - 🧲 BackMarket.com Scraper
+- 🔌 [API Endpoints](#-api-endpoints-overview)
+- 📦 [Dependencies](#-dependencies)
+- 🧪 [Dev Dependencies](#-dev-dependencies)
+- 📚 [Project Resources](#-project-resources)
+
 ### 👥 Contributions
 
 - 👩‍💻 [Mounika](https://github.com/Mounika-Nanjala)
@@ -59,7 +83,7 @@ _Are maintainers for this repository._
 
 ## 🗂️ Folder Structure
 
-````bash
+```bash
 SmartShoppingAssistant_Backend/
 ├── 📄 .gitignore               # Files and folders to ignore in Git
 ├── 📄 README.md                # Project documentation and overview
@@ -81,6 +105,8 @@ SmartShoppingAssistant_Backend/
     ├── 🔧 utils/               # Utility functions and helpers
     └── 🚀 server.js            # Main Express app entry point
 
+```
+
 ## 🧰 Prerequisites
 
 Before running this server, ensure you have the following installed:
@@ -98,7 +124,6 @@ Before running this server, ensure you have the following installed:
    git@github.com:Alireza2A/SmartShoppingAssistant_Backend.git
    cd SmartShoppingAssistant_Backend
    ```
-
 
 2. 📦 Install dependencies:
 
@@ -133,6 +158,7 @@ npm run dev
 
 - 🛢️ The `sequelize` package connects your PostgreSQL database.
   🧬 Create a new instance of `Sequelize` with attributes like:
+
   - `dialect: "postgres"` to specify the database type
   - `logging: false` to disable SQL logging in the console
 
@@ -233,6 +259,7 @@ This section outlines the available backend API routes for the SmartShoppingAssi
   - Optional: `ram`, `color`
 
 ---
+
 # 🗃️ Database
 
 We use [🌐 Neon](https://console.neon.tech/) with **PostgreSQL**.
@@ -408,6 +435,7 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 `title: Apple iPhone 13 128GB - White price: €489.00 original: €749.00 discount: 35% image: https://www.backmarket.com/image/iphone13.jpg link: https://www.backmarket.com/en-us/p/iphone-13/123456 rating: 4.5/5 storage: 128GB store: Back Market`
 
 ---
+
 ## 📦 Dependencies
 
 - [**Express.js**](https://expressjs.com/) – ⚙️ A fast and minimalist Node.js web framework used to build robust RESTful APIs.
@@ -436,7 +464,6 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - [**babel-jest**](https://www.npmjs.com/package/babel-jest) – 🧬 A Jest transformer that allows using Babel to preprocess your tests written in modern JavaScript.
 - [**@babel/preset-env**](https://babeljs.io/docs/en/babel-preset-env) – 🛠️ A smart preset that compiles modern JavaScript based on your target environments.
 - [**@babel/core**](https://www.npmjs.com/package/@babel/core) – ⚙️ The core compiler module of Babel used for transforming ES6/ESNext code into backward-compatible JavaScript.
-
 
 # 📚 Project Resources
 
@@ -477,5 +504,6 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - 🧾 [Supertest (HTTP assertions)](https://www.npmjs.com/package/supertest)
 - ⚙️ [Using Babel with Jest](https://jestjs.io/docs/configuration)
 
+```
 
-````
+```
