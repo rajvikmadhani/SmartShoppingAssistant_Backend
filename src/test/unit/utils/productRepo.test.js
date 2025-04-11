@@ -36,8 +36,9 @@ describe("utils -> productRepo.js ", () => {
       expect(models.Product.create).toHaveBeenCalledWith({
         brand: "Apple",
         name: "iPhone",
-        storage_gb: 0,
+
         ram_gb: 0,
+        storage_gb: 0,
         color: "No color",
       });
 
@@ -94,8 +95,6 @@ describe("utils -> productRepo.js ", () => {
           id: 1,
           name: "iPhone",
           brand: "Apple",
-          ram_gb: 4,
-          storage_gb: 128,
           Prices: [
             {
               price: "799",
@@ -121,7 +120,7 @@ describe("utils -> productRepo.js ", () => {
 
       // Assert
       expect(models.Product.findAll).toHaveBeenCalledWith({
-        attributes: ["id", "name", "brand", "ram_gb", "storage_gb"],
+        attributes: ["id", "name", "brand"],
         include: expect.any(Array),
       });
 
