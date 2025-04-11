@@ -12,31 +12,64 @@ export default (sequelize) => {
             productId: {
                 type: DataTypes.UUID,
                 allowNull: false,
+                references: {
+                    model: 'Products', // Reference the correct table
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
             },
-            storeId: {
-                type: DataTypes.UUID,
+            mainImgUrl: {
+                type: DataTypes.STRING,
+            },
+            color: {
+                type: DataTypes.STRING,
                 allowNull: false,
             },
-            //Each product can have multiple store listings (Amazon, eBay, Walmart, etc.).
-            // The product price and availability differ by store.
+            ram_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            storage_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            sellerStoreId: {
+                type: DataTypes.UUID,
+                allowNull: false,
+                references: {
+                    model: 'SellerStores', // Reference the correct table
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
+            },
             product_link: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
             price: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
+            currency: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            product_rating: {
+                type: DataTypes.STRING, // or DECIMAL if you want to parse to a float later
+                allowNull: true,
+            },
+            availability: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
+            },
             shippingCost: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 defaultValue: 0.0,
             },
             discount: {
-                type: DataTypes.FLOAT,
-                defaultValue: 0.0,
-            },
-            seller_rating: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 defaultValue: 0.0,
             },
             lastUpdated: {

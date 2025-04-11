@@ -1,37 +1,30 @@
 import { DataTypes } from 'sequelize';
-
 export default (sequelize) => {
     return sequelize.define(
-        'Wishlist',
+        'SellerStore',
         {
             id: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            userId: {
+            sellerId: {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            productId: {
+            storeId: {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            priceId: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'Prices',
-                    key: 'id',
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'CASCADE',
-            },
-            note: {
-                type: DataTypes.STRING,
+            rating: {
+                type: DataTypes.FLOAT,
                 allowNull: true,
+                validate: { min: 0, max: 5 },
             },
         },
-        { timestamps: true }
+        {
+            timestamps: false,
+            tableName: 'SellerStores',
+        }
     );
 };

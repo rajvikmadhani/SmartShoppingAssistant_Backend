@@ -1,4 +1,3 @@
-import { DataTypes } from 'sequelize';
 import { sequelize } from '../db/index.js';
 import UserModel from './User.js';
 import ProductModel from './product.js';
@@ -11,6 +10,7 @@ import CouponModel from './coupon.js';
 import ScrapingJobModel from './scrapingJob.js';
 import NotificationModel from './notification.js';
 import SellerModel from './seller.js';
+import SellerStoreModel from './seller-store.js';
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -24,61 +24,80 @@ const Coupon = CouponModel(sequelize);
 const ScrapingJob = ScrapingJobModel(sequelize);
 const Notification = NotificationModel(sequelize);
 const Seller = SellerModel(sequelize);
+const SellerStore = SellerStoreModel(sequelize);
 
-//fefining the table for the many to many relationship between seller and store
-const SellerStore = sequelize.define(
-    'SellerStore',
-    {
-        rating: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-            validate: { min: 0, max: 5 },
-        },
-    },
-    { timestamps: false }
-);
+/* ============================
+    Model Associations
+============================ */
 
-// Define relationships
-Product.hasMany(Price);
-Price.belongsTo(Product);
+//  Price relationships
+Price.belongsTo(Product, { foreignKey: 'productId' });
+Price.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
+Product.hasMany(Price, { foreignKey: 'productId' });
+SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
 
-Product.hasMany(PriceHistory);
-PriceHistory.belongsTo(Product);
+//  PriceHistory relationships
+Price.hasMany(PriceHistory, { foreignKey: 'priceId' });
+PriceHistory.belongsTo(Price, { foreignKey: 'priceId' });
 
-Product.belongsToMany(User, { through: Wishlist });
-User.belongsToMany(Product, { through: Wishlist });
+//  Wishlist relationships
+User.hasMany(Wishlist, { foreignKey: 'userId' });
+Wishlist.belongsTo(User, { foreignKey: 'userId' });
 
-Product.belongsToMany(User, { through: PriceAlert });
-User.belongsToMany(Product, { through: PriceAlert });
+Product.hasMany(Wishlist, { foreignKey: 'productId' });
+Wishlist.belongsTo(Product, { foreignKey: 'productId' });
 
-Store.hasMany(Price);
-Price.belongsTo(Store);
+Price.hasMany(Wishlist, { foreignKey: 'priceId' });
+Wishlist.belongsTo(Price, { foreignKey: 'priceId' });
 
-Store.hasMany(PriceHistory);
-PriceHistory.belongsTo(Store);
+//  PriceAlert relationships
+Product.belongsToMany(User, { through: PriceAlert, foreignKey: 'productId', otherKey: 'userId' });
+User.belongsToMany(Product, { through: PriceAlert, foreignKey: 'userId', otherKey: 'productId' });
 
-Store.hasMany(Coupon);
-Coupon.belongsTo(Store);
+//  Coupon & SellerStore
+SellerStore.hasMany(Coupon, { foreignKey: 'sellerStoreId' });
+Coupon.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
 
-Product.hasMany(ScrapingJob);
-ScrapingJob.belongsTo(Product);
+//  ScrapingJob & Product
+Product.hasMany(ScrapingJob, { foreignKey: 'productId' });
+ScrapingJob.belongsTo(Product, { foreignKey: 'productId' });
 
-Store.hasMany(ScrapingJob);
-ScrapingJob.belongsTo(Store);
+//  ScrapingJob & Store
+Store.hasMany(ScrapingJob, { foreignKey: 'storeId' });
+ScrapingJob.belongsTo(Store, { foreignKey: 'storeId' });
 
-User.hasMany(Notification);
-Notification.belongsTo(User);
+//  User & Notifications
+User.hasMany(Notification, { foreignKey: 'userId' });
+Notification.belongsTo(User, { foreignKey: 'userId' });
 
-Seller.belongsToMany(Store, { through: SellerStore });
-Store.belongsToMany(Seller, { through: SellerStore });
+//  Seller & Store (Many-to-Many)
+Seller.belongsToMany(Store, { through: SellerStore, foreignKey: 'sellerId' });
+Store.belongsToMany(Seller, { through: SellerStore, foreignKey: 'storeId' });
 
-// Ensuring all models are loaded correctly
+//Fixing the seller and store association
+// Price relationships
+Price.belongsTo(Product, { foreignKey: 'productId' });
+Price.belongsTo(SellerStore, { foreignKey: 'sellerStoreId' });
+Product.hasMany(Price, { foreignKey: 'productId' });
+SellerStore.hasMany(Price, { foreignKey: 'sellerStoreId' });
+
+// Connect SellerStore → Seller
+SellerStore.belongsTo(Seller, { foreignKey: 'sellerId' }); // ✅ Add this line
+SellerStore.belongsTo(Store, { foreignKey: 'storeId' });
+Store.hasMany(SellerStore, { foreignKey: 'storeId' });
+
+/* ============================
+   🛠 Ensuring Models Are Loaded Correctly
+============================ */
+
 const models = {
     User,
     Product,
     Store,
+    Seller,
     Price,
     PriceHistory,
+    SellerStore,
     Wishlist,
     PriceAlert,
     Coupon,
@@ -88,9 +107,9 @@ const models = {
 
 Object.entries(models).forEach(([name, model]) => {
     if (!model) {
-        console.warn(`Warning: Model ${name} was not loaded correctly.`);
+        console.warn(` Warning: Model ${name} was not loaded correctly.`);
     } else {
-        console.log(`Model ${name} loaded successfully.`);
+        console.log(` Model ${name} loaded successfully.`);
     }
 });
 

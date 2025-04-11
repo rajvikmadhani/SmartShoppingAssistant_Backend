@@ -1,3 +1,4 @@
+// priceHistory.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -9,16 +10,28 @@ export default (sequelize) => {
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            productId: {
+            priceId: {
                 type: DataTypes.UUID,
                 allowNull: false,
+                references: {
+                    model: 'Prices',
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
             },
-            storeId: {
-                type: DataTypes.UUID,
+
+            currency: {
+                type: DataTypes.STRING,
                 allowNull: false,
+                defaultValue: '$',
+            },
+            availability: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: true,
             },
             price: {
-                type: DataTypes.FLOAT,
+                type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
             recordedAt: {

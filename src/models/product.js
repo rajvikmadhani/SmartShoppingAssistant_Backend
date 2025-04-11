@@ -17,28 +17,9 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            description: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
             brand: {
                 type: DataTypes.TEXT,
                 allowNull: false,
-            },
-            ram_gb: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            storage_gb: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            color: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            mainImgUrl: {
-                type: DataTypes.STRING,
             },
         },
         { timestamps: true }

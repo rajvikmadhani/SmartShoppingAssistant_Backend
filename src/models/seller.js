@@ -17,8 +17,18 @@ export default (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            createdAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+                allowNull: false,
+            },
+            updatedAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+                allowNull: false,
+            },
         },
-        { timestamps: true }
+        { timestamps: true, tableName: 'sellers' }
     );
 
     return Seller;
