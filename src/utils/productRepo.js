@@ -8,7 +8,7 @@ export const CreatePrimaryProduct = async (name, brand) => {
         ram_gb: 0,
         color: 'No color',
     });
-    console.log('New product created:', product);
+    // console.log('New product created:', product);
     return product;
 };
 
@@ -40,7 +40,7 @@ export const getProductWithPricesAndSeller = async (productfilter) => {
 };
 
 export const getBestPrices = async () => {
-    console.log('Fetching best prices...');
+    // console.log('Fetching best prices...');
 
     const products = await models.Product.findAll({
         attributes: ['id', 'name', 'brand'],
@@ -68,7 +68,7 @@ export const getBestPrices = async () => {
         ],
     });
 
-    console.log(`Fetched ${products.length} products`);
+    // console.log(`Fetched ${products.length} products`);
 
     const productsWithBestPrices = products
         .filter((p) => p.Prices && p.Prices.length > 0)
@@ -94,6 +94,6 @@ export const getBestPrices = async () => {
             };
         });
 
-    console.log(`Returning ${productsWithBestPrices.length} best-priced products`);
+    // console.log(`Returning ${productsWithBestPrices.length} best-priced products`);
     return productsWithBestPrices;
 };
