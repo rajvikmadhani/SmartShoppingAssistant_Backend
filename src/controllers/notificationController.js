@@ -2,11 +2,31 @@ import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 import Notification from '../models/notification.js';
 
-export const getAllNotifications = asyncHandler(async (req, res, next) => {
-    const notifications = await Notification.findAll();
-    res.json(notifications);
-});
+// controllers/notificationController.js
+import models from '../models/index.js';
 
+export const getUserNotifications = asyncHandler(async (req, res, next) => {
+    try {
+        const userId = req.user.id; // assuming user is authenticated
+
+        const notifications = await models.Notification.findAll({
+            include: {
+                model: models.PriceAlert,
+                where: { userId },
+                include: {
+                    model: models.Product,
+                    attributes: ['id', 'name'],
+                },
+            },
+            order: [['createdAt', 'DESC']],
+        });
+
+        res.json(notifications);
+    } catch (error) {
+        console.error('❌ Failed to fetch notifications:', error);
+        res.status(500).json({ message: 'Failed to fetch notifications.' });
+    }
+});
 // Create a new notification
 export const createNotification = asyncHandler(async (req, res, next) => {
     const { userId, message, read } = req.body;
