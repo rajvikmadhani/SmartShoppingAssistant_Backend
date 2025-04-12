@@ -1,16 +1,13 @@
 import { Worker } from 'bullmq';
 import { redisConnection } from '../../redis/index.js';
-import { sendUserNotification } from '../../services/notificationService.js';
+import { sendPriceAlertNotifications } from '../../services/AlertService/alertService.js';
+console.log('👀 Worker started and waiting for jobs...');
 
 const notificationWorker = new Worker(
-    'notifications',
+    'notificationQueue',
     async (job) => {
-        const { userId, productId, currentPrice } = job.data;
-
-        console.log(`Sending notification to user ${userId} for product ${productId} @ €${currentPrice}`);
-
-        // Call your notification logic (email, DB insert, etc.)
-        await sendUserNotification(userId, productId, currentPrice);
+        console.log('📬 Processing job:', job.data);
+        await sendPriceAlertNotifications(job.data); // ✅ Uses correct function
     },
     {
         connection: redisConnection,

@@ -1,23 +1,44 @@
 // File: services/alertService.js
 import { getActiveAlertsForProduct } from '../../utils/alertRepo.js'; // assumed
 import { enqueueNotificationJob } from '../../jobs/enqueue/enqueueNotificationJob.js';
+import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
     const { price, color, ram_gb, storage_gb } = priceData;
-
-    const alerts = await getActiveAlertsForProduct(productId);
+    const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
 
     for (const alert of alerts) {
-        const matchesVariant =
-            (!alert.color || alert.color === color) &&
-            (!alert.ram_gb || alert.ram_gb === ram_gb) &&
-            (!alert.storage_gb || alert.storage_gb === storage_gb);
-
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
-
-        if (matchesVariant && matchesPrice) {
-            console.log(`Alert match: user ${alert.userId}, threshold €${alert.threshold}`);
-            await enqueueNotificationJob(alert.userId, productId, price);
+        if (matchesPrice) {
+            console.log(`✅ Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
+            await enqueueNotificationJob(alert.id, price);
         }
+    }
+}
+
+/**
+ * Create a new Notification entry when an alert is triggered.
+ * Called by notificationWorker.
+ */
+// services/alertService.js
+
+export async function sendPriceAlertNotifications({ priceAlertId, price }) {
+    try {
+        const alert = await models.PriceAlert.findByPk(priceAlertId);
+
+        if (!alert) {
+            console.warn(`⚠️ No PriceAlert found with ID ${priceAlertId}`);
+            return;
+        }
+
+        const notification = await models.Notification.create({
+            priceAlertId,
+            price: parseFloat(price),
+            isRead: false,
+        });
+
+        console.log(`🔔 Notification created: ${notification.id} for alert ${priceAlertId}`);
+    } catch (error) {
+        console.error('❌ Failed to create notification:', error);
     }
 }

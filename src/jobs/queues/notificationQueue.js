@@ -2,6 +2,6 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from '../../redis/index.js';
 
-export const notificationQueue = new Queue('notifications', {
+export const notificationQueue = new Queue('notificationQueue', {
     connection: redisConnection,
 });

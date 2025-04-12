@@ -66,9 +66,8 @@ ScrapingJob.belongsTo(Product, { foreignKey: 'productId' });
 Store.hasMany(ScrapingJob, { foreignKey: 'storeId' });
 ScrapingJob.belongsTo(Store, { foreignKey: 'storeId' });
 
-//  User & Notifications
-User.hasMany(Notification, { foreignKey: 'userId' });
-Notification.belongsTo(User, { foreignKey: 'userId' });
+//  Notifications and PriceAlerts
+Notification.belongsTo(PriceAlert, { foreignKey: 'priceAlertId' });
 
 //  Seller & Store (Many-to-Many)
 Seller.belongsToMany(Store, { through: SellerStore, foreignKey: 'sellerId' });
