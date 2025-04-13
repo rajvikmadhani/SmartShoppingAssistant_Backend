@@ -12,7 +12,7 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
     for (const alert of alerts) {
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
         if (matchesPrice) {
-            console.log(`✅ Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
+            console.log(`Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
             await enqueueNotificationJob(alert.id, price);
         }
     }
@@ -31,7 +31,7 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
         });
 
         if (!alert) {
-            console.warn(`⚠️ PriceAlert not found: ${priceAlertId}`);
+            console.warn(`PriceAlert not found: ${priceAlertId}`);
             return;
         }
 
@@ -47,7 +47,7 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
         );
 
         if (!priceMatch) {
-            console.warn('⚠️ No matching price variant found for alert:', alert.id);
+            console.warn('No matching price variant found for alert:', alert.id);
             return;
         }
 
@@ -72,8 +72,8 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             shippingCost: priceMatch.shippingCost,
         });
 
-        console.log(`🔔 Notification created and email sent for alert ${alert.id}`);
+        console.log(`Notification created and email sent for alert ${alert.id}`);
     } catch (err) {
-        console.error('❌ Failed to send price alert notification:', err);
+        console.error('Failed to send price alert notification:', err);
     }
 }
