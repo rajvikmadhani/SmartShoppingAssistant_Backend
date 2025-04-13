@@ -16,7 +16,7 @@ const runTest = async () => {
 
         // Step 2: Create a price alert
         const alert = await models.PriceAlert.create({
-            userId: '82bd3207-3d6b-40b9-9a3c-fe0f2aa6bb1b', // Change if needed
+            userId: '1e594fde-2e99-4588-be23-4cf8d109d9ed', // Change if needed
             productId: product.id,
             threshold: parseFloat(variant.price) + 10, // Will trigger notification
             color: variant.color,

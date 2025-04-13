@@ -1,4 +1,5 @@
 import Joi from 'joi';
+const uuid = Joi.string().uuid();
 
 const priceAlertSchema = {
     POST: Joi.object({

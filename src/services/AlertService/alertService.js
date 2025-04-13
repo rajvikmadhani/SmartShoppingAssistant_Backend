@@ -1,6 +1,8 @@
 // File: services/alertService.js
 import { getActiveAlertsForProduct } from '../../utils/alertRepo.js'; // assumed
 import { enqueueNotificationJob } from '../../jobs/enqueue/enqueueNotificationJob.js';
+import { sendPriceDropEmail } from '../emailService.js';
+import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
 import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
@@ -25,29 +27,53 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
 export async function sendPriceAlertNotifications({ priceAlertId, price }) {
     try {
         const alert = await models.PriceAlert.findByPk(priceAlertId, {
-            include: [{ model: models.Product }, { model: models.User }],
+            include: [{ model: models.User }],
         });
 
         if (!alert) {
-            console.warn(`⚠️ No PriceAlert found with ID ${priceAlertId}`);
+            console.warn(`⚠️ PriceAlert not found: ${priceAlertId}`);
             return;
         }
 
+        // Get full product with prices + seller info
+        const product = await getProductWithPricesAndSeller({ id: alert.productId });
+
+        // Match the correct variant (color, ram, storage)
+        const priceMatch = product?.Prices?.find(
+            (p) =>
+                (!alert.color || alert.color === p.color) &&
+                (!alert.ram_gb || alert.ram_gb === p.ram_gb) &&
+                (!alert.storage_gb || alert.storage_gb === p.storage_gb)
+        );
+
+        if (!priceMatch) {
+            console.warn('⚠️ No matching price variant found for alert:', alert.id);
+            return;
+        }
+
+        // Save the notification
         const notification = await models.Notification.create({
             priceAlertId,
             price: parseFloat(price),
             isRead: false,
         });
+        console.log('📷 Email image URL:', priceMatch.mainImgUrl);
 
-        // Send email to the user
+        // Send the email
         await sendPriceDropEmail({
             to: alert.User.email,
-            productName: alert.Product.name,
+            productName: product.name,
+            productImage: priceMatch.mainImgUrl,
             threshold: alert.threshold,
-            currentPrice: price,
+            currentPrice: priceMatch.price + priceMatch.currency,
+            storeName: priceMatch.SellerStore?.Seller?.name ?? 'Unknown',
+            productLink: priceMatch.product_link,
+            discount: priceMatch.discount,
+            shippingCost: priceMatch.shippingCost,
         });
-        console.log(`🔔 Notification created: ${notification.id} for alert ${priceAlertId}`);
-    } catch (error) {
-        console.error('❌ Failed to create notification:', error);
+
+        console.log(`🔔 Notification created and email sent for alert ${alert.id}`);
+    } catch (err) {
+        console.error('❌ Failed to send price alert notification:', err);
     }
 }
