@@ -73,6 +73,7 @@ export const updatePrices = async (product, scrapedData) => {
             },
             {
                 returning: true,
+                conflictFields: ['productId', 'color', 'ram_gb', 'storage_gb', 'sellerStoreId', 'product_link'],
             }
         );
 

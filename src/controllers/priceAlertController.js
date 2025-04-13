@@ -1,4 +1,4 @@
-import PriceAlert from '../models/priceAlert.js';
+import models from '../models/index.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
 // Set a price alert

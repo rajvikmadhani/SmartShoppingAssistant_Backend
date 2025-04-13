@@ -3,12 +3,26 @@ export async function scrapeAmazonProduct(productLink) {
 
     // Simulated scraped result
     return {
-        price: 749.99,
-        currency: 'EUR',
-        availability: 'In Stock',
-        discount: 10,
-        shippingCost: 4.99,
-        mainImgUrl: 'https://via.placeholder.com/300x300?text=Amazon+Product',
-        product_rating: 4.5,
+        title: 'iPhone 15',
+        color: 'pink',
+        price: '497',
+        currency: '€',
+        brand: 'Apple',
+        availability: '1',
+        storage_gb: 128,
+        ram_gb: 512,
+        rating: '4.6',
+        link: 'https://www.amazon.com/dp/B0BNMBHM8Z',
+        image: 'https://m.media-amazon.com/images/I/61tz1qzH++L._AC_UY218_.jpg',
+        seller: 'Apple',
+        productSellerRate: '4.1',
+        badge: "Amazon's Choice",
+        isPrime: true,
+        delivery: 'Tomorrow',
+        store: 'Amazon',
+        availability: '1',
+        currency: '€',
+        seller_rating: '5',
+        storeId: '38a1762b-96e1-487c-8092-ff238ac5d919',
     };
 }

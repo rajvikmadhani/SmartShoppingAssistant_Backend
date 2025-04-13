@@ -35,19 +35,36 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             return;
         }
 
-        // Get full product with prices + seller info
         const product = await getProductWithPricesAndSeller({ id: alert.productId });
 
-        // Match the correct variant (color, ram, storage)
-        const priceMatch = product?.Prices?.find(
+        // Match all variants that satisfy the alert
+        const priceMatches = product?.Prices?.filter(
             (p) =>
                 (!alert.color || alert.color === p.color) &&
                 (!alert.ram_gb || alert.ram_gb === p.ram_gb) &&
                 (!alert.storage_gb || alert.storage_gb === p.storage_gb)
         );
 
-        if (!priceMatch) {
-            console.warn('No matching price variant found for alert:', alert.id);
+        if (!priceMatches?.length) {
+            console.warn(`No matching price variants found for alert ${alert.id}`);
+            return;
+        }
+
+        // Choose the one with the lowest price
+        const priceMatch = priceMatches.reduce((lowest, current) => {
+            return parseFloat(current.price) < parseFloat(lowest.price) ? current : lowest;
+        }, priceMatches[0]);
+
+        // Prevent duplicate notification
+        const existing = await models.Notification.findOne({
+            where: {
+                priceAlertId,
+                price: parseFloat(price),
+            },
+        });
+
+        if (existing) {
+            console.log(`Duplicate notification already exists for alert ${priceAlertId} at €${price}`);
             return;
         }
 
@@ -57,15 +74,15 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             price: parseFloat(price),
             isRead: false,
         });
-        console.log('📷 Email image URL:', priceMatch.mainImgUrl);
 
-        // Send the email
+        console.log('Email image URL:', priceMatch.mainImgUrl);
+
         await sendPriceDropEmail({
             to: alert.User.email,
             productName: product.name,
             productImage: priceMatch.mainImgUrl,
             threshold: alert.threshold,
-            currentPrice: priceMatch.price + priceMatch.currency,
+            currentPrice: parseFloat(priceMatch.price).toFixed(2),
             storeName: priceMatch.SellerStore?.Seller?.name ?? 'Unknown',
             productLink: priceMatch.product_link,
             discount: priceMatch.discount,

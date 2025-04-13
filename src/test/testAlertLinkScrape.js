@@ -1,8 +1,8 @@
 import models from '../models/index.js';
-import { scrapeProductPage } from '../services/scrapers/singleProductScraper.js';
+import { scrapeProductPage } from '../utils/singleProductScraper.js';
 import { updatePrices } from '../services/updateDatabase.js';
 import { getProductWithPricesAndSeller } from '../utils/productRepo.js';
-import { checkAlertsAndEnqueueNotifications } from '../services/alertService.js';
+import { checkAlertsAndEnqueueNotifications } from '../services/AlertService/alertService.js';
 
 const runTest = async () => {
     try {
@@ -30,7 +30,7 @@ const runTest = async () => {
             return;
         }
 
-        const store = priceMatch.SellerStore?.Seller?.name ?? 'Unknown';
+        const store = 'Amazon';
 
         // Step 2: Scrape
         const scrapedData = await scrapeProductPage(priceMatch.product_link, store);
@@ -50,7 +50,7 @@ const runTest = async () => {
         });
 
         if (notifications.length) {
-            console.log(`🎉 Notification(s) created: ${notifications.length}`);
+            console.log(`✅ Notification(s) created: ${notifications.length}`);
         } else {
             console.log('⚠️ No notification was created.');
         }
