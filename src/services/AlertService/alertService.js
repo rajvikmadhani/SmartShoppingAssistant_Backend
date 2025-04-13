@@ -24,7 +24,9 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
 
 export async function sendPriceAlertNotifications({ priceAlertId, price }) {
     try {
-        const alert = await models.PriceAlert.findByPk(priceAlertId);
+        const alert = await models.PriceAlert.findByPk(priceAlertId, {
+            include: [{ model: models.Product }, { model: models.User }],
+        });
 
         if (!alert) {
             console.warn(`⚠️ No PriceAlert found with ID ${priceAlertId}`);
@@ -37,6 +39,13 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             isRead: false,
         });
 
+        // Send email to the user
+        await sendPriceDropEmail({
+            to: alert.User.email,
+            productName: alert.Product.name,
+            threshold: alert.threshold,
+            currentPrice: price,
+        });
         console.log(`🔔 Notification created: ${notification.id} for alert ${priceAlertId}`);
     } catch (error) {
         console.error('❌ Failed to create notification:', error);

@@ -53,6 +53,8 @@ Wishlist.belongsTo(Price, { foreignKey: 'priceId' });
 //  PriceAlert relationships
 Product.belongsToMany(User, { through: PriceAlert, foreignKey: 'productId', otherKey: 'userId' });
 User.belongsToMany(Product, { through: PriceAlert, foreignKey: 'userId', otherKey: 'productId' });
+PriceAlert.belongsTo(models.User, { foreignKey: 'userId' });
+PriceAlert.belongsTo(models.Product, { foreignKey: 'productId' });
 
 //  Coupon & SellerStore
 SellerStore.hasMany(Coupon, { foreignKey: 'sellerStoreId' });
