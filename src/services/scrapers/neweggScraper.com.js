@@ -5,7 +5,7 @@ import puppeteer from "puppeteer"; // import the Puppeteer library for web scrap
  * @param {string} query - the search term to look up on Newegg
  * @returns {Promise<Array>} - array of product objects with details
  */
-const scrapeNewegg = async (query) => {
+export const scrapeNewegg = async (query) => {
   // initialize a headless browser instance
   // headless:true means the browser will run in the background without a visible UI
   // --no-sandbox and --disable-setuid-sandbox are flags to run the browser in a sandboxed environment
@@ -178,47 +178,47 @@ it may be a problem with the Newegg website or the script itself
 // no page limit is specified, so it will scrape all available pages
 // more than 700 results are expected for the search term "iphone"
 // this is a demonstration, you can change the query to any other term
-scrapeNewegg("iphone")
-  .then((items) => {
-    // when scraping is complete, display the results
-    console.log("\nscraped data:");
+// scrapeNewegg("iphone")
+//   .then((items) => {
+//     // when scraping is complete, display the results
+//     console.log("\nscraped data:");
 
-    // log the total number of products found across all pages
-    // \n adds a blank line before this output for better readability
-    console.log(`\ntotal items scraped: ${items.length}`);
+//     // log the total number of products found across all pages
+//     // \n adds a blank line before this output for better readability
+//     console.log(`\ntotal items scraped: ${items.length}`);
 
-    // format and print details for each product
-    items.forEach((item, index) => {
-      console.log(`#${index + 1}`); // item count
-      console.log(`title   : ${item.title}`); // title
-      console.log(`price   : ${item.price}`); // price
-      console.log(`currency: ${item.currency}`); // currency
-      console.log(`brand   : ${item.brand}`); // brand
-      console.log(`availability: ${item.availability}`); // availability
-      console.log(`storage_gb: ${item.storage_gb}`); // storage_gb
-      console.log(`ram_gb  : ${item.ram_gb}`); // ram_gb
-      console.log(`ramMatch: ${item.ramMatch}`); // ramMatch
-      console.log(`rating  : ${item.rating}`); // rating
-      console.log(`shippingCost: ${item.shippingCostCost}`); // shippingCost
-      console.log(`discount: ${item.discount}`); // discount
-      console.log(`link    : ${item.link}`); // link
-      console.log(`image   : ${item.image}`); // image
-      console.log(`seller  : ${item.seller}`); // seller
-      console.log(`productSellerRate: ${item.productSellerRate}`); // productSellerRate
-      console.log(`badge   : ${item.badge}`); // badge
-      console.log(`isPrime : ${item.isPrime}`); // isPrime
-      console.log(`delivery: ${item.delivery}`); // delivery
-      console.log(`store   : ${item.store}\n`); // store name
-      console.log(`seller_rating: ${item.seller_rating}`); // seller rating
-      console.log(`----------------------------------------`); // separator for readability
+//     // format and print details for each product
+//     items.forEach((item, index) => {
+//       console.log(`#${index + 1}`); // item count
+//       console.log(`title   : ${item.title}`); // title
+//       console.log(`price   : ${item.price}`); // price
+//       console.log(`currency: ${item.currency}`); // currency
+//       console.log(`brand   : ${item.brand}`); // brand
+//       console.log(`availability: ${item.availability}`); // availability
+//       console.log(`storage_gb: ${item.storage_gb}`); // storage_gb
+//       console.log(`ram_gb  : ${item.ram_gb}`); // ram_gb
+//       console.log(`ramMatch: ${item.ramMatch}`); // ramMatch
+//       console.log(`rating  : ${item.rating}`); // rating
+//       console.log(`shippingCost: ${item.shippingCostCost}`); // shippingCost
+//       console.log(`discount: ${item.discount}`); // discount
+//       console.log(`link    : ${item.link}`); // link
+//       console.log(`image   : ${item.image}`); // image
+//       console.log(`seller  : ${item.seller}`); // seller
+//       console.log(`productSellerRate: ${item.productSellerRate}`); // productSellerRate
+//       console.log(`badge   : ${item.badge}`); // badge
+//       console.log(`isPrime : ${item.isPrime}`); // isPrime
+//       console.log(`delivery: ${item.delivery}`); // delivery
+//       console.log(`store   : ${item.store}\n`); // store name
+//       console.log(`seller_rating: ${item.seller_rating}`); // seller rating
+//       console.log(`----------------------------------------`); // separator for readability
 
-      // log the complete dataset of all products scraped
-      // displays all product information collected during the scraping process
-      console.log(items);
-    });
-  })
-  .catch((err) => {
-    // handle any errors that occur during the scraping process
-    // log the error message to the console
-    console.error("error during scraping:", err);
-  });
+//       // log the complete dataset of all products scraped
+//       // displays all product information collected during the scraping process
+//       console.log(items);
+//     });
+//   })
+//   .catch((err) => {
+//     // handle any errors that occur during the scraping process
+//     // log the error message to the console
+//     console.error("error during scraping:", err);
+//   });
