@@ -53,6 +53,8 @@ Wishlist.belongsTo(Price, { foreignKey: 'priceId' });
 //  PriceAlert relationships
 Product.belongsToMany(User, { through: PriceAlert, foreignKey: 'productId', otherKey: 'userId' });
 User.belongsToMany(Product, { through: PriceAlert, foreignKey: 'userId', otherKey: 'productId' });
+PriceAlert.belongsTo(User, { foreignKey: 'userId' });
+PriceAlert.belongsTo(Product, { foreignKey: 'productId' });
 
 //  Coupon & SellerStore
 SellerStore.hasMany(Coupon, { foreignKey: 'sellerStoreId' });
@@ -66,9 +68,8 @@ ScrapingJob.belongsTo(Product, { foreignKey: 'productId' });
 Store.hasMany(ScrapingJob, { foreignKey: 'storeId' });
 ScrapingJob.belongsTo(Store, { foreignKey: 'storeId' });
 
-//  User & Notifications
-User.hasMany(Notification, { foreignKey: 'userId' });
-Notification.belongsTo(User, { foreignKey: 'userId' });
+//  Notifications and PriceAlerts
+Notification.belongsTo(PriceAlert, { foreignKey: 'priceAlertId' });
 
 //  Seller & Store (Many-to-Many)
 Seller.belongsToMany(Store, { through: SellerStore, foreignKey: 'sellerId' });

@@ -9,17 +9,12 @@ export default (sequelize) => {
                 defaultValue: DataTypes.UUIDV4,
                 primaryKey: true,
             },
-            userId: {
+            priceAlertId: {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            //type like: price drop, wishlist
-            type: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            message: {
-                type: DataTypes.STRING,
+            price: {
+                type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
             isRead: {

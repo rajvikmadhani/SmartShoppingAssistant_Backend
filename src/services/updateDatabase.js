@@ -2,29 +2,9 @@
 import models from '../models/index.js';
 import { textToNumber } from '../utils/textToNumberConvertor.js';
 import { extractColorFromTitle, extractBrandFromTitle } from '../utils/FilterScrappingResult.js';
+import { checkAlertsAndEnqueueNotifications } from '../services/AlertService/alertService.js';
+import { getOrCreateSellerStore } from '../utils/StoreRepo.js';
 // Function to get or create a SellerStore record
-async function getOrCreateSellerStore(storeId, sellerName, rating) {
-    // First, find or create the seller
-    const [seller] = await models.Seller.findOrCreate({
-        where: { name: sellerName },
-        defaults: { name: sellerName },
-    });
-
-    // Then find or create the SellerStore relationship
-    const [sellerStore] = await models.SellerStore.findOrCreate({
-        where: {
-            sellerId: seller.id,
-            storeId: storeId,
-        },
-        defaults: {
-            sellerId: seller.id,
-            storeId: storeId,
-            rating: rating || 0.0,
-        },
-    });
-
-    return sellerStore;
-}
 
 export const updatePrices = async (product, scrapedData) => {
     if (!scrapedData.length) return null;
@@ -50,6 +30,16 @@ export const updatePrices = async (product, scrapedData) => {
         } = data;
         // Get or create the SellerStore record
         const sellerStore = await getOrCreateSellerStore(storeId, seller || 'Unknown Seller', seller_rating);
+        const existing = await models.Price.findOne({
+            where: {
+                productId: product.id,
+                sellerStoreId: sellerStore.id,
+                ram_gb: ram_gb || 0,
+                storage_gb: storage_gb || 0,
+                color: extractColorFromTitle(title),
+                product_link: link,
+            },
+        });
 
         // Insert or update the Price row, and return the instance
         const [priceEntry, created] = await models.Price.upsert(
@@ -71,8 +61,12 @@ export const updatePrices = async (product, scrapedData) => {
             },
             {
                 returning: true,
+                conflictFields: ['productId', 'color', 'ram_gb', 'storage_gb', 'sellerStoreId', 'product_link'],
             }
         );
+
+        // Check alerts and enqueue notifications for this price variant
+        await checkAlertsAndEnqueueNotifications(product.id, priceEntry);
 
         // Use the returned priceId directly for history
         await models.PriceHistory.create({
