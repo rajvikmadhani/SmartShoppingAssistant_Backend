@@ -24,15 +24,17 @@ It scrapes data from e-commerce sites like **Amazon**, **eBay**, **Newegg**, and
 - 🛢️ [Database Setup](#-database)
 - 🔎 [Scraper Overview](#-scraper)
   - 🛒 Amazon.com Scraper
-  - 🇩🇪 Amazon.de Scraper
+  - 🏷️ Amazon.de Scraper
   - 🌍 eBay.com Scraper
-  - 🇩🇪 eBay.de Scraper
+  - 🗺️ eBay.de Scraper
   - 💻 Newegg.com Scraper
   - 🧲 BackMarket.com Scraper
 - 🔌 [API Endpoints](#-api-endpoints-overview)
 - 📦 [Dependencies](#-dependencies)
 - 🧪 [Dev Dependencies](#-dev-dependencies)
 - 📚 [Project Resources](#-project-resources)
+
+---
 
 ### 👥 Contributions
 
@@ -107,6 +109,8 @@ SmartShoppingAssistant_Backend/
 
 ```
 
+===
+
 ## 🧰 Prerequisites
 
 Before running this server, ensure you have the following installed:
@@ -172,91 +176,100 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 ---
 
-### 🛍️ Product Endpoints
+### 🛒 Product Endpoints
 
-#### 🔹 Fetch All Products
+#### 📦 Fetch All Products
 
-- **GET** `/api/products`
+- **GET** `/api/products`  
   Returns all products from the **database only**.
 
-#### 🔹 Search Products (Live Scrape or DB)
+#### 🔍 Search Products (Live Scrape or DB)
 
-- **GET** `/api/liveData/?name=iPhone&brand=Apple`
+- **GET** `/api/liveData/?name=iPhone&brand=Apple`  
   Searches a product by query. May return results from the **database** or **scraped live** from external sources depending on availability.
 
-#### 🔹 Best Price Products (Homepage)
+#### 💸 Best Price Products (Homepage)
 
-- **GET** `/api/products/best-prices`
+- **GET** `/api/products/best-prices`  
   Returns a selection of products with the **best available prices** for homepage display.
 
 ---
 
-### 🙍‍♂️ Authentication & User
+### 👤 Authentication & User
 
-#### 🔹 Register a New User
+#### 📝 Register a New User
 
-- **POST** `/api/auth/register`
-  **Body Parameters:**
-  Required: `name`, `email`, `password`
+- **POST** `/api/auth/register`  
+  **Body Parameters:**  
+  Required: `name`, `email`, `password`  
   Optional: `surname`, `street`, `city`, `zipcode`, `about`, `phone`
 
-#### 🔹 Login
+#### 🔐 Login
 
-- **POST** `/api/auth/login`
-  **Body Parameters:**
+- **POST** `/api/auth/login`  
+  **Body Parameters:**  
   Required: `email`, `password`
 
-#### 🔹 User Profile (Get & Update)
+#### 🧾 User Profile (Get & Update)
 
-- **GET** `/api/users/profile`
-  Returns the logged-in user is profile.
-- **PUT** `/api/users/profile`
-  **Body Parameters:** _(All optional)_
+- **GET** `/api/users/profile`  
+  Returns the logged-in user's profile.
+- **PUT** `/api/users/profile`  
+  **Body Parameters:** _(All optional)_  
   `name`, `surname`, `email`, `street`, `city`, `zipcode`, `about`, `phone`
 
 ---
 
-### ❤️ Wishlist
+### 💖 Wishlist
 
-#### 🔹 View Wishlist
+#### 📃 View Wishlist
 
-- **GET** `/api/wishlist`
+- **GET** `/api/wishlist`  
   Returns all wishlist items for the current user.
 
-#### 🔹 Add to Wishlist
+#### ➕ Add to Wishlist
 
-- **POST** `/api/wishlist`
-  **Body Parameters:**
-  Required: `productId`, `priceId`
+- **POST** `/api/wishlist`  
+  **Body Parameters:**  
+  Required: `productId`, `priceId`  
   Optional: `note`
 
-#### 🔹 Update Wishlist Note
+#### 📝 Update Wishlist Note
 
-- **PUT** `/api/wishlist/:id`
-  **Body Parameters:**
+- **PUT** `/api/wishlist/:id`  
+  **Body Parameters:**  
   Required: `note`
 
-#### 🔹 Remove from Wishlist
+#### ❌ Remove from Wishlist
 
-- **DELETE** `/api/wishlist/:id`
+- **DELETE** `/api/wishlist/:id`  
   Deletes a wishlist item by ID.
 
 ---
 
-### 📊 Price History
+### 📈 Price History
 
-#### 🔹 Get Product Price Chart
+#### 📉 Get Product Price Chart
 
-- **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`
-  Returns time-series data points:
+- **GET** `/api/price-history/chart/:productId?ram=128&storage=512&color=blue`  
+  Returns time-series data points:  
   `{ label: <Date>, value: <price> }`
 
-#### 🔹 Get Raw Price History
+#### 📊 Get Raw Price History
 
-- **GET** `/api/price-history/:productId?storage=512`
+- **GET** `/api/price-history/:productId?storage=512`  
   **Query Parameters:**
   - Required: `productId`, `storage`
   - Optional: `ram`, `color`
+  ***
+
+### 🔔 Notifications
+
+#### 📬 Mark Notification as Read
+
+- **PUT** `/api/notification/:notificationId/read`  
+  Marks the notification as **read**.  
+  🔧 Call this endpoint **when the user opens or reads a notification**.
 
 ---
 
@@ -264,7 +277,245 @@ This section outlines the available backend API routes for the SmartShoppingAssi
 
 We use [🌐 Neon](https://console.neon.tech/) with **PostgreSQL**.
 
-🛠️ Set the following queries in [Neon Console](https://console.neon.tech/).
+🛠️ We have the following tables in [Neon Console](https://console.neon.tech/).
+
+---
+
+## 🗄️ Database Overview – 💾 Core Data Structure
+
+Our backend relies on a well-structured relational database built with **PostgreSQL**, enabling robust product tracking, price comparisons, user personalization, and background scraping operations.
+
+Each table in the schema plays a specific role in the system. Below is a description of the primary tables:
+
+- 🏷️ **Coupons** – Stores discount codes and promotions tied to sellers and stores.
+- 🔔 **Notifications** – Captures messages, alerts, and updates shown to users in real-time.
+- 🛎️ **PriceAlerts** – Tracks user-defined alerts for specific price or availability changes.
+- 💰 **Prices** – Holds product pricing, stock info, and historical trends per seller/store.
+- 🛍️ **Products** – Catalog of available products across all platforms with base attributes.
+- 🛠️ **ScrapingJobs** – Logs each scraping task, its status, and result metadata.
+- 🏪 **SellerStores** – Connects sellers to the marketplaces they list on.
+- 👤 **Users** – Stores user profile data and preferences.
+- ❤️ **Wishlists** – Tracks user-saved products for future deals or alerts.
+- 🧑‍💼 **Sellers** – Contains merchant information such as contact and store links.
+- 🏬 **Stores** – Represents e-commerce platforms like Amazon, eBay, Newegg, etc.
+
+Each table is interlinked to power real-time price discovery, deal alerts, scraping tasks, and user interaction — forming the **data backbone** of the Smart Shopping Assistant.
+
+> 📊 _Designed for flexibility and scalability, this schema makes it easy to extend across multiple stores, users, and price tracking tools._
+
+## 🧾 Coupons Table – 💸 Store Discounts & Promotions
+
+This table stores promotional discount codes offered by sellers across different e-commerce stores. Each coupon is linked to a store and seller store, with details on discount value, expiration, and activation status.
+
+| 🔑 Column Name     | 🗃️ Type   | 📌 Description                              |
+| ------------------ | --------- | ------------------------------------------- |
+| 🆔 `id`            | Integer   | Primary key, unique identifier              |
+| 🏬 `storeId`       | Integer   | Reference to the associated store           |
+| 🎟️ `code`          | String    | Coupon code entered by the user             |
+| 💸 `discount`      | Decimal   | Discount value (percentage or flat amount)  |
+| 📆 `expiryDate`    | Date      | Date the coupon expires                     |
+| ✅ `isActive`      | Boolean   | Indicates if the coupon is currently usable |
+| 🕒 `createdAt`     | Timestamp | When the coupon was created                 |
+| 🕒 `updatedAt`     | Timestamp | Last modification time of the coupon        |
+| 🛍️ `sellerStoreId` | Integer   | Foreign key linking to a seller's store     |
+| 🔗 `SellerStore`   | Object    | Relationship to the SellerStore model       |
+
+> 💡 _This table helps manage time-sensitive coupon campaigns tied to specific stores and sellers._
+
+## 🔔 Notifications Table – 📬 User Alerts & Updates
+
+This table keeps track of messages and system alerts sent to users. Notifications can inform users about price changes, wishlist updates, coupon expirations, and more. Each notification is tied to a specific user and includes read status.
+
+| 🔑 Column Name | 🗃️ Type   | 📌 Description                                    |
+| -------------- | --------- | ------------------------------------------------- |
+| 🆔 `id`        | Integer   | Primary key, unique identifier                    |
+| 🙍 `userId`    | Integer   | Foreign key referencing the target user           |
+| 🏷️ `type`      | String    | Type of notification (e.g., "priceDrop", "alert") |
+| 💬 `message`   | Text      | The message content shown to the user             |
+| 📥 `isRead`    | Boolean   | Whether the user has seen the notification        |
+| 🕒 `createdAt` | Timestamp | Timestamp when notification was created           |
+| 🕒 `updatedAt` | Timestamp | Last time the notification was updated            |
+| 🔗 `User`      | Object    | Association with the `User` model                 |
+
+> 💡 _Useful for notifying users of important events and personalized triggers in real-time._
+
+## 📢 PriceAlerts Table – 🔔 Track Desired Price Changes
+
+The `PriceAlerts` table stores user-defined alerts for specific product prices. When a price falls below a threshold or changes in availability, the system can notify users using this table as a reference.
+
+| 🔑 Column Name    | 🗃️ Type   | 📌 Description                                        |
+| ----------------- | --------- | ----------------------------------------------------- |
+| 🆔 `id`           | Integer   | Primary key, unique identifier                        |
+| 🔗 `priceId`      | Integer   | Foreign key linking to the `Prices` table             |
+| 💱 `currency`     | String    | Currency format (e.g., $, €)                          |
+| 📦 `availability` | Boolean   | Availability status of the product                    |
+| 💰 `price`        | Decimal   | Current price when alert was triggered                |
+| 🕒 `recordedAt`   | Timestamp | Time the alert data was captured                      |
+| 🕒 `createdAt`    | Timestamp | Alert creation timestamp                              |
+| 🕒 `updatedAt`    | Timestamp | Last time alert record was updated                    |
+| 🔗 `Price`        | Object    | Association with the `Prices` model for detailed info |
+
+> 🧠 _Used to trigger user notifications when product prices meet alert conditions._
+
+## 💸 Prices Table – 🏷️ Product Listings with Seller & Trend Data
+
+The `Prices` table contains detailed product pricing, technical specifications, seller information, and historical tracking. It’s essential for comparing prices across different stores and tracking trends over time.
+
+| 🔑 Column Name            | 🗃️ Type   | 📌 Description                                     |
+| ------------------------- | --------- | -------------------------------------------------- |
+| 🆔 `id`                   | Integer   | Primary key, unique identifier                     |
+| 🔗 `productId`            | Integer   | Foreign key referencing the `Products` table       |
+| 🖼️ `mainImgUrl`           | String    | URL of the product’s main image                    |
+| 🎨 `color`                | String    | Color of the product                               |
+| 💾 `ram_gb`               | Integer   | Amount of RAM in GB                                |
+| 💽 `storage_gb`           | Integer   | Internal storage size in GB                        |
+| 🏬 `sellerStoreId`        | Integer   | Foreign key referencing the `SellerStores` table   |
+| 🔗 `product_link`         | String    | URL to the original product listing                |
+| 💰 `price`                | Decimal   | Current price of the product                       |
+| 💱 `currency`             | String    | Currency code (e.g., USD, EUR)                     |
+| 📦 `availability`         | Boolean   | Whether the product is in stock                    |
+| 🚚 `shippingCost`         | Decimal   | Shipping cost (if applicable)                      |
+| 🎁 `discount`             | Decimal   | Discount amount or percentage                      |
+| 🕒 `lastUpdated`          | Timestamp | Timestamp of the most recent price update          |
+| 🕒 `createdAt`            | Timestamp | When this price record was created                 |
+| 🕒 `updatedAt`            | Timestamp | When this price record was last updated            |
+| ⭐ `product_rating`       | Decimal   | Average rating for this specific listing           |
+| 📈 `productHistories`     | Object    | Array of price history entries over time           |
+| 🔗 `Product`              | Object    | Association with the related `Product` entity      |
+| 🔗 `SellerStore`          | Object    | Association with the `SellerStore` entity          |
+| 📌 `id_Wishlists_priceId` | Array     | Reference IDs for wishlists using this price entry |
+
+> 💡 _Central hub for pricing intelligence, powering alerts, wishlists, and comparison features._
+
+## 🛍️ Products Table – 🧾 Master Catalog of Items
+
+The `Products` table serves as the core inventory of all items tracked within the Smart Shopping Assistant. It contains essential product information such as name, description, and brand, and acts as a reference for prices, alerts, jobs, and wishlists.
+
+| 🔑 Column Name                 | 🗃️ Type   | 📌 Description                                        |
+| ------------------------------ | --------- | ----------------------------------------------------- |
+| 🆔 `id`                        | Integer   | Primary key, unique identifier                        |
+| 🏷️ `name`                      | String    | Product name (e.g., "iPhone 13")                      |
+| 📝 `description`               | Text      | Brief description of the product                      |
+| 🏢 `brand`                     | String    | Manufacturer or brand name (e.g., Apple, Samsung)     |
+| 🕒 `createdAt`                 | Timestamp | When this product record was created                  |
+| 🕒 `updatedAt`                 | Timestamp | When this product record was last modified            |
+| 🔗 `id_PriceAlerts_productId`  | Array     | Linked price alerts for this product                  |
+| 🔗 `id_Prices_productId`       | Array     | Associated prices from different stores               |
+| 🔗 `id_ScrapingJobs_productId` | Array     | Jobs scheduled or completed for scraping this product |
+| 🔗 `id_Wishlists_productId`    | Array     | Wishlists that include this product                   |
+
+> 🧠 _Acts as the foundation of the product ecosystem, enabling price tracking, user alerts, scraping tasks, and wishlist functionality._
+
+## 🧹 ScrapingJobs Table – 🤖 Automated Data Fetching Tasks
+
+The `ScrapingJobs` table logs all scraping tasks initiated to fetch product data from various stores. Each job includes metadata such as status, timing, error logs, and references to the associated product and store.
+
+| 🔑 Column Name    | 🗃️ Type   | 📌 Description                                            |
+| ----------------- | --------- | --------------------------------------------------------- |
+| 🆔 `id`           | Integer   | Primary key, unique identifier                            |
+| 📦 `productId`    | Integer   | Foreign key linking to the `Products` table               |
+| 🏬 `storeId`      | Integer   | Foreign key linking to the `Stores` table                 |
+| 🔄 `status`       | String    | Status of the job (e.g., "pending", "completed", "error") |
+| 🕓 `startedAt`    | Timestamp | When the scraping job started                             |
+| 🕓 `completedAt`  | Timestamp | When the scraping job completed                           |
+| ❗ `errorMessage` | Text      | Optional error message if the job failed                  |
+| 🕒 `createdAt`    | Timestamp | Record creation timestamp                                 |
+| 🕒 `updatedAt`    | Timestamp | Record last updated timestamp                             |
+| 🔗 `Product`      | Object    | Association with the `Product` entity                     |
+| 🔗 `Store`        | Object    | Association with the `Store` entity                       |
+
+> ⚙️ _Essential for orchestrating and monitoring automated scraping routines across platforms._
+
+## 🏪 SellerStores Table – 🧾 Link Between Sellers & Stores
+
+The `SellerStores` table represents the relationship between sellers and the platforms they operate on (e.g., Amazon, eBay). It contains metadata like rating and connects coupons and prices for each seller-store pairing.
+
+| 🔑 Column Name               | 🗃️ Type  | 📌 Description                                           |
+| ---------------------------- | -------- | -------------------------------------------------------- |
+| 🆔 `id`                      | Integer  | Primary key, unique identifier                           |
+| 🙋 `sellerId`                | Integer  | Foreign key linking to the `Sellers` table               |
+| 🏬 `storeId`                 | Integer  | Foreign key linking to the `Stores` table                |
+| ⭐ `rating`                  | Decimal  | Seller's rating on the associated store platform         |
+| 🎟️ `Cupons`                  | Object[] | Associated discount coupons offered by this seller-store |
+| 💰 `id_Prices_sellerStoreId` | Object[] | List of price records tied to this seller-store          |
+| 🔗 `seller`                  | Object   | Relation to the `Seller` entity                          |
+| 🔗 `store`                   | Object   | Relation to the `Store` entity                           |
+
+> 🛍️ _Helps associate sellers with their storefronts across multiple platforms and tracks their offerings._
+
+## 👤 Users Table – 🙍‍♂️ Registered Application Users
+
+The `Users` table stores the personal and contact details of each registered user. It also serves as the central point for linking notifications, price alerts, and wishlist data related to individual users.
+
+| 🔑 Column Name             | 🗃️ Type   | 📌 Description                                   |
+| -------------------------- | --------- | ------------------------------------------------ |
+| 🆔 `id`                    | Integer   | Primary key, unique identifier                   |
+| 🧑 `name`                  | String    | First name of the user                           |
+| 🧑‍🦱 `surname`               | String    | Last name of the user                            |
+| 📧 `email`                 | String    | Unique user email for authentication             |
+| 🔒 `password`              | String    | Hashed password used for login                   |
+| 🏠 `street`                | String    | User's street address                            |
+| 🏙️ `city`                  | String    | User's city                                      |
+| 🏷️ `zipcode`               | String    | Postal/ZIP code                                  |
+| 📝 `about`                 | Text      | Short bio or about section for the user          |
+| ☎️ `phone`                 | String    | Contact phone number                             |
+| 🕒 `createdAt`             | Timestamp | Time the user record was created                 |
+| 🕒 `updatedAt`             | Timestamp | Time the user record was last modified           |
+| 🔔 `Notifications`         | Object[]  | List of notification objects related to the user |
+| 🔗 `id_PriceAlerts_userId` | Object[]  | Price alerts associated with the user            |
+| 🧾 `id_Wishlists_userId`   | Object[]  | Wishlist entries linked to this user             |
+
+> 🧠 _Central to managing authentication, personalization, and user-based alerting systems._
+
+## ❤️ Wishlists Table – 📝 User-Saved Products
+
+The `Wishlists` table stores products that users have favorited or saved for future reference. It links users to specific product and price combinations and supports optional user notes.
+
+| 🔑 Column Name | 🗃️ Type   | 📌 Description                                               |
+| -------------- | --------- | ------------------------------------------------------------ |
+| 🆔 `id`        | Integer   | Primary key, unique identifier                               |
+| 🙍 `userId`    | Integer   | Foreign key referencing the user who owns this wishlist item |
+| 📦 `productId` | Integer   | Foreign key referencing the product                          |
+| 💰 `priceId`   | Integer   | Foreign key referencing the specific price version           |
+| 📝 `note`      | Text      | Optional user-added comment or note                          |
+| 🕒 `createdAt` | Timestamp | Timestamp when the wishlist item was created                 |
+| 🕒 `updatedAt` | Timestamp | Last time the wishlist item was modified                     |
+| 🔗 `Price`     | Object    | Linked price object for historical or current price info     |
+| 🔗 `Product`   | Object    | Linked product object for display details                    |
+| 🔗 `User`      | Object    | Association with the `User` who saved the item               |
+
+> 💡 _Empowers users to track product availability, price changes, and receive notifications for saved items._
+
+## 🧑‍💼 Sellers Table – 🏪 Vendor Information
+
+The `Sellers` table contains information about individual vendors who list products on the platform. This includes their identity, contact details, and associations with the stores they operate in.
+
+| 🔑 Column Name                | 🗃️ Type   | 📌 Description                                    |
+| ----------------------------- | --------- | ------------------------------------------------- |
+| 🆔 `id`                       | Integer   | Primary key, unique identifier                    |
+| 🧾 `name`                     | String    | Seller's official name                            |
+| 📞 `contact_info`             | String    | Contact information such as phone or email        |
+| 🕒 `createdAt`                | Timestamp | Timestamp when the seller record was created      |
+| 🕒 `updatedAt`                | Timestamp | Timestamp when the seller record was last updated |
+| 🔗 `id_SellerStores_sellerId` | Array     | List of store records associated with this seller |
+
+> 🛍️ _Essential for linking stores, prices, and product listings to real-world sellers._
+
+## 🏬 Stores Table – 🌐 Online Retail Platforms
+
+The `Stores` table contains metadata about various e-commerce platforms from which products are scraped. This includes store identity, site URL, and references to associated scraping jobs and sellers.
+
+| 🔑 Column Name               | 🗃️ Type   | 📌 Description                                          |
+| ---------------------------- | --------- | ------------------------------------------------------- |
+| 🆔 `id`                      | Integer   | Primary key, unique identifier for the store            |
+| 🏷️ `name`                    | String    | Name of the e-commerce platform (e.g., Amazon, eBay)    |
+| 🌍 `website`                 | String    | Official URL of the store                               |
+| 🕒 `createdAt`               | Timestamp | Timestamp when the store entry was created              |
+| 🕒 `updatedAt`               | Timestamp | Timestamp when the store entry was last updated         |
+| 🔗 `id_ScrapingJobs_storeId` | Array     | Associated scraping jobs initiated for this store       |
+| 🔗 `id_SellerStores_storeId` | Array     | Associations to seller-store mappings for this platform |
+
+> 🧩 _Acts as the source registry for scraping jobs, seller mapping, and store-specific product logic._
 
 ---
 
@@ -503,7 +754,3 @@ Here’s a sample from the `Apple iPhone 128GB white` search:
 - 🧬 [Jest Documentation](https://jestjs.io/docs/getting-started)
 - 🧾 [Supertest (HTTP assertions)](https://www.npmjs.com/package/supertest)
 - ⚙️ [Using Babel with Jest](https://jestjs.io/docs/configuration)
-
-```
-
-```
