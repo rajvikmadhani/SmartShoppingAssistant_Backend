@@ -33,6 +33,15 @@ export default (sequelize) => {
                 type: DataTypes.INTEGER,
                 allowNull: true,
             },
+            isDisabled: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+
+            lastNotifiedAt: {
+                type: DataTypes.DATE,
+                allowNull: true,
+            },
         },
         {
             timestamps: true,

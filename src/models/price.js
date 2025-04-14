@@ -78,6 +78,15 @@ export default (sequelize) => {
                 defaultValue: DataTypes.NOW,
             },
         },
-        { timestamps: true }
+        {
+            timestamps: true,
+            indexes: [
+                {
+                    unique: true,
+                    name: 'price_variant_unique_index',
+                    fields: ['productId', 'color', 'ram_gb', 'storage_gb', 'sellerStoreId', 'product_link'],
+                },
+            ],
+        }
     );
 };

@@ -1,38 +1,50 @@
-// File: jobs/workers/scrapingWorker.js
 import { Worker } from 'bullmq';
 import { redisConnection } from '../../redis/index.js';
-import { updateProductPrice } from '../../utils/productRepo.js'; // update logic
-import { checkAlertsAndEnqueueNotifications } from '../../services/alertService/index.js'; // stub for now
+import { scrapeProductPage } from '../../services/scrapers/singleProductScraper.js';
+import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
+import { checkAlertsAndEnqueueNotifications } from '../../services/AlertService/alertService.js';
+import { updateScrapedProductDetails } from '../../services/updateScrapedProductDetails.js';
 
 const scrapingWorker = new Worker(
     'scraping',
     async (job) => {
-        const { productId, sourceUrl } = job.data;
+        const { productId, sourceUrl, color, ram_gb, storage_gb } = job.data;
 
-        console.log(`Scraping product [${productId}] from: ${sourceUrl}`);
+        console.log(`🔍 Scraping product [${productId}] from: ${sourceUrl}`);
 
-        // Simulate scraping result (replace with real scraper)
-        const scrapedPrice = await fakeScrape(sourceUrl);
+        const product = await getProductWithPricesAndSeller({ id: productId });
 
-        console.log(`Scraped price: €${scrapedPrice}`);
+        const variant = product?.Prices?.find(
+            (p) =>
+                (!color || color === p.color) &&
+                (!ram_gb || ram_gb === p.ram_gb) &&
+                (!storage_gb || storage_gb === p.storage_gb)
+        );
 
-        // Update DB with new price
-        await updateProductPrice(productId, scrapedPrice);
+        const storeName = variant.SellerStore?.Store?.name ?? 'unknown';
 
-        // Optionally check alerts and queue notifications
-        await checkAlertsAndEnqueueNotifications(productId, scrapedPrice);
+        console.log('streName:', storeName);
+        const scrapedData = await scrapeProductPage(sourceUrl, storeName);
+        console.log('📦 Scraped data:', scrapedData);
+        scrapedData.storage_gb = storage_gb || 0;
+        if (!scrapedData || !scrapedData.price) {
+            console.warn(`⚠️ Scraper failed or price missing for ${sourceUrl}`);
+            return;
+        }
+        console.log('Updating/inserting scraped data...');
 
-        return { productId, scrapedPrice };
+        // Always attempt update or insert
+        await updateScrapedProductDetails(product, scrapedData);
+
+        // Only trigger alerts if this variant already existed in DB
+        if (variant) {
+            await checkAlertsAndEnqueueNotifications(productId, scrapedData);
+        }
+
+        console.log(`✅ Scraping job complete for product ${productId}`);
+        return { productId, updated: true };
     },
     { connection: redisConnection }
 );
 
-// Simulated scrape (replace with actual logic later)
-async function fakeScrape(url) {
-    await new Promise((res) => setTimeout(res, 2000));
-    return Math.floor(Math.random() * 400 + 100); // mock price
-}
-// File: jobs/workers/scrapingWorker.js
-// ... (your existing code)
-
-console.log('✅ scrapingWorker is up and waiting for jobs...');
+console.log('✅ scrapingWorker is up and listening for jobs...');

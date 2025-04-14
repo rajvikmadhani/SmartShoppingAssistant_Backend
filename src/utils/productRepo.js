@@ -26,6 +26,10 @@ export const getProductWithPricesAndSeller = async (productfilter) => {
                                 required: false,
                                 attributes: ['name'],
                             },
+                            {
+                                model: models.Store, // ✅ Add this
+                                attributes: ['name'],
+                            },
                         ],
                     },
                 ],

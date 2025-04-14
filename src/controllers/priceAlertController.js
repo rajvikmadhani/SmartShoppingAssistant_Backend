@@ -39,8 +39,9 @@ export const deletePriceAlert = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: 'Alert not found' });
     }
 
-    await alert.destroy();
-    res.json({ message: 'Alert deleted successfully' });
+    alert.isDisabled = true;
+    await alert.save();
+    return res.status(200).json({ message: 'Alert disabled successfully' });
 });
 
 // Get all price alerts

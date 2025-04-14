@@ -74,3 +74,16 @@ export function extractBrandFromTitle(title = '') {
 
     return matchedBrand || 'Unknown';
 }
+export function extractRamFromTitle(title) {
+    if (!title || typeof title !== 'string') return -1;
+
+    // Common formats: "8 GB RAM", "8GB", "8GB/128GB", "12 GB/256 GB"
+    const ramRegex = /(\d{1,3})\s?(GB|GByte)\s?(RAM)?/i;
+
+    const match = title.match(ramRegex);
+    if (match && match[1]) {
+        return parseInt(match[1]);
+    }
+
+    return -1;
+}

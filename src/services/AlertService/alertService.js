@@ -7,9 +7,22 @@ import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
     const { price, color, ram_gb, storage_gb } = priceData;
+    console.log('Checking alerts for:', {
+        productId,
+        color,
+        ram_gb,
+        storage_gb,
+    });
     const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
-
+    console.log('Matched alerts:', alerts.length);
     for (const alert of alerts) {
+        // 1. Skip disabled alerts
+        if (alert.isDisabled) continue;
+
+        // 2. Rate-limit: skip if already notified in last 24h
+        if (alert.lastNotifiedAt && Date.now() - new Date(alert.lastNotifiedAt).getTime() < 24 * 60 * 60 * 1000) {
+            continue;
+        }
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
         if (matchesPrice) {
             console.log(`Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
