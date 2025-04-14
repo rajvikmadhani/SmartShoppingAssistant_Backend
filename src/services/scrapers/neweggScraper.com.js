@@ -79,12 +79,14 @@ const scrapeNewegg = async (query) => {
           const priceFraction =
             el.querySelector(".price-current sup")?.innerText; // get the fractional part of the price
 
-          const price =
+          const priceWithSymbol =
             priceWhole && !isNaN(priceWhole)
               ? `${parseFloat(`${priceWhole}.${priceFraction || "00"}`).toFixed(
                   2
                 )}$`
               : "N/A"; // format the price to two decimal places
+
+          const price = priceWithSymbol.replace(/[^0-9.]/g, "");
 
           const imgEl = el.querySelector("img"); // select the image element
           let image =
@@ -99,25 +101,32 @@ const scrapeNewegg = async (query) => {
           const ratingEl = el.querySelector(".item-rating"); // select the rating element
           const rating = ratingEl?.title || "N/A"; // get the rating title
 
-          const reviewsEl = el.querySelector(".item-rating-num"); // select the reviews element
-          const reviews = reviewsEl
-            ? reviewsEl.innerText.replace(/[()]/g, "")
-            : "N/A"; // clean up the reviews text to remove parentheses
-
-          const shippingEl = el.querySelector(".price-ship"); // select the shipping element
-          const shipping = shippingEl?.innerText?.trim() || "N/A"; // get the shipping cost
+          const shippingCostEl = el.querySelector(".price-ship"); // select the shippingCost element
+          const shippingCost = shippingCostEl?.innerText?.trim() || "N/A"; // get the shippingCost cost
 
           // only add products that have at least a title and link
           if (title && link) {
             items.push({
               title,
               price,
+              currency: "$",
+              brand: "Unknown",
+              availability: true,
+              storage_gb: 128,
+              ram_gb: 0,
+              ramMatch: 0,
+              rating,
+              shippingCost,
+              discount: 0,
               link,
               image,
-              rating,
-              reviews,
-              shipping,
+              seller: "Newegg",
+              productSellerRate: 0,
+              badge: "Unknown",
+              isPrime: false,
+              delivery: "Free delivery",
               store: "Newegg",
+              seller_rating: 0,
             });
           }
         } catch (err) {
@@ -183,12 +192,25 @@ scrapeNewegg("iphone")
       console.log(`#${index + 1}`); // item count
       console.log(`title   : ${item.title}`); // title
       console.log(`price   : ${item.price}`); // price
+      console.log(`currency: ${item.currency}`); // currency
+      console.log(`brand   : ${item.brand}`); // brand
+      console.log(`availability: ${item.availability}`); // availability
+      console.log(`storage_gb: ${item.storage_gb}`); // storage_gb
+      console.log(`ram_gb  : ${item.ram_gb}`); // ram_gb
+      console.log(`ramMatch: ${item.ramMatch}`); // ramMatch
+      console.log(`rating  : ${item.rating}`); // rating
+      console.log(`shippingCost: ${item.shippingCostCost}`); // shippingCost
+      console.log(`discount: ${item.discount}`); // discount
       console.log(`link    : ${item.link}`); // link
       console.log(`image   : ${item.image}`); // image
-      console.log(`rating  : ${item.rating}`); // rating
-      console.log(`reviews : ${item.reviews}`); // reviews
-      console.log(`shipping: ${item.shipping}`); // shipping
+      console.log(`seller  : ${item.seller}`); // seller
+      console.log(`productSellerRate: ${item.productSellerRate}`); // productSellerRate
+      console.log(`badge   : ${item.badge}`); // badge
+      console.log(`isPrime : ${item.isPrime}`); // isPrime
+      console.log(`delivery: ${item.delivery}`); // delivery
       console.log(`store   : ${item.store}\n`); // store name
+      console.log(`seller_rating: ${item.seller_rating}`); // seller rating
+      console.log(`----------------------------------------`); // separator for readability
 
       // log the complete dataset of all products scraped
       // displays all product information collected during the scraping process
