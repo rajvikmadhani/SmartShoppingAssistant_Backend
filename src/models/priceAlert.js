@@ -17,15 +17,25 @@ export default (sequelize) => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            targetPrice: {
-                type: DataTypes.FLOAT,
+            threshold: {
+                type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
-            isNotified: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
+            color: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            ram_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
+            storage_gb: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
             },
         },
-        { timestamps: true }
+        {
+            timestamps: true,
+        }
     );
 };

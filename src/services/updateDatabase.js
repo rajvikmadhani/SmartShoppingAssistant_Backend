@@ -2,6 +2,8 @@
 import models from '../models/index.js';
 import { textToNumber } from '../utils/textToNumberConvertor.js';
 import { extractColorFromTitle, extractBrandFromTitle } from '../utils/FilterScrappingResult.js';
+import { checkAlertsAndEnqueueNotifications } from '../services/AlertService/alertService.js';
+
 // Function to get or create a SellerStore record
 async function getOrCreateSellerStore(storeId, sellerName, rating) {
     // First, find or create the seller
@@ -71,8 +73,12 @@ export const updatePrices = async (product, scrapedData) => {
             },
             {
                 returning: true,
+                conflictFields: ['productId', 'color', 'ram_gb', 'storage_gb', 'sellerStoreId', 'product_link'],
             }
         );
+
+        // Check alerts and enqueue notifications for this price variant
+        await checkAlertsAndEnqueueNotifications(product.id, priceEntry);
 
         // Use the returned priceId directly for history
         await models.PriceHistory.create({

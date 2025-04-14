@@ -94,3 +94,7 @@ export const getBestPrices = async () => {
     // console.log(`Returning ${productsWithBestPrices.length} best-priced products`);
     return productsWithBestPrices;
 };
+
+export const updateProductPrice = (productId, newPrice) => {
+    console.error('Product is updated! method is not implemented yet');
+};
