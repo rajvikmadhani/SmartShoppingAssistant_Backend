@@ -11,18 +11,8 @@ export async function scrapeAmazonProduct(link) {
         title: 'Unknown',
         price: '0',
         currency: '€',
-        availability: 'Unknown',
-        discount: '0',
-        shippingCost: '-1',
-        mainImgUrl: 'Not Available',
-        product_rating: null,
+        availability: false,
         product_link: link,
-        storeId: 'AMAZON_STORE_UUID',
-        ram_gb: 0,
-        storage_gb: 0,
-        color: 'unknown',
-        seller: 'Amazon',
-        seller_rating: '5.0',
     };
 
     try {
@@ -65,8 +55,19 @@ export async function scrapeAmazonProduct(link) {
 
         // Availability
         try {
-            product.availability = await page.$eval('#availability span', (el) => el.textContent.trim());
-        } catch {}
+            product.availability = await page.$eval('#availability span', (el) => {
+                const text = el.textContent.trim().toLowerCase();
+                return (
+                    text.includes('auf lager') ||
+                    text.includes('available') ||
+                    text.includes('derzeit verfügbar') ||
+                    text.includes('nur noch')
+                );
+            });
+        } catch {
+            product.availability = false; // fallback if selector not found
+        }
+        console.log('availability value:', product.availability, '| typeof:', typeof product.availability);
 
         await browser.close();
     } catch (err) {

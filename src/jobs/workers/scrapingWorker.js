@@ -4,7 +4,6 @@ import { scrapeProductPage } from '../../services/scrapers/singleProductScraper.
 import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
 import { checkAlertsAndEnqueueNotifications } from '../../services/AlertService/alertService.js';
 import { updateScrapedProductDetails } from '../../services/updateScrapedProductDetails.js';
-import store from '../../models/store.js';
 
 const scrapingWorker = new Worker(
     'scraping',
@@ -27,7 +26,7 @@ const scrapingWorker = new Worker(
         console.log('streName:', storeName);
         const scrapedData = await scrapeProductPage(sourceUrl, storeName);
         console.log('📦 Scraped data:', scrapedData);
-
+        scrapedData.storage_gb = storage_gb || 0;
         if (!scrapedData || !scrapedData.price) {
             console.warn(`⚠️ Scraper failed or price missing for ${sourceUrl}`);
             return;

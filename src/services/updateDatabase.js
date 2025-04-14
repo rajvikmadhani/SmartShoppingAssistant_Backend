@@ -3,30 +3,8 @@ import models from '../models/index.js';
 import { textToNumber } from '../utils/textToNumberConvertor.js';
 import { extractColorFromTitle, extractBrandFromTitle } from '../utils/FilterScrappingResult.js';
 import { checkAlertsAndEnqueueNotifications } from '../services/AlertService/alertService.js';
-
+import { getOrCreateSellerStore } from '../utils/StoreRepo.js';
 // Function to get or create a SellerStore record
-async function getOrCreateSellerStore(storeId, sellerName, rating) {
-    // First, find or create the seller
-    const [seller] = await models.Seller.findOrCreate({
-        where: { name: sellerName },
-        defaults: { name: sellerName },
-    });
-
-    // Then find or create the SellerStore relationship
-    const [sellerStore] = await models.SellerStore.findOrCreate({
-        where: {
-            sellerId: seller.id,
-            storeId: storeId,
-        },
-        defaults: {
-            sellerId: seller.id,
-            storeId: storeId,
-            rating: rating || 0.0,
-        },
-    });
-
-    return sellerStore;
-}
 
 export const updatePrices = async (product, scrapedData) => {
     if (!scrapedData.length) return null;

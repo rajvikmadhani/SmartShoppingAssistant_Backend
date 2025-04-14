@@ -17,3 +17,25 @@ export const getStoreByPriceId = async (priceId) => {
 
     return price.SellerStore.Store;
 };
+export const getOrCreateSellerStore = async (storeId, sellerName, rating) => {
+    // First, find or create the seller
+    const [seller] = await models.Seller.findOrCreate({
+        where: { name: sellerName },
+        defaults: { name: sellerName },
+    });
+
+    // Then find or create the SellerStore relationship
+    const [sellerStore] = await models.SellerStore.findOrCreate({
+        where: {
+            sellerId: seller.id,
+            storeId: storeId,
+        },
+        defaults: {
+            sellerId: seller.id,
+            storeId: storeId,
+            rating: rating || 0.0,
+        },
+    });
+
+    return sellerStore;
+};

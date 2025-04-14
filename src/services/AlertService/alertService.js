@@ -7,8 +7,14 @@ import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
     const { price, color, ram_gb, storage_gb } = priceData;
+    console.log('Checking alerts for:', {
+        productId,
+        color,
+        ram_gb,
+        storage_gb,
+    });
     const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
-
+    console.log('Matched alerts:', alerts.length);
     for (const alert of alerts) {
         // 1. Skip disabled alerts
         if (alert.isDisabled) continue;
