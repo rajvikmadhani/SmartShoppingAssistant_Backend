@@ -135,14 +135,19 @@ export const scrapeOtto = async (query = "iphone 15") => {
               discount = parseInt(match[1]);
             }
           }
-
+          // extract storage information from title
+          let storage_gb = 0;
+          const storageMatch = title.match(/(\d+)\s*GB/i);
+          if (storageMatch) {
+            storage_gb = parseInt(storageMatch[1], 10);
+          }
           items.push({
             title,
             price,
             currency: "€",
             brand: "Unknown",
             availability,
-            storage_gb: 0,
+            storage_gb,
             ram_gb: 0,
             ramMatch: 0,
             rating: null,
