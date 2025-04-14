@@ -52,6 +52,16 @@ export const updatePrices = async (product, scrapedData) => {
         } = data;
         // Get or create the SellerStore record
         const sellerStore = await getOrCreateSellerStore(storeId, seller || 'Unknown Seller', seller_rating);
+        const existing = await models.Price.findOne({
+            where: {
+                productId: product.id,
+                sellerStoreId: sellerStore.id,
+                ram_gb: ram_gb || 0,
+                storage_gb: storage_gb || 0,
+                color: extractColorFromTitle(title),
+                product_link: link,
+            },
+        });
 
         // Insert or update the Price row, and return the instance
         const [priceEntry, created] = await models.Price.upsert(

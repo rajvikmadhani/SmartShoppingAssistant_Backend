@@ -10,6 +10,13 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
     const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
 
     for (const alert of alerts) {
+        // 1. Skip disabled alerts
+        if (alert.isDisabled) continue;
+
+        // 2. Rate-limit: skip if already notified in last 24h
+        if (alert.lastNotifiedAt && Date.now() - new Date(alert.lastNotifiedAt).getTime() < 24 * 60 * 60 * 1000) {
+            continue;
+        }
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
         if (matchesPrice) {
             console.log(`Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);

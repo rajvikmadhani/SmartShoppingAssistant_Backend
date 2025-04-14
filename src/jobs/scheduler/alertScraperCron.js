@@ -2,8 +2,8 @@ import cron from 'node-cron';
 import models from '../../models/index.js';
 import { scrapeProductPage } from '../../services/scrapers/singleProductScraper.js';
 import { updatePrices } from '../../services/updateDatabase.js';
-import { getProductWithPricesAndSeller, checkAlertsAndEnqueueNotifications } from '../../utils/productRepo.js';
-
+import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
+import { checkAlertsAndEnqueueNotifications } from '../../services/AlertService/alertService.js';
 console.log('⏰ Alert-driven scraping scheduler is live...');
 
 // Run every hour (change schedule if needed)
