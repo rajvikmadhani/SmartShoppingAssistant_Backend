@@ -6,7 +6,7 @@ import loadAllProducts from "../../utils/loadAllProducts.js"; // this is a utili
 
 puppeteer.use(StealthPlugin());
 
-const scraperOtto = async (query = "iphone 15") => {
+export const scrapeOtto = async (query = "iphone 15") => {
   console.log(`starting scrape for "${query}"...`);
 
   const browser = await puppeteer.launch({
@@ -31,6 +31,7 @@ const scraperOtto = async (query = "iphone 15") => {
 
     const searchUrl = `https://www.otto.de/suche/${encodeURIComponent(query)}`;
     console.log(`navigating to search URL: ${searchUrl}`);
+    const allResults = [];
 
     await page.goto(searchUrl, {
       waitUntil: "networkidle2",
@@ -166,46 +167,55 @@ const scraperOtto = async (query = "iphone 15") => {
     });
 
     console.log(`successfully extracted ${products.length} products`);
-    return products;
+    allResults.push(...products);
+    // return products;
   } catch (error) {
     console.error("scraping error:", error);
     throw error;
   } finally {
     await browser.close();
+    return allResults;
   }
 };
 
-scraperOtto("iphone")
-  .then((scrapedData) => {
-    console.log("\nscraped data:");
+/************************************
+ *
+ * example usage
+ *  this scraper have 120 products
+ *
+ **********************************/
 
-    // slice the first items
-    const top3 = scrapedData.slice(0, 3);
+// scrapeOtto("iphone")
+//   .then((scrapedData) => {
+//     console.log("\nscraped data:");
 
-    top3.forEach((item, i) => {
-      console.log(`\nitem ${i + 1}`);
-      console.log(`title: ${item.title}`);
-      console.log(`price: ${item.price}`);
-      console.log(`currency: ${item.currency}`);
-      console.log(`brand: ${item.brand}`);
-      console.log(`availability: ${item.availability}`);
-      console.log(`storage_gb: ${item.storage_gb}`);
-      console.log(`ram_gb: ${item.ram_gb}`);
-      console.log(`ramMatch: ${item.ramMatch}`);
-      console.log(`rating: ${item.rating}`);
-      console.log(`shippingCost: ${item.shippingCost}`);
-      console.log(`discount: ${item.discount}`);
-      console.log(`link: ${item.link}`);
-      console.log(`image: ${item.image}`);
-      console.log(`seller: ${item.seller}`);
-      console.log(`productSellerRate: ${item.productSellerRate}`);
-      console.log(`badge: ${item.badge}`);
-      console.log(`isPrime: ${item.isPrime}`);
-      console.log(`delivery: ${item.delivery}`);
-      console.log(`store: ${item.store}`);
-      console.log(`seller_rating: ${item.seller_rating}`);
-    });
+//     // slice the first items
+//     const top3 = scrapedData.slice(0, 3);
 
-    console.log("\ndone");
-  })
-  .catch(console.error);
+//     top3.forEach((item, i) => {
+//       console.log(`\nitem ${i + 1}`);
+//       console.log(`title: ${item.title}`);
+//       console.log(`price: ${item.price}`);
+//       console.log(`currency: ${item.currency}`);
+//       console.log(`brand: ${item.brand}`);
+//       console.log(`availability: ${item.availability}`);
+//       console.log(`storage_gb: ${item.storage_gb}`);
+//       console.log(`ram_gb: ${item.ram_gb}`);
+//       console.log(`ramMatch: ${item.ramMatch}`);
+//       console.log(`rating: ${item.rating}`);
+//       console.log(`shippingCost: ${item.shippingCost}`);
+//       console.log(`discount: ${item.discount}`);
+//       console.log(`link: ${item.link}`);
+//       console.log(`image: ${item.image}`);
+//       console.log(`seller: ${item.seller}`);
+//       console.log(`productSellerRate: ${item.productSellerRate}`);
+//       console.log(`badge: ${item.badge}`);
+//       console.log(`isPrime: ${item.isPrime}`);
+//       console.log(`delivery: ${item.delivery}`);
+//       console.log(`store: ${item.store}`);
+//       console.log(`seller_rating: ${item.seller_rating}`);
+//     });
+
+//     console.log("\ndone");
+//   })
+//   .catch(console.error);
