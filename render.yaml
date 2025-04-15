@@ -1,25 +1,33 @@
 version: 1
 
 services:
+    - type: web
+      name: Smart Shopping API
+      env: node
+      plan: free
+      buildCommand: npm install
+      startCommand: node server.js
+      envVarsFromGroup: common-env
+
     - type: cron
       name: Price Alert Scraper
       schedule: '0 */6 * * *'
       env: node
-      buildCommand: ''
-      startCommand: node src/jobs/scheduler/cronRunner.js
+      buildCommand: npm install
+      startCommand: node jobs/scheduler/cronRunner.js
       envVarsFromGroup: common-env
 
     - type: cron
       name: Full Product Rescrape
       schedule: '0 0 * * *'
       env: node
-      buildCommand: ''
-      startCommand: node src/jobs/scheduler/cronDailyRunner.js
+      buildCommand: npm install
+      startCommand: node jobs/scheduler/cronDailyRunner.js
       envVarsFromGroup: common-env
 
     - type: worker
       name: Notification Worker
       env: node
-      buildCommand: ''
-      startCommand: node src/jobs/workers/notificationWorkerRunner.js
+      buildCommand: npm install
+      startCommand: node jobs/workers/notificationWorkerRunner.js
       envVarsFromGroup: common-env
