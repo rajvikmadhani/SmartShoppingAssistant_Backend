@@ -27,7 +27,7 @@ export const getProductWithPricesAndSeller = async (productfilter) => {
                                 attributes: ['name'],
                             },
                             {
-                                model: models.Store, // ✅ Add this
+                                model: models.Store,
                                 attributes: ['name'],
                             },
                         ],

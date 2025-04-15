@@ -1,4 +1,4 @@
-// File: jobs/scheduler/alertScraperCron.js
+//We are not using this. This is for future extension if we want a daily update automatically
 import cron from 'node-cron';
 import models from '../../models/index.js';
 import { enqueueScrapingJob } from '../enqueue/enqueueScrapingJob.js';
