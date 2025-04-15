@@ -12,6 +12,7 @@ services:
 
     - type: cron
       name: Price Alert Scraper
+      runtime: node
       region: frankfurt
       schedule: '0 */6 * * *'
       buildCommand: npm install
@@ -21,6 +22,7 @@ services:
 
     - type: cron
       name: Full Product Rescrape
+      runtime: node
       region: frankfurt
       schedule: '0 0 * * *'
       buildCommand: npm install
