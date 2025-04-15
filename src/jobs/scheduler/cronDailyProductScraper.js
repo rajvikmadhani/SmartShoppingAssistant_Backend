@@ -1,4 +1,4 @@
-// src/jobs/scheduler/cronDailyProductScraper.js
+//We are not using this. This is for future extension if we want a daily update automatically
 import models from '../../models/index.js';
 import { fetchProductData } from '../../services/fetchProductData.js';
 
