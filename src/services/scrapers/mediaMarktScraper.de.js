@@ -98,10 +98,21 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
     const products = await page.evaluate(() => {
       const items = [];
 
-      // helper function to extract price
-      function extractPrice(text) {
-        if (!text) return "0.00";
+      // helper function to extract price and currency
+      function extractPriceAndCurrency(text) {
+        if (!text) return { price: 0, currency: "€" };
 
+        let currency = "€"; // Default currency
+        let priceValue = 0;
+
+        // Extract currency symbol if present
+        if (text.includes("€")) {
+          currency = "€";
+        } else if (text.toLowerCase().includes("eur")) {
+          currency = "EUR";
+        }
+
+        // Extract numeric price value
         const patterns = [
           /(\d+[.,]\d+)\s*€/, // 123,45 €
           /€\s*(\d+[.,]\d+)/, // € 123,45
@@ -112,12 +123,49 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
         for (const pattern of patterns) {
           const match = text.match(pattern);
           if (match && match[1]) {
-            return match[1].replace(",", ".");
+            // Convert to number: replace comma with dot and parse as float
+            priceValue = parseFloat(match[1].replace(",", "."));
+            break;
           }
         }
 
-        const numberMatch = text.match(/\d+/);
-        return numberMatch ? numberMatch[0] + ".00" : "0.00";
+        // If no decimal price found, try to find just a number
+        if (priceValue === 0) {
+          const numberMatch = text.match(/\d+/);
+          if (numberMatch) {
+            priceValue = parseFloat(numberMatch[0]);
+          }
+        }
+
+        return { price: priceValue, currency };
+      }
+
+      // helper function to extract storage from title
+      function extractStorage(title) {
+        if (!title) return 0;
+
+        // Look for common storage patterns in the title
+        const storagePatterns = [
+          /(\d+)\s*GB/i, // 128 GB or 128GB
+          /(\d+)\s*TB/i, // 1 TB or 1TB
+          /(\d+)\s*[Gg][Bb]/, // Various GB formats
+          /(\d+)\s*[Tt][Bb]/, // Various TB formats
+        ];
+
+        for (const pattern of storagePatterns) {
+          const match = title.match(pattern);
+          if (match && match[1]) {
+            const value = parseInt(match[1], 10);
+
+            // Convert TB to GB if needed
+            if (pattern.toString().includes("TB")) {
+              return value * 1024; // 1 TB = 1024 GB
+            }
+            return value;
+          }
+        }
+
+        return 0;
       }
 
       // find product elements
@@ -187,9 +235,13 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
 
           title = title || `Produkt ${index + 1}`;
 
-          // extract price using text nodes containing € or EUR
-          let price = "0.00";
+          // Extract storage from title
+          const storage_gb = extractStorage(title);
 
+          // extract price and currency
+          let priceData = { price: 0, currency: "€" };
+
+          // First look in text nodes
           const textNodesWithPrice = [];
           const walker = document.createTreeWalker(
             product,
@@ -209,15 +261,17 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
             }
           }
 
+          // Try to extract price from text nodes
           for (const text of textNodesWithPrice) {
-            const extracted = extractPrice(text);
-            if (extracted !== "0.00") {
-              price = extracted;
+            const extracted = extractPriceAndCurrency(text);
+            if (extracted.price > 0) {
+              priceData = extracted;
               break;
             }
           }
 
-          if (price === "0.00") {
+          // If price not found, try with selectors
+          if (priceData.price === 0) {
             const priceSelectors = [
               ".price",
               '[data-test="price"]',
@@ -235,14 +289,14 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
                   text &&
                   (text.includes("€") || text.toLowerCase().includes("eur"))
                 ) {
-                  const extracted = extractPrice(text);
-                  if (extracted !== "0.00") {
-                    price = extracted;
+                  const extracted = extractPriceAndCurrency(text);
+                  if (extracted.price > 0) {
+                    priceData = extracted;
                     break;
                   }
                 }
               }
-              if (price !== "0.00") break;
+              if (priceData.price > 0) break;
             }
           }
 
@@ -267,20 +321,20 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
               "";
           }
 
-          if (price !== "0.00") {
+          if (priceData.price > 0) {
             items.push({
               title,
-              price,
+              price: priceData.price, 
               link,
               image,
-              currency: "€",
+              currency: priceData.currency,
               brand: "Unknown",
               availability: "In Stock",
-              storage_gb: 0,
+              storage_gb,
               ram_gb: 0,
               ramMatch: 0,
               rating: null,
-              shippingCost: "0.00",
+              shippingCost: 0, 
               discount: 0,
               seller: "MediaMarkt",
               productSellerRate: 0,
@@ -320,7 +374,8 @@ scrapeMediaMarkt("iphone")
     topItems.forEach((item, i) => {
       console.log(`\nitem ${i + 1}`);
       console.log(`title: ${item.title}`);
-      console.log(`price: ${item.price} ${item.currency}`);
+      console.log(`price: ${item.price}`); 
+      console.log(`currency: ${item.currency}`);
       console.log(`link: ${item.link}`);
       console.log(`image: ${item.image}`);
       console.log(`brand: ${item.brand}`);
