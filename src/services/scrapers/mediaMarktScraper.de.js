@@ -5,7 +5,7 @@ import delay from "./utils/delay.js";
 puppeteer.use(StealthPlugin());
 
 const scrapeMediaMarkt = async (query = "iphone 15") => {
-  console.log(`Starting scrape for "${query}"...`);
+  console.log(`starting scrape for "${query}"...`);
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -28,7 +28,7 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
       Referer: "https://www.google.com/",
     });
 
-    // Set consent cookie
+    // set consent cookie
     await page.setCookie({
       name: "consent",
       value: "accepted",
@@ -39,12 +39,12 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
     const searchUrl = `https://www.mediamarkt.de/de/search.html?query=${encodeURIComponent(
       query
     )}`;
-    console.log(`Navigating to: ${searchUrl}`);
+    console.log(`navigating to: ${searchUrl}`);
 
     await page.goto(searchUrl, { waitUntil: "networkidle2", timeout: 60000 });
     await delay(3000);
 
-    // Accept cookies if dialog appears
+    // accept cookies if dialog appears
     try {
       const cookieSelector =
         'button[data-test="consent-accept-all"], [class*="cookie"] button';
@@ -54,11 +54,11 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
         await delay(2000);
       }
     } catch (error) {
-      console.log("No cookie notice found or error clicking it");
+      console.log("no cookie notice found or error clicking it");
     }
 
-    // Auto-scroll to load more products
-    console.log("Starting page scrolling...");
+    // auto-scroll to load more products
+    console.log("starting page scrolling...");
     let previousHeight = 0;
     let scrollAttempts = 0;
 
@@ -69,7 +69,7 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await delay(2000);
 
-      // Try clicking "Load More" button if it exists
+      // try clicking "Load More" button if it exists
       try {
         const loadMoreButton = await page.$(
           'button[data-test="load-more-button"], [class*="loadMore"]'
@@ -79,14 +79,14 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
           await delay(2000);
         }
       } catch (e) {
-        // Ignore errors if button not found
+        // ignore errors
       }
 
       const currentHeight = await page.evaluate(
         () => document.body.scrollHeight
       );
       if (currentHeight === previousHeight && scrollAttempts > 3) {
-        console.log("No more content loading, finishing scroll");
+        console.log("no more content loading, finishing scroll");
         break;
       }
     }
@@ -94,31 +94,11 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
     await page.evaluate(() => window.scrollTo(0, 0));
     await delay(1000);
 
-    // Extract products
+    // extract products
     const products = await page.evaluate(() => {
       const items = [];
 
-      // Default values for all products
-      const defaultValues = {
-        currency: "€",
-        brand: "Unknown",
-        availability: "In Stock",
-        storage_gb: 0,
-        ram_gb: 0,
-        ramMatch: 0,
-        rating: null,
-        shippingCost: "0.00",
-        discount: 0,
-        seller: "MediaMarkt",
-        productSellerRate: 0,
-        badge: "Unknown",
-        isPrime: false,
-        delivery: "Standard delivery",
-        store: "MediaMarkt",
-        seller_rating: 0,
-      };
-
-      // Helper function to extract price
+      // helper function to extract price
       function extractPrice(text) {
         if (!text) return "0.00";
 
@@ -136,12 +116,11 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
           }
         }
 
-        // Last resort: any number
         const numberMatch = text.match(/\d+/);
         return numberMatch ? numberMatch[0] + ".00" : "0.00";
       }
 
-      // Find product elements
+      // find product elements
       const productSelectors = [
         '[data-test="mms-search-srp-productlist-item"]',
         ".product-wrapper",
@@ -161,7 +140,7 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
         }
       }
 
-      // If no products found with selectors, try a more general approach
+      // if no products found with selectors
       if (products.length === 0) {
         const allElements = document.querySelectorAll("*");
         products = Array.from(allElements).filter(
@@ -175,10 +154,10 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
         );
       }
 
-      // Process each product
+      // process each product
       products.forEach((product, index) => {
         try {
-          // Extract title
+          // extract title
           let title = null;
           const titleSelectors = [
             ".product-name",
@@ -208,10 +187,9 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
 
           title = title || `Produkt ${index + 1}`;
 
-          // Extract price using text nodes containing € or EUR
+          // extract price using text nodes containing € or EUR
           let price = "0.00";
 
-          // First method: Check text nodes for price
           const textNodesWithPrice = [];
           const walker = document.createTreeWalker(
             product,
@@ -239,7 +217,6 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
             }
           }
 
-          // Second method: Check price-specific elements
           if (price === "0.00") {
             const priceSelectors = [
               ".price",
@@ -269,7 +246,6 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
             }
           }
 
-          // Extract link
           let link = "";
           const linkElement = product.querySelector("a");
           if (linkElement) {
@@ -281,7 +257,6 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
             }
           }
 
-          // Extract image
           let image = "";
           const img = product.querySelector("img");
           if (img) {
@@ -292,19 +267,33 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
               "";
           }
 
-          // Only add products with valid price
           if (price !== "0.00") {
             items.push({
               title,
               price,
               link,
               image,
-              ...defaultValues,
+              currency: "€",
+              brand: "Unknown",
+              availability: "In Stock",
+              storage_gb: 0,
+              ram_gb: 0,
+              ramMatch: 0,
+              rating: null,
+              shippingCost: "0.00",
+              discount: 0,
+              seller: "MediaMarkt",
+              productSellerRate: 0,
+              badge: "Unknown",
+              isPrime: false,
+              delivery: "Standard delivery",
+              store: "MediaMarkt",
+              seller_rating: 0,
             });
           }
         } catch (error) {
           console.log(
-            `Error processing product ${index + 1}: ${error.message}`
+            `error processing product ${index + 1}: ${error.message}`
           );
         }
       });
@@ -312,30 +301,45 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
       return items;
     });
 
-    console.log(`Successfully extracted ${products.length} products`);
+    console.log(`successfully extracted ${products.length} products`);
     return products;
   } catch (error) {
-    console.error("Scraping error:", error);
+    console.error("scraping error:", error);
     throw error;
   } finally {
     await browser.close();
   }
 };
 
-// Example usage
+// example usage
 scrapeMediaMarkt("iphone")
   .then((scrapedData) => {
-    console.log("\nScraped data:");
+    console.log("\nscraped data:");
 
     const topItems = scrapedData.slice(0, 59);
     topItems.forEach((item, i) => {
-      console.log(`\nItem ${i + 1}`);
-      console.log(`Title: ${item.title}`);
-      console.log(`Price: ${item.price} ${item.currency}`);
-      console.log(`Link: ${item.link}`);
-      console.log(`Image: ${item.image}`);
+      console.log(`\nitem ${i + 1}`);
+      console.log(`title: ${item.title}`);
+      console.log(`price: ${item.price} ${item.currency}`);
+      console.log(`link: ${item.link}`);
+      console.log(`image: ${item.image}`);
+      console.log(`brand: ${item.brand}`);
+      console.log(`availability: ${item.availability}`);
+      console.log(`storage_gb: ${item.storage_gb}`);
+      console.log(`ram_gb: ${item.ram_gb}`);
+      console.log(`ramMatch: ${item.ramMatch}`);
+      console.log(`rating: ${item.rating}`);
+      console.log(`shippingCost: ${item.shippingCost}`);
+      console.log(`discount: ${item.discount}`);
+      console.log(`seller: ${item.seller}`);
+      console.log(`productSellerRate: ${item.productSellerRate}`);
+      console.log(`badge: ${item.badge}`);
+      console.log(`isPrime: ${item.isPrime}`);
+      console.log(`delivery: ${item.delivery}`);
+      console.log(`store: ${item.store}`);
+      console.log(`seller_rating: ${item.seller_rating}`);
     });
 
-    console.log(`\nTotal products found: ${scrapedData.length}`);
+    console.log(`\ntotal products found: ${scrapedData.length}`);
   })
   .catch(console.error);
