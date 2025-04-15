@@ -11,7 +11,7 @@ export const updatePrices = async (product, scrapedData) => {
     console.log('Scraped Data length:', scrapedData.length);
 
     for (const data of scrapedData) {
-        console.log('Scraped Data:', data);
+        // console.log('Scraped Data:', data);
         const {
             title,
             price,
