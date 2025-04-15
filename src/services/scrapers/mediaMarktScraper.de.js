@@ -4,7 +4,7 @@ import delay from "./utils/delay.js";
 
 puppeteer.use(StealthPlugin());
 
-const scrapeMediaMarkt = async (query = "iphone 15") => {
+export const scrapeMediaMarkt = async (query = "iphone 15") => {
   console.log(`starting scrape for "${query}"...`);
 
   const browser = await puppeteer.launch({
@@ -40,7 +40,8 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
       query
     )}`;
     console.log(`navigating to: ${searchUrl}`);
-
+    // results from scraping
+    const allResults = [];
     await page.goto(searchUrl, { waitUntil: "networkidle2", timeout: 60000 });
     await delay(3000);
 
@@ -324,7 +325,7 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
           if (priceData.price > 0) {
             items.push({
               title,
-              price: priceData.price, 
+              price: priceData.price,
               link,
               image,
               currency: priceData.currency,
@@ -334,7 +335,7 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
               ram_gb: 0,
               ramMatch: 0,
               rating: null,
-              shippingCost: 0, 
+              shippingCost: 0,
               discount: 0,
               seller: "MediaMarkt",
               productSellerRate: 0,
@@ -345,6 +346,8 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
               seller_rating: 0,
             });
           }
+          //push product to allResults array
+          allResults.push(...products);
         } catch (error) {
           console.log(
             `error processing product ${index + 1}: ${error.message}`
@@ -362,39 +365,41 @@ const scrapeMediaMarkt = async (query = "iphone 15") => {
     throw error;
   } finally {
     await browser.close();
+
+    return allResults;
   }
 };
 
 // example usage
-scrapeMediaMarkt("iphone")
-  .then((scrapedData) => {
-    console.log("\nscraped data:");
+// scrapeMediaMarkt("iphone")
+//   .then((scrapedData) => {
+//     console.log("\nscraped data:");
 
-    const topItems = scrapedData.slice(0, 59);
-    topItems.forEach((item, i) => {
-      console.log(`\nitem ${i + 1}`);
-      console.log(`title: ${item.title}`);
-      console.log(`price: ${item.price}`); 
-      console.log(`currency: ${item.currency}`);
-      console.log(`link: ${item.link}`);
-      console.log(`image: ${item.image}`);
-      console.log(`brand: ${item.brand}`);
-      console.log(`availability: ${item.availability}`);
-      console.log(`storage_gb: ${item.storage_gb}`);
-      console.log(`ram_gb: ${item.ram_gb}`);
-      console.log(`ramMatch: ${item.ramMatch}`);
-      console.log(`rating: ${item.rating}`);
-      console.log(`shippingCost: ${item.shippingCost}`);
-      console.log(`discount: ${item.discount}`);
-      console.log(`seller: ${item.seller}`);
-      console.log(`productSellerRate: ${item.productSellerRate}`);
-      console.log(`badge: ${item.badge}`);
-      console.log(`isPrime: ${item.isPrime}`);
-      console.log(`delivery: ${item.delivery}`);
-      console.log(`store: ${item.store}`);
-      console.log(`seller_rating: ${item.seller_rating}`);
-    });
+//     const topItems = scrapedData.slice(0, 59);
+//     topItems.forEach((item, i) => {
+//       console.log(`\nitem ${i + 1}`);
+//       console.log(`title: ${item.title}`);
+//       console.log(`price: ${item.price}`);
+//       console.log(`currency: ${item.currency}`);
+//       console.log(`link: ${item.link}`);
+//       console.log(`image: ${item.image}`);
+//       console.log(`brand: ${item.brand}`);
+//       console.log(`availability: ${item.availability}`);
+//       console.log(`storage_gb: ${item.storage_gb}`);
+//       console.log(`ram_gb: ${item.ram_gb}`);
+//       console.log(`ramMatch: ${item.ramMatch}`);
+//       console.log(`rating: ${item.rating}`);
+//       console.log(`shippingCost: ${item.shippingCost}`);
+//       console.log(`discount: ${item.discount}`);
+//       console.log(`seller: ${item.seller}`);
+//       console.log(`productSellerRate: ${item.productSellerRate}`);
+//       console.log(`badge: ${item.badge}`);
+//       console.log(`isPrime: ${item.isPrime}`);
+//       console.log(`delivery: ${item.delivery}`);
+//       console.log(`store: ${item.store}`);
+//       console.log(`seller_rating: ${item.seller_rating}`);
+//     });
 
-    console.log(`\ntotal products found: ${scrapedData.length}`);
-  })
-  .catch(console.error);
+//     console.log(`\ntotal products found: ${scrapedData.length}`);
+//   })
+//   .catch(console.error);
