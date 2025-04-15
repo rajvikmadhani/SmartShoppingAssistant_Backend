@@ -6,14 +6,12 @@ import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
 import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
-    const { price, color, ram_gb, storage_gb } = priceData;
+    const { price, storage_gb } = priceData;
     console.log('Checking alerts for:', {
         productId,
-        color,
-        ram_gb,
         storage_gb,
     });
-    const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
+    const alerts = await getActiveAlertsForProduct(productId, { storage_gb });
     console.log('Matched alerts:', alerts.length);
     for (const alert of alerts) {
         // 1. Skip disabled alerts
@@ -57,7 +55,7 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
                 (!alert.ram_gb || alert.ram_gb === p.ram_gb) &&
                 (!alert.storage_gb || alert.storage_gb === p.storage_gb)
         );
-
+        console.log('Price matches store:', priceMatch.SellerStore);
         if (!priceMatches?.length) {
             console.warn(`No matching price variants found for alert ${alert.id}`);
             return;
@@ -96,7 +94,7 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             productImage: priceMatch.mainImgUrl,
             threshold: alert.threshold,
             currentPrice: parseFloat(priceMatch.price).toFixed(2),
-            storeName: priceMatch.SellerStore?.Seller?.name ?? 'Unknown',
+            storeName: priceMatch.SellerStore?.Store?.name ?? 'Unknown',
             productLink: priceMatch.product_link,
             discount: priceMatch.discount,
             shippingCost: priceMatch.shippingCost,

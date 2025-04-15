@@ -6,13 +6,22 @@ export async function updateScrapedProductDetails(product, scrapedData) {
     const resolvedColor = extractColorFromTitle(title)?.trim().toLowerCase() ?? 'unknown';
     const ramFromTitle = extractRamFromTitle(title);
     // Match existing price record by unique variant index
+    console.log('Matching productId:', product.id);
+    console.log('Matching product_link:', product_link);
+
+    const priceEntries = await models.Price.findAll({ where: { productId: product.id } });
+    console.log(
+        'All links in DB:',
+        priceEntries.map((p) => p.product_link)
+    );
+
     const existing = await models.Price.findOne({
         where: {
             productId: product.id,
             product_link,
         },
     });
-
+    console.log('existing:', existing);
     const updatePayload = {
         color: resolvedColor,
         ram_gb: ramFromTitle !== -1 ? ramFromTitle : (existing?.ram_gb ?? 0),
@@ -26,16 +35,9 @@ export async function updateScrapedProductDetails(product, scrapedData) {
         console.log(
             `Price is Updated. price variant: ${updatePayload.color}, ${updatePayload.ram_gb}GB RAM, ${updatePayload.price} Price`
         );
-        return;
+        const updatedPrice = await models.Price.findByPk(existing.id);
+        return updatedPrice;
     }
-
-    // Only insert new if all required fields are present
-    const fieldsValid = price && product_link && resolvedColor !== 'unknown' && storage;
-
-    if (fieldsValid) {
-        await models.Price.create(updatePayload);
-        console.log(`➕ Inserted new price variant: ${resolvedColor}, ${ram}GB RAM, ${storage}GB`);
-    } else {
-        console.warn('⚠️ Skipping insert: scraped data missing essential variant info');
-    }
+    console.log('price is not found');
+    throw new Error('Price not found for the given product and link.');
 }

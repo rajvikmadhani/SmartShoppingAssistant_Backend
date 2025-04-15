@@ -45,7 +45,7 @@ export default (sequelize) => {
                 onDelete: 'CASCADE',
             },
             product_link: {
-                type: DataTypes.STRING,
+                type: DataTypes.STRING(1000),
                 allowNull: false,
             },
             price: {

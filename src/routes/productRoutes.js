@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+    updateProductPriceNow,
     getBestPricesPerStore,
     getAllProducts,
     addProduct,
@@ -14,6 +15,8 @@ import productSchema from '../schemas/productSchema.js';
 const productRouter = Router();
 productRouter.get('/best-prices/', bestPrices);
 productRouter.post('/best-store-prices', getBestPricesPerStore);
+productRouter.post('/update-price', updateProductPriceNow);
+
 productRouter.get('/', getAllProducts);
 productRouter.get('/:id', getProductById);
 productRouter.post('/', validateSchema(productSchema), addProduct);
