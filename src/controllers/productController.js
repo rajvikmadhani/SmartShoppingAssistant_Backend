@@ -1,7 +1,63 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import ErrorResponse from '../utils/ErrorResponse.js';
-import Product from '../models/product.js';
 import { getBestPrices } from '../utils/productRepo.js';
+import models from '../models/index.js';
+const { Product, Price, Store } = models;
+import { getProductWithPricesAndSeller } from '../utils/productRepo.js';
+
+export const getBestPricesPerStore = async (req, res, next) => {
+    try {
+        let { productName, storage, ram, color } = req.body;
+
+        if (!productName || !storage) {
+            return res.status(400).json({ message: 'Product name and storage are required.' });
+        }
+
+        storage = parseInt(storage.trim(), 10);
+        if (isNaN(storage)) return res.status(400).json({ message: 'Storage must be a number.' });
+
+        if (ram) {
+            ram = parseInt(ram.trim(), 10);
+            if (isNaN(ram)) return res.status(400).json({ message: 'RAM must be a number if provided.' });
+        }
+
+        if (color) {
+            color = color.trim().toLowerCase();
+        }
+
+        const product = await getProductWithPricesAndSeller({ name: productName });
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+        console.log('Product:', product);
+        // Filter prices by variant attributes
+        const matchingPrices = product.Prices.filter((price) => {
+            const matchesStorage = price.storage_gb === storage;
+            const matchesRam = !ram || price.ram_gb === ram;
+            const matchesColor = !color || price.color.toLowerCase() === color.toLowerCase();
+            return matchesStorage && matchesRam && matchesColor;
+        });
+
+        // Pick best price per store (lowest price)
+        const bestPricesMap = {};
+        for (const price of matchingPrices) {
+            const storeName = price.SellerStore?.Store?.name;
+            if (!storeName) continue;
+
+            if (!bestPricesMap[storeName] || parseFloat(price.price) < parseFloat(bestPricesMap[storeName].price)) {
+                bestPricesMap[storeName] = price;
+            }
+        }
+
+        const bestPrices = Object.values(bestPricesMap);
+
+        res.json(bestPrices);
+    } catch (err) {
+        next(err);
+    }
+};
+
 // Get all products
 export const getAllProducts = asyncHandler(async (req, res, next) => {
     const products = await Product.findAll();
