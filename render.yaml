@@ -3,6 +3,7 @@ version: 1
 services:
     - type: web
       name: Smart Shopping API
+      runtime: node
       region: frankfurt
       buildCommand: npm install
       startCommand: node server.js
@@ -29,6 +30,7 @@ services:
 
     - type: worker
       name: Notification Worker
+      runtime: node
       region: frankfurt
       buildCommand: npm install
       startCommand: node jobs/workers/notificationWorkerRunner.js
