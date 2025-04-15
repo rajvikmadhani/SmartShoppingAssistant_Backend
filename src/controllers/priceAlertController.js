@@ -49,7 +49,7 @@ export const getAllPriceAlerts = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
 
     const alerts = await models.PriceAlert.findAll({
-        where: { userId },
+        where: { userId, isDisabled: false },
         include: [
             {
                 model: models.Product,
