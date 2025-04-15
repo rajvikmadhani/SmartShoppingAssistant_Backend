@@ -895,6 +895,57 @@ Each product object looks like this:
 }
 ```
 
+### 🛒 MediaMarkt.de Product Scraper – 🇩🇪 Dynamic Scroll + Price Parsing
+
+This scraper uses **Puppeteer Extra with Stealth** to scrape product listings from **MediaMarkt.de**, handling infinite scrolling and multiple pricing formats. It dynamically extracts product details like price, title, image, and link, even when prices are embedded deep in text nodes.
+
+---
+
+#### 🚀 Features
+
+- 🕵️‍♂️ Stealth scraping with Puppeteer Extra
+- 🔄 Auto-scrolls to trigger **lazy loading** of more products
+- 🔘 Supports multiple fallback selectors for robust scraping
+- 📦 Extracts:
+  - 🏷️ Title
+  - 💶 Price (with currency parsing)
+  - 🔗 Product Link
+  - 🖼️ Image URL
+  - 📦 Storage (extracted from title)
+  - 📦 Delivery details
+  - 🛍️ Store (`"MediaMarkt"`)
+
+---
+
+#### 📥 Output Example
+
+Each product object returned looks like this:
+
+```json
+{
+  "title": "Apple iPhone 15 Pro 128 GB",
+  "price": 1199.0,
+  "link": "https://www.mediamarkt.de/de/product/_iphone-15...",
+  "image": "https://mediamarkt.de/assets/images/...jpg",
+  "currency": "€",
+  "brand": "Unknown",
+  "availability": "In Stock",
+  "storage_gb": 128,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": null,
+  "shippingCost": 0,
+  "discount": 0,
+  "seller": "MediaMarkt",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Standard delivery",
+  "store": "MediaMarkt",
+  "seller_rating": 0
+}
+```
+
 ---
 
 ## 📦 Dependencies
