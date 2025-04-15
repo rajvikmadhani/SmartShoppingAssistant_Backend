@@ -521,169 +521,430 @@ The `Stores` table contains metadata about various e-commerce platforms from whi
 
 # 🔎 Scraper
 
-### 🛍️ Amazon.com Product Scraper (with Puppeteer & Pagination)
+### 🛍️ Amazon.com Product Scraper – 🇺🇸 Powered by Puppeteer & Pagination
 
-This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **all available result pages**, collecting key product information into a structured format.
+A high-performance web scraper built using **Node.js** and **Puppeteer** to extract product listings from **Amazon.com**. It features pagination support and structured data output ready for smart shopping systems.
 
-#### 🚀 Features
+#### 🚀 Key Features
 
-- ✅ Scrapes search results from **Amazon.com**
-- 🔄 Automatically paginates through all result pages
-- 📦 Extracts:
-  - Product title
-  - Price
-  - Rating
-  - Image URL
-  - Seller name
-  - Product detail link (using ASIN)
-  - Prime eligibility
-  - Delivery information
-  - Badge labels (e.g., "Best Seller", "Amazon’s Choice")
-  - Product seller rating
-  - Store label (`"Amazon"`)
+- ✅ Scrapes product listings from **Amazon.com**
+- 🌐 Uses a real **user-agent** to simulate human browsing
+- 🔁 Supports pagination up to a user-defined `maxPages`
+- 🧠 Extracts detailed product information:
+  - 🏷️ **Title**
+  - 💰 **Price**
+  - 💱 **Currency**
+  - ⭐ **Rating**
+  - 🏪 **Seller**
+  - 📦 **Availability** (e.g., in stock or out of stock)
+  - 🛡️ **Prime eligibility**
+  - 🚚 **Delivery info**
+  - 🏅 **Badge** (e.g., Amazon’s Choice)
+  - 🔗 **Product detail link (ASIN-based)**
+  - 🖼️ **Product image**
+  - 🛍️ **Store label** ("Amazon")
 
-##### 📥 Output Example
+#### 📥 Example Output
 
-Here’s a sample from the `iphone` search:
+Sample output for a search query like `iphone`:
 
-`title: Apple iPhone 13 (128GB, Blue) price: $799.00 rating: 4.7 out of 5 stars link: https://www.amazon.com/dp/B09V3HN1MZ image: https://m.media-amazon.com/images/... seller: Visit the Apple Store productSellerRate: 4.7 out of 5 stars badge: Best Seller isPrime: true delivery: FREE delivery Tomorrow store: Amazon`
-
----
-
-### 🛍️ Amazon.de Product Scraper (with Puppeteer & Pagination)
-
-This is a powerful web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Amazon.de** based on any search term.
-It supports **automatic pagination**, meaning it will go through all result pages and collect structured product data into a single array.
-
-#### 🚀 Features
-
-- ✅ Scrapes search results from **Amazon.de**
-- 🔄 Automatically paginates through all result pages
-- 📦 Extracts:
-  - Product title
-  - Price
-  - Rating
-  - Image URL
-  - Seller name
-  - Product detail link (generated via ASIN)
-  - Prime eligibility
-  - Delivery information
-  - Badge text (e.g. "Bestseller", "Amazon’s Choice")
-  - Product seller rating
-  - Store label (`"Amazon"`)
-
-##### 📥 Output Example
-
-Here’s a sample output from the `iphone` search:
-
-`title: Apple iPhone 13 (128 GB) - Blue price: 849,00 € rating: 4.6 out of 5 stars link: https://www.amazon.de/dp/B09V3HN1MZ image: https://m.media-amazon.com/images/... seller: Visit the Apple Store productSellerRate: 4.6 out of 5 stars badge: Bestseller isPrime: true delivery: FREE delivery tomorrow store: Amazon`
+```json
+{
+  "title": "Apple iPhone 13 (128GB, Blue)",
+  "price": 799.0,
+  "currency": "$",
+  "brand": "Unknown",
+  "availability": "in_stock",
+  "storage_gb": 0,
+  "ram_gb": 0,
+  "rating": "4.7 out of 5 stars",
+  "shippingCost": 0,
+  "discount": 0,
+  "link": "https://www.amazon.com/dp/B09V3HN1MZ",
+  "image": "https://m.media-amazon.com/images/I/71...jpg",
+  "seller": "Amazon.com",
+  "productSellerRate": 0,
+  "badge": "Amazon's Choice",
+  "isPrime": true,
+  "delivery": "Free delivery Tomorrow",
+  "store": "Amazon",
+  "seller_rating": 0
+}
+```
 
 ---
 
-### 🛍️ eBay.com Product Scraper (with Puppeteer & Pagination)
+### 🛍️ Amazon.de Product Scraper – 🇩🇪 Built with Puppeteer & Pagination
 
-This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple pages of results**, collecting key product information into a structured format.
+A powerful, feature-rich scraper built using **Node.js** and **Puppeteer** to extract structured product data from **Amazon.de**. It handles everything from cookies to brand detection and delivers clean, enriched results.
+
+#### 🚀 Key Features
+
+- ✅ Scrapes product listings from **Amazon.de**
+- 🍪 Handles cookie prompts automatically
+- 🔁 Supports full pagination across multiple result pages
+- 🧠 Intelligent field extraction & normalization:
+  - 🏷️ **Title**
+  - 💰 **Price**
+  - 💱 **Currency**
+  - ⭐ **Rating**
+  - 🏪 **Seller**
+  - 🛍️ **Store label** ("Amazon")
+  - 🛡️ **Prime eligibility**
+  - 🚚 **Shipping cost** detection
+  - 🏷️ **Discount** calculation
+  - 📦 **Availability** check
+  - 💾 **RAM & Storage** parsing
+  - 🏅 **Badge** (e.g., Bestseller)
+  - 📦 **Delivery info**
+  - 🔗 **Product link** (ASIN-based)
+  - 🖼️ **Product image**
+  - 🔤 **Brand** guessing from title/details
+
+#### 📥 Example Output
+
+Sample result for the search query `iphone`:
+
+```json
+{
+  "title": "Apple iPhone 13 (128GB, Blue)",
+  "price": "849.00",
+  "currency": "€",
+  "brand": "Apple",
+  "availability": "1",
+  "storage_gb": 128,
+  "ram_gb": null,
+  "rating": "4.6 out of 5 stars",
+  "shippingCost": "0.00",
+  "discount": "30.00",
+  "link": "https://www.amazon.de/dp/B09V3HN1MZ",
+  "image": "https://m.media-amazon.com/images/I/71...jpg",
+  "seller": "Apple Store",
+  "productSellerRate": "4.6 out of 5 stars",
+  "badge": "Bestseller",
+  "isPrime": true,
+  "delivery": "Gratis Lieferung morgen",
+  "store": "Amazon",
+  "seller_rating": "4.6 out of 5 stars"
+}
+```
+
+---
+
+### 🌍 eBay.com Product Scraper (with Puppeteer & Pagination)
+
+This is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.com** based on any search query. It supports **automatic pagination**, **dynamic image handling**, and provides a rich dataset for each product result.
 
 #### 🚀 Features
 
 - ✅ Scrapes search results from **eBay.com**
-- 🔄 Supports automatic pagination (up to a specified `maxPages`)
-- 📦 Extracts:
+- 🔄 Automatically paginates through multiple result pages
+- 📦 Extracts detailed product data including:
   - Product title
-  - Price
-  - Image URL
-  - Product detail link
-  - Shipping cost (if available)
-  - Item condition (e.g. New, Used)
-  - Seller location
+  - Price & currency
+  - Condition & availability
+  - Product image (handles lazy loading)
+  - Shipping cost
+  - Seller info & location
+  - Delivery time
+  - Badge (e.g. "Top Rated")
+  - Product link (deep URL)
   - Store label (`"eBay"`)
 
-##### 📥 Output Example
+#### 📥 Output Example
 
-Here’s a sample from the `iphone` search:
+Each scraped product item has the following structure:
 
-`title: Apple iPhone 13 128GB - Factory Unlocked price: $589.00 link: https://www.ebay.com/itm/123456789 image: https://i.ebayimg.com/images/... condition: New shipping: Free shipping location: Miami, Florida store: eBay`
-
----
-
-### 🛍️ eBay.de Product Scraper (with Puppeteer & Pagination)
-
-This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **eBay.de** based on a given search query. It supports **automatic pagination**, meaning it scrapes **multiple result pages**, collecting key product information into a structured format.
-
-#### 🚀 Features
-
-- ✅ Scrapes search results from **eBay.de**
-- 🔄 Automatically paginates through multiple result pages
-- 📦 Extracts:
-  - Product title
-  - Price
-  - Image URL
-  - Product detail link
-  - Shipping cost (if available)
-  - Item condition (e.g., New, Used)
-  - Seller location
-  - Store label (`"eBay"`)
-
-##### 📥 Output Example
-
-Here’s a sample from the `iphone` search:
-
-`title: Apple iPhone 13 128GB - Ohne Simlock - Verschiedene Farben price: 589,00 € link: https://www.ebay.de/itm/123456789 image: https://i.ebayimg.com/images/... condition: Neu shipping: Kostenloser Versand location: Berlin, Deutschland store: eBay`
+```json
+{
+  "title": "Apple iPhone 13 128GB - Factory Unlocked",
+  "price": "$589.00",
+  "link": "https://www.ebay.com/itm/123456789",
+  "image": "https://i.ebayimg.com/images/...",
+  "currency": "$",
+  "brand": "Unknown",
+  "availability": true,
+  "storage_gb": 128,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": "N/A",
+  "shippingCost": "Free Shipping",
+  "discount": 0,
+  "seller": "eBay",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Free delivery",
+  "store": "eBay",
+  "seller_rating": 0
+}
+```
 
 ---
 
-### 🛍️ Newegg.com Product Scraper (with Puppeteer & Pagination)
+### 🛒 eBay.de Product Scraper – 🇩🇪 (with Puppeteer & Pagination)
 
-This project is a robust web scraper built with **Node.js** and **Puppeteer** that extracts product listings from **Newegg.com** based on a given search query. It supports **automatic pagination**, meaning it scrapes **up to 20 pages of results**, collecting key product information into a structured format.
-
-#### 🚀 Features
-
-- ✅ Scrapes search results from **Newegg.com**
-- 🔄 Automatically paginates through multiple result pages
-- 📦 Extracts:
-  - Product title
-  - Price
-  - Rating
-  - Number of reviews
-  - Image URL
-  - Product detail link
-  - Shipping information
-  - Store label (`"Newegg"`)
-
-##### 📥 Output Example
-
-Here’s a sample from the `iphone` search:
-
-`title: Apple iPhone 13 128GB (Factory Unlocked) price: 799.00$ rating: 4 out of 5 reviews: 157 link: https://www.newegg.com/p/123456789 image: https://c1.neweggimages.com/... shipping: Free Shipping store: Newegg`
+This advanced web scraper is built with **Node.js** and **Puppeteer** for extracting structured product data from **eBay.de** search results. It supports **automatic pagination**, **lazy-loaded image handling**, and returns detailed item data in a consistent format.
 
 ---
 
-### 🛍️ BackMarket.com Product Scraper (with Puppeteer Extra & Stealth Plugin)
+#### 🚀 Features
 
-This project is a robust web scraper built with **Node.js**, **puppeteer-extra**, and the **stealth plugin**, specifically designed to extract product listings from **BackMarket.com**. It supports **query-based search** and scrapes **multiple result pages**, collecting detailed product data into a structured format.
+- 🔍 Scrapes real-time search results from **eBay.de**
+- 🔄 Automatically paginates through multiple result pages
+- 📦 Collects high-quality structured data:
+  - 🏷️ Product title
+  - 💰 Price (with currency)
+  - 🚚 Shipping cost
+  - 🆕 Condition (e.g., Neu, Gebraucht)
+  - 🌍 Seller location
+  - 🖼️ Product image (supports lazy-loaded or `<noscript>` fallbacks)
+  - 🔗 Product URL
+  - 🛒 Seller name
+  - 🛍️ Store source (always "eBay")
+
+---
+
+#### 📥 Example Output Format
+
+Each item returned has the following structure:
+
+```json
+{
+  "title": "Apple iPhone 13 128GB - Ohne Simlock - Verschiedene Farben",
+  "price": "589,00 €",
+  "currency": "€",
+  "brand": "Unknown",
+  "availability": true,
+  "storage_gb": 128,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": "N/A",
+  "shippingCost": "Kostenloser Versand",
+  "discount": 0,
+  "link": "https://www.ebay.de/itm/123456789",
+  "image": "https://i.ebayimg.com/images/...",
+  "seller": "eBay",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Free delivery",
+  "store": "eBay",
+  "seller_rating": 0
+}
+```
+
+---
+
+### 💻 Newegg.com Product Scraper – 🇺🇸 (with Puppeteer & Pagination)
+
+This scraper extracts structured product data from **Newegg.com** search results. Built with **Node.js** and **Puppeteer**, it supports **multi-page scraping**, and returns cleaned product listings with rich metadata.
+
+---
 
 #### 🚀 Features
 
-- ✅ Scrapes product listings from **BackMarket.com**
-- 🔎 Supports query-based searches (brand, name, storage, color, etc.)
-- 🛡️ Uses `puppeteer-extra` with `stealth-plugin` to bypass bot detection
-- 🔄 Automatically paginates through multiple result pages
+- 🔍 Real-time search scraping from **Newegg.com**
+- 🔄 Pagination support for up to **20 pages**
+- 🖼️ Supports image lazy-loading detection
+- 📦 Extracts detailed product information:
+  - 🏷️ Product title
+  - 💰 Price (formatted)
+  - 📦 Shipping cost
+  - ⭐ Rating (from tooltips)
+  - 🖼️ Product image (with fallback handling)
+  - 🔗 Product link
+  - 🛍️ Marketplace ("Newegg")
+
+---
+
+#### 📥 Example Output Format
+
+Each product result is structured like this:
+
+```json
+{
+  "title": "AMD Ryzen 7 5800X3D Processor",
+  "price": "329.99",
+  "currency": "$",
+  "brand": "Unknown",
+  "availability": true,
+  "storage_gb": 128,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": "5 out of 5 eggs",
+  "shippingCost": "Free Shipping",
+  "discount": 0,
+  "link": "https://www.newegg.com/p/N82E16819113756",
+  "image": "https://c1.neweggimages.com/ProductImageCompressAll1280/19-113-756-01.jpg",
+  "seller": "Newegg",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Free delivery",
+  "store": "Newegg",
+  "seller_rating": 0
+}
+```
+
+---
+
+### 🧲 BackMarket.de Product Scraper – 🇩🇪 (Puppeteer Extra + Stealth Plugin)
+
+This advanced scraper extracts product listings from **BackMarket.de** using **Puppeteer Extra** with the **Stealth Plugin** to avoid detection. It supports **multi-page scraping**, handles **lazy-loaded images**, and retrieves detailed product data from the German marketplace.
+
+---
+
+#### 🚀 Features
+
+- 🔐 Stealth-enabled Puppeteer for bypassing bot detection
+- 🔄 Supports pagination for scraping multiple result pages
+- 🔎 Extracts full structured product metadata
 - 📦 Extracts:
-  - Product title
-  - Price
-  - Original price
-  - Discount percentage
-  - Rating
-  - Storage specification
-  - Image URL
-  - Product detail link
-  - Store label (`"Back Market"`)
+  - 🏷️ Product title
+  - 💰 Price & Discount
+  - 🖼️ Image URL (with fallback from `srcset`)
+  - 🔗 Product detail page link
+  - ⭐ Rating
+  - 💾 Storage size (if found)
+  - 🛍️ Marketplace: `"Back Market"`
 
-##### 📥 Output Example
+---
 
-Here’s a sample from the `Apple iPhone 128GB white` search:
+#### 📥 Output Sample
 
-`title: Apple iPhone 13 128GB - White price: €489.00 original: €749.00 discount: 35% image: https://www.backmarket.com/image/iphone13.jpg link: https://www.backmarket.com/en-us/p/iphone-13/123456 rating: 4.5/5 storage: 128GB store: Back Market`
+Each scraped product follows this format:
+
+```json
+{
+  "title": "Apple iPhone 13 - 128 GB - Blue",
+  "price": "499.99",
+  "currency": "€",
+  "brand": "Unknown",
+  "availability": true,
+  "storage_gb": "128 GB",
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": "4.5/5",
+  "shippingCost": 0,
+  "discount": 30,
+  "link": "https://www.backmarket.de/de-de/p/iphone-13/12345",
+  "image": "https://www.backmarket.de/cdn-cgi/image/w=320,q=90/...jpg",
+  "seller": "Back Market",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Free delivery",
+  "store": "Back Market",
+  "seller_rating": 0
+}
+```
+
+---
+
+### 🛒 Otto.de Product Scraper – 🇩🇪 Powered by Puppeteer Extra + Stealth
+
+This powerful web scraper extracts product listings from **Otto.de** with enhanced support for dynamic product grids. It uses **Puppeteer Extra + Stealth Plugin** for anti-bot evasion and loads all available products using custom scrolling utilities.
+
+---
+
+#### 🚀 Features
+
+- 🛡️ Uses stealth plugin to bypass bot detection
+- 🔄 Automatically scrolls to load **all available products**
+- 🧠 Handles multiple tile selectors and dynamic class names
+- 📦 Extracts:
+  - 🏷️ Title
+  - 💶 Price
+  - 🖼️ Product Image
+  - 🔗 Product Link
+  - ✅ Availability
+  - 🚚 Shipping Cost
+  - 💸 Discount (%)
+  - 📦 Delivery Info
+  - 🛍️ Store name (`"Otto"`)
+
+---
+
+#### 📥 Output Example
+
+Each product object looks like this:
+
+```json
+{
+  "title": "Apple iPhone 15 Pro 128 GB",
+  "price": "1199.00",
+  "currency": "€",
+  "brand": "Unknown",
+  "availability": "In Stock",
+  "storage_gb": 0,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": null,
+  "shippingCost": "0.00",
+  "discount": 10,
+  "link": "https://www.otto.de/p/iphone-15/...",
+  "image": "https://i.otto.de/asset/...jpg",
+  "seller": "Otto",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Free delivery",
+  "store": "Otto",
+  "seller_rating": 0
+}
+```
+
+### 🛒 MediaMarkt.de Product Scraper – 🇩🇪 Dynamic Scroll + Price Parsing
+
+This scraper uses **Puppeteer Extra with Stealth** to scrape product listings from **MediaMarkt.de**, handling infinite scrolling and multiple pricing formats. It dynamically extracts product details like price, title, image, and link, even when prices are embedded deep in text nodes.
+
+---
+
+#### 🚀 Features
+
+- 🕵️‍♂️ Stealth scraping with Puppeteer Extra
+- 🔄 Auto-scrolls to trigger **lazy loading** of more products
+- 🔘 Supports multiple fallback selectors for robust scraping
+- 📦 Extracts:
+  - 🏷️ Title
+  - 💶 Price (with currency parsing)
+  - 🔗 Product Link
+  - 🖼️ Image URL
+  - 📦 Storage (extracted from title)
+  - 📦 Delivery details
+  - 🛍️ Store (`"MediaMarkt"`)
+
+---
+
+#### 📥 Output Example
+
+Each product object returned looks like this:
+
+```json
+{
+  "title": "Apple iPhone 15 Pro 128 GB",
+  "price": 1199.0,
+  "link": "https://www.mediamarkt.de/de/product/_iphone-15...",
+  "image": "https://mediamarkt.de/assets/images/...jpg",
+  "currency": "€",
+  "brand": "Unknown",
+  "availability": "In Stock",
+  "storage_gb": 128,
+  "ram_gb": 0,
+  "ramMatch": 0,
+  "rating": null,
+  "shippingCost": 0,
+  "discount": 0,
+  "seller": "MediaMarkt",
+  "productSellerRate": 0,
+  "badge": "Unknown",
+  "isPrime": false,
+  "delivery": "Standard delivery",
+  "store": "MediaMarkt",
+  "seller_rating": 0
+}
+```
 
 ---
 

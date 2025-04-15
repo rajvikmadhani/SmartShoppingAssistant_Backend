@@ -1,44 +1,23 @@
 services:
     - type: cron
       name: Price Alert Scraper
-      schedule: '0 */6 * * *' # Every 6 hours
+      schedule: '0 */6 * * *'
       env: node
-      plan: free
       buildCommand: ''
       startCommand: node src/jobs/cronRunner.js
-      envVars:
-          - key: DATABASE_URL
-            fromGroup: common-env
-          - key: REDIS_URL
-            fromGroup: common-env
-          - key: RESEND_API_KEY
-            fromGroup: common-env
+      envVarsFromGroup: common-env
 
     - type: cron
       name: Full Product Rescrape
-      schedule: '0 0 * * *' # Every day at midnight
+      schedule: '0 0 * * *'
       env: node
-      plan: free
       buildCommand: ''
       startCommand: node src/jobs/cronDailyRunner.js
-      envVars:
-          - key: DATABASE_URL
-            fromGroup: common-env
-          - key: REDIS_URL
-            fromGroup: common-env
-          - key: RESEND_API_KEY
-            fromGroup: common-env
+      envVarsFromGroup: common-env
 
     - type: worker
       name: Notification Worker
       env: node
-      plan: free
       buildCommand: ''
       startCommand: node src/jobs/notificationWorkerRunner.js
-      envVars:
-          - key: DATABASE_URL
-            fromGroup: common-env
-          - key: REDIS_URL
-            fromGroup: common-env
-          - key: RESEND_API_KEY
-            fromGroup: common-env
+      envVarsFromGroup: common-env
