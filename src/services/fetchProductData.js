@@ -38,7 +38,9 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
         });
 
         if (!latestPrice || new Date() - latestPrice.lastUpdated > 24 * 60 * 60 * 1000) {
-            shouldScrape = true;
+            // shouldScrape = true;
+            //for presentation purpose, we are not scraping the data
+            shouldScrape = false;
         }
     }
 
