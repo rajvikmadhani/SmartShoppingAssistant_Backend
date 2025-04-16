@@ -6,15 +6,13 @@ import { getProductWithPricesAndSeller } from '../../utils/productRepo.js';
 import models from '../../models/index.js';
 
 export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
-    const { price, color, ram_gb, storage_gb } = priceData;
+    const { price, storage_gb } = priceData;
     console.log('Checking alerts for:', {
         productId,
-        color,
-        ram_gb,
         storage_gb,
     });
-    const alerts = await getActiveAlertsForProduct(productId, { color, ram_gb, storage_gb });
-    console.log('Matched alerts:', alerts.length);
+    const alerts = await getActiveAlertsForProduct(productId, { storage_gb });
+
     for (const alert of alerts) {
         // 1. Skip disabled alerts
         if (alert.isDisabled) continue;
@@ -23,6 +21,7 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
         if (alert.lastNotifiedAt && Date.now() - new Date(alert.lastNotifiedAt).getTime() < 24 * 60 * 60 * 1000) {
             continue;
         }
+        console.log('Matched alerts:', alerts.length);
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
         if (matchesPrice) {
             console.log(`Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
@@ -57,7 +56,6 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
                 (!alert.ram_gb || alert.ram_gb === p.ram_gb) &&
                 (!alert.storage_gb || alert.storage_gb === p.storage_gb)
         );
-
         if (!priceMatches?.length) {
             console.warn(`No matching price variants found for alert ${alert.id}`);
             return;
@@ -89,18 +87,30 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
         });
 
         console.log('Email image URL:', priceMatch.mainImgUrl);
-
+        let storeName = 'Unknown';
+        if (priceMatch.sellerStoreId) {
+            const sellerStore = await models.SellerStore.findByPk(priceMatch.sellerStoreId, {
+                include: [{ model: models.Store }],
+            });
+            storeName = sellerStore?.Store?.name || 'Unknown';
+        }
         await sendPriceDropEmail({
             to: alert.User.email,
             productName: product.name,
             productImage: priceMatch.mainImgUrl,
             threshold: alert.threshold,
             currentPrice: parseFloat(priceMatch.price).toFixed(2),
-            storeName: priceMatch.SellerStore?.Seller?.name ?? 'Unknown',
+            storeName,
             productLink: priceMatch.product_link,
             discount: priceMatch.discount,
             shippingCost: priceMatch.shippingCost,
         });
+        // Update the alert's lastNotifiedAt field
+        const alertToUpdate = await models.PriceAlert.findByPk(alert.id);
+        if (alertToUpdate) {
+            alertToUpdate.lastNotifiedAt = new Date();
+            await alertToUpdate.save();
+        }
 
         console.log(`Notification created and email sent for alert ${alert.id}`);
     } catch (err) {

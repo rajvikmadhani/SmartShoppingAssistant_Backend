@@ -4,6 +4,7 @@ import { getBestPrices } from '../utils/productRepo.js';
 import models from '../models/index.js';
 const { Product, Price, Store } = models;
 import { getProductWithPricesAndSeller } from '../utils/productRepo.js';
+import { scrapeAndUpdateProduct } from '../services/ProductScraperService.js';
 
 export const getBestPricesPerStore = async (req, res, next) => {
     try {
@@ -54,6 +55,23 @@ export const getBestPricesPerStore = async (req, res, next) => {
 
         res.json(bestPrices);
     } catch (err) {
+        next(err);
+    }
+};
+
+export const updateProductPriceNow = async (req, res, next) => {
+    try {
+        const { productId, Product_link, color, ram_gb, storage_gb } = req.body;
+
+        if (!productId || !Product_link) {
+            return res.status(400).json({ message: 'productId and Product_link are required.' });
+        }
+
+        const data = await scrapeAndUpdateProduct({ productId, Product_link, color, ram_gb, storage_gb });
+
+        res.json({ message: 'Price updated successfully', data });
+    } catch (err) {
+        console.error(err);
         next(err);
     }
 };
