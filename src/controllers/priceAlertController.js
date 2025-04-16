@@ -4,26 +4,38 @@ import ErrorResponse from '../utils/ErrorResponse.js';
 // Set a price alert
 export const createPriceAlert = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
-    const { productId, threshold, color, ram_gb, storage_gb } = req.body;
+    const { productId, threshold, storage_gb } = req.body;
 
-    const [alert, created] = await models.PriceAlert.findOrCreate({
-        where: {
-            userId,
-            productId,
-            color: color?.trim().toLowerCase() || null,
-            ram_gb: ram_gb ?? null,
-            storage_gb,
-        },
-        defaults: {
-            threshold: parseFloat(threshold),
-        },
-    });
-
-    if (!created) {
-        return res.status(409).json({ message: 'Alert already exists for this variant' });
+    if (!productId || !threshold || !storage_gb) {
+        return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    return res.status(201).json(alert);
+    try {
+        const existing = await models.PriceAlert.findOne({
+            where: {
+                userId,
+                productId,
+                storage_gb,
+            },
+        });
+
+        if (existing) {
+            return res.status(409).json({ message: 'Alert already exists for this product variant.' });
+        }
+
+        const alert = await models.PriceAlert.create({
+            userId,
+            productId,
+            threshold: parseFloat(threshold),
+            storage_gb,
+            isDisabled: false,
+        });
+
+        return res.status(201).json(alert);
+    } catch (error) {
+        console.error('Create Price Alert error:', error);
+        return res.status(500).json({ message: 'Failed to create price alert' });
+    }
 });
 
 // Delete a price alert
@@ -39,7 +51,7 @@ export const deletePriceAlert = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: 'Alert not found' });
     }
 
-    await models.PriceAlert.update({ isDisabled: true }, { where: { id: alert.id } });
+    await models.PriceAlert.destroy({ where: { id: alert.id } });
 
     return res.status(200).json({ message: 'Alert disabled successfully' });
 });

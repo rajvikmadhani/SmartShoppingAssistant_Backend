@@ -21,6 +21,22 @@ export default (sequelize) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            productImage: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            currentPrice: {
+                type: DataTypes.FLOAT,
+                allowNull: true,
+            },
+            storeName: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            productLink: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         },
         { timestamps: true }
     );

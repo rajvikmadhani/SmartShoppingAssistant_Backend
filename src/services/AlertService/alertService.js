@@ -25,7 +25,7 @@ export async function checkAlertsAndEnqueueNotifications(productId, priceData) {
         const matchesPrice = parseFloat(price) <= parseFloat(alert.threshold);
         if (matchesPrice) {
             console.log(`Alert match for alert ID ${alert.id}, threshold €${alert.threshold}`);
-            await enqueueNotificationJob(alert.id, price);
+            await sendPriceAlertNotifications({ priceAlertId: alert.id, price });
         }
     }
 }
@@ -79,13 +79,6 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             return;
         }
 
-        // Save the notification
-        const notification = await models.Notification.create({
-            priceAlertId,
-            price: parseFloat(price),
-            isRead: false,
-        });
-
         console.log('Email image URL:', priceMatch.mainImgUrl);
         let storeName = 'Unknown';
         if (priceMatch.sellerStoreId) {
@@ -94,6 +87,17 @@ export async function sendPriceAlertNotifications({ priceAlertId, price }) {
             });
             storeName = sellerStore?.Store?.name || 'Unknown';
         }
+        // Create a new notification entry
+        await models.Notification.create({
+            priceAlertId,
+            price: parseFloat(price),
+            isRead: false,
+            productImage: priceMatch.mainImgUrl,
+            currentPrice: parseFloat(priceMatch.price),
+            storeName,
+            productLink: priceMatch.product_link,
+        });
+
         await sendPriceDropEmail({
             to: alert.User.email,
             productName: product.name,
