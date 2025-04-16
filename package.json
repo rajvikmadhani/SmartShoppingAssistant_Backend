@@ -28,6 +28,7 @@
   "description": "",
   "dependencies": {
     "@bull-board/express": "^6.9.0",
+    "@sparticuz/chromium": "^133.0.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
@@ -45,6 +46,7 @@
     "node-cron": "^3.0.3",
     "pg": "^8.14.0",
     "puppeteer": "^24.4.0",
+    "puppeteer-core": "^24.6.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "resend": "^4.2.0",

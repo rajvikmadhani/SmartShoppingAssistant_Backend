@@ -1,4 +1,6 @@
 import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 function extractPrice(text) {
     if (!text) return '0';
@@ -39,12 +41,28 @@ export async function scrapeAmazonProduct(link) {
     };
 
     console.log(`Starting Amazon scraping for: ${link}`);
-
+    let browser;
     try {
-        const browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        const isServerlessEnv = process.env.RENDER === 'true';
+
+        console.log(`Is serverless environment: ${isServerlessEnv}`);
+        if (isServerlessEnv) {
+            // Use @sparticuz/chromium on serverless environments
+            console.log('Running in serverless mode with chromium');
+            browser = await puppeteerCore.launch({
+                args: [...chromium.args, '--no-sandbox'],
+                defaultViewport: chromium.defaultViewport,
+                executablePath: await chromium.executablePath(),
+                headless: chromium.headless,
+            });
+        } else {
+            // Use regular puppeteer for local development
+            console.log('Running in local development mode');
+            browser = await puppeteer.launch({
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            });
+        }
         const page = await browser.newPage();
 
         // Set a user agent to avoid detection
@@ -170,10 +188,19 @@ export async function scrapeAmazonProduct(link) {
         }
 
         console.log('Final product data:', JSON.stringify(product, null, 2));
-        await browser.close();
     } catch (err) {
         console.error('⚠️ scrapeAmazonProduct failed:', err);
+    } finally {
+        // Safely close browser if it exists
+        if (browser) {
+            try {
+                await browser.close();
+            } catch (closeErr) {
+                console.error('Error closing browser:', closeErr);
+            }
+        }
     }
+    console.log('Finished Amazon scraping');
 
     return product;
 }
