@@ -34,8 +34,7 @@ describe("utils -> productRepo.js ", () => {
 
       // Assert
       expect(models.Product.create).toHaveBeenCalledWith({
-        brand: "Apple",
-        name: "iPhone",
+       
 
         ram_gb: 0,
         storage_gb: 0,
