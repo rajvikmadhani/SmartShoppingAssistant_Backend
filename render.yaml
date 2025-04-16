@@ -6,25 +6,7 @@ services:
       runtime: node
       region: frankfurt
       buildCommand: npm install
-      startCommand: node server.js
-      envVars:
-          - fromGroup: common-env
-
-    - type: cron
-      name: Price Alert Scraper
-      region: frankfurt
-      schedule: '0 */6 * * *'
-      buildCommand: npm install
-      startCommand: node jobs/scheduler/cronRunner.js
-      envVars:
-          - fromGroup: common-env
-
-    - type: cron
-      name: Full Product Rescrape
-      region: frankfurt
-      schedule: '0 0 * * *'
-      buildCommand: npm install
-      startCommand: node jobs/scheduler/cronDailyRunner.js
+      startCommand: node src/server.js
       envVars:
           - fromGroup: common-env
 
@@ -33,6 +15,6 @@ services:
       runtime: node
       region: frankfurt
       buildCommand: npm install
-      startCommand: node jobs/workers/notificationWorkerRunner.js
+      startCommand: node src/jobs/workers/notificationWorkerRunner.js
       envVars:
           - fromGroup: common-env

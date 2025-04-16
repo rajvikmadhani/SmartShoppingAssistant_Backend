@@ -1,7 +1,7 @@
 // Handles product-specific search & scraping
 
 import { createScrapingJob, updateScrapingJob } from './scrapingJobManager.js';
-import { amazonScraper, ebayScraper, filterScrapperResults } from './scrapers/index.js';
+import { amazonScraper, ebayScraper, filterScrapperResults, ottoScraper, backMarketScraper } from './scrapers/index.js';
 import { updatePrices, updateProducts } from './updateDatabase.js'; // Changed path
 import models from '../models/index.js'; // Added import
 import { CreatePrimaryProduct, getProductWithPricesAndSeller } from '../utils/productRepo.js';
@@ -43,11 +43,14 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
     }
 
     if (shouldScrape) {
-        // Create scraping job entries for Amazon and eBay
+        // Create scraping job entries for Amazon, eBay, backMarket, and Otto
         const amazonScrapingJob = await createScrapingJob(product.id, `amazon.${domain}`);
         const ebayScrapingJob = await createScrapingJob(product.id, `ebay.${domain}`);
+        const backMarketScrapingJob = await createScrapingJob(product.id, `backmarket.${domain}`);
+        const ottoScrapingJob = await createScrapingJob(product.id, `otto.${domain}`);
 
         console.log('Scraping jobs created for stores:', amazonScrapingJob.storeId, ebayScrapingJob.storeId);
+        console.log('Scraping jobs created for stores:', backMarketScrapingJob.storeId, ottoScrapingJob.storeId);
 
         let scraperQuery = [name, brand, storage_gb ? `${storage_gb}GB` : '', ram_gb ? `${ram_gb}GB` : '', color]
             .filter(Boolean) // removes falsy values like '', null, undefined
@@ -56,11 +59,18 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
 
         let amazonResults = await ScrapFromAmazon(domain, name, brand, scraperQuery, amazonScrapingJob);
         let ebayResults = await ScrapFromEbay(domain, name, brand, scraperQuery, ebayScrapingJob);
+        let backMarketResults = await ScrapFromBackMarket(domain, name, brand, scraperQuery, backMarketScrapingJob);
+        let ottoResults = await ScrapFromOtto(domain, name, brand, scraperQuery, ottoScrapingJob);
 
         // Combine results and update the database if any data was fetched
         const amazonArray = Array.isArray(amazonResults) ? amazonResults : Array.from(amazonResults || []);
         const ebayArray = Array.isArray(ebayResults) ? ebayResults : Array.from(ebayResults || []);
-        let allResults = [...amazonArray, ...ebayArray];
+        const backMarketArray = Array.isArray(backMarketResults)
+            ? backMarketResults
+            : Array.from(backMarketResults || []);
+        const ottoArray = Array.isArray(ottoResults) ? ottoResults : Array.from(ottoResults || []);
+        let allResults = [...amazonArray, ...ebayArray, ...backMarketArray, ...ottoArray];
+
         allResults = allResults.filter((prod) => isRealSmartphone(prod));
         console.log('The length of the scraped and filter and clean Data:', allResults.length);
 
@@ -69,7 +79,6 @@ export const fetchProductData = async (productQuery, manualTrigger = false) => {
                 updateProducts(product.id, allResults);
             }
             const updatedProduct = await updatePrices(product, filterScrapperResults(allResults, scrappedDataFilter));
-            //console.log('Scraping completed and database updated.');
             return updatedProduct;
         } else {
             console.log('Both scrapers failed. No data updated.');
@@ -111,4 +120,39 @@ const ScrapFromEbay = async (domain, name, brand, scraperQuery, ebayScrapingJob)
         await updateScrapingJob(ebayScrapingJob, 'failed', error.message);
     }
     return ebayResults;
+};
+
+const ScrapFromOtto = async (domain, name, brand, scraperQuery, ottoScrapingJob) => {
+    let ottoResults = [];
+    try {
+        console.log(`Fetching data from Otto (${domain}) for: ${name} ${brand}`);
+        ottoResults = await ottoScraper(scraperQuery, domain);
+        ottoResults = ottoResults.map((result) => ({
+            ...result,
+            storeId: ottoScrapingJob.storeId,
+        }));
+
+        await updateScrapingJob(ottoScrapingJob, 'completed');
+    } catch (error) {
+        console.error(`Otto scraping failed: ${error.message}`);
+        await updateScrapingJob(ottoScrapingJob, 'failed', error.message);
+    }
+    return ottoResults;
+};
+const ScrapFromBackMarket = async (domain, name, brand, scraperQuery, backMarketScrapingJob) => {
+    let backMarketResults = [];
+    try {
+        console.log(`Fetching data from Backmarket (${domain}) for: ${name} ${brand}`);
+        backMarketResults = await backMarketScraper(scraperQuery, domain);
+        backMarketResults = backMarketResults.map((result) => ({
+            ...result,
+            storeId: backMarketScrapingJob.storeId,
+        }));
+
+        await updateScrapingJob(backMarketScrapingJob, 'completed');
+    } catch (error) {
+        console.error(`BackMarket scraping failed: ${error.message}`);
+        await updateScrapingJob(backMarketScrapingJob, 'failed', error.message);
+    }
+    return backMarketResults;
 };

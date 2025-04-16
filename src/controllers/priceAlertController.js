@@ -39,8 +39,8 @@ export const deletePriceAlert = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: 'Alert not found' });
     }
 
-    alert.isDisabled = true;
-    await alert.save();
+    await models.PriceAlert.update({ isDisabled: true }, { where: { id: alert.id } });
+
     return res.status(200).json({ message: 'Alert disabled successfully' });
 });
 
@@ -49,7 +49,7 @@ export const getAllPriceAlerts = asyncHandler(async (req, res, next) => {
     const userId = req.user.id;
 
     const alerts = await models.PriceAlert.findAll({
-        where: { userId },
+        where: { userId, isDisabled: false },
         include: [
             {
                 model: models.Product,

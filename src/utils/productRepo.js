@@ -15,19 +15,16 @@ export const getProductWithPricesAndSeller = async (productfilter) => {
         include: [
             {
                 model: models.Price,
-                required: false,
                 include: [
                     {
                         model: models.SellerStore,
-                        required: false,
                         include: [
                             {
                                 model: models.Seller,
-                                required: false,
                                 attributes: ['name'],
                             },
                             {
-                                model: models.Store, // ✅ Add this
+                                model: models.Store,
                                 attributes: ['name'],
                             },
                         ],
@@ -48,7 +45,7 @@ export const getBestPrices = async () => {
         include: [
             {
                 model: models.Price,
-                required: false,
+                required: true,
                 where: {
                     lastUpdated: {
                         [Op.gte]: new Date(Date.now() - 24 * 60 * 60 * 1000),

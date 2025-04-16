@@ -1,3 +1,4 @@
+//We are not using this. This is for future extension if we want a daily update automatically
 import { Worker } from 'bullmq';
 import { redisConnection } from '../../redis/index.js';
 import { scrapeProductPage } from '../../services/scrapers/singleProductScraper.js';
