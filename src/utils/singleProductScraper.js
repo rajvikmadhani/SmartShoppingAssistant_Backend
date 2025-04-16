@@ -1,4 +1,4 @@
-import { scrapeAmazonProduct } from '../services/scrapers/amazonProductScraper.js';
+import { scrapeAmazonProduct } from '../services/scrapers/scrapAmazonProduct.js';
 import { scrapeEbayProduct } from '../services/scrapers/ebayProductScraper.js';
 
 export async function scrapeProductPage(productLink, store) {
