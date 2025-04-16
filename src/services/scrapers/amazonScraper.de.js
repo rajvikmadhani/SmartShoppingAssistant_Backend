@@ -1,156 +1,135 @@
 import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
-/**
- * Scrapes Amazon search results with pagination and returns a detailed, normalized product format.
- */
-export const amazonScraper = async (query, domain) => {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+export const amazonScraper = async (query, domain = 'de') => {
+    const isServerless = process.env.RENDER === 'true';
+    let browser;
 
-    const baseUrl = `https://www.amazon.${domain}/s?k=${encodeURIComponent(query)}`;
-    let currentPageUrl = baseUrl;
-    let currentPage = 1;
-    const allResults = [];
+    try {
+        // Launch browser
+        browser = await (isServerless
+            ? puppeteerCore.launch({
+                  args: chromium.args,
+                  defaultViewport: chromium.defaultViewport,
+                  executablePath: await chromium.executablePath(),
+                  headless: chromium.headless,
+              })
+            : puppeteer.launch({
+                  headless: true,
+                  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+              }));
 
-    while (currentPageUrl) {
-        console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
-        await page.goto(currentPageUrl, { waitUntil: 'networkidle2' });
+        const page = await browser.newPage();
+        await page.setUserAgent(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
+        );
+        await page.setViewport({ width: 1280, height: 800 });
 
-        try {
-            await page.waitForSelector('input[name="accept"]', { timeout: 500 });
-            await page.click('input[name="accept"]');
-            console.log('accepted cookies');
-            await page.waitForTimeout(1000);
-        } catch {
-            console.log('no cookie prompt');
-        }
+        const baseUrl = `https://www.amazon.${domain}/s?k=${encodeURIComponent(query)}`;
+        let currentPageUrl = baseUrl;
+        let currentPage = 1;
+        const allResults = [];
 
-        const results = await page.evaluate(() => {
-            const items = [];
-            const knownBrands = ['Apple', 'Samsung', 'Sony', 'Google', 'Xiaomi', 'OnePlus', 'Huawei'];
+        while (currentPageUrl) {
+            console.log(`scraping page ${currentPage}: ${currentPageUrl}`);
+            await page.goto(currentPageUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
-            document.querySelectorAll('.s-main-slot .s-result-item').forEach((el) => {
-                const title = el.querySelector('h2 span')?.innerText;
-                const priceText = el.querySelector('.a-price .a-offscreen')?.innerText;
-                const rating = el.querySelector('.a-icon-alt')?.innerText;
-                const image = el.querySelector('.s-image')?.src;
-                const secondaryInfo = el.querySelector('.a-row.a-size-base.a-color-secondary')?.innerText;
-                let seller = 'Unknown Seller';
-                const sellerSection = el.querySelector('.a-row.a-size-base.a-color-secondary')?.innerText || '';
-                const soldByMatch = sellerSection.match(/Verkauf(?:t)? durch ([^\n\r]+)(?: und|,|$)/i);
-                if (soldByMatch && soldByMatch[1]) {
-                    seller = soldByMatch[1].trim();
-                } else if (sellerSection.includes('Versand durch Amazon')) {
-                    seller = 'Amazon';
-                }
+            // Accept cookies if needed
+            try {
+                await page.waitForSelector('input[name="accept"]', { timeout: 1000 });
+                await page.click('input[name="accept"]');
+                await page.waitForTimeout(1000);
+                console.log('accepted cookies');
+            } catch {
+                console.log('no cookie prompt');
+            }
 
-                const badge = el.querySelector('.s-badge-text')?.innerText;
-                const isPrime = !!el.querySelector('.a-icon-prime');
-                const delivery = el.querySelector('.a-color-base.a-text-bold')?.innerText;
-                const asin = el.getAttribute('data-asin');
-                const link = asin ? `https://www.amazon.de/dp/${asin}` : undefined;
-                const productSellerRate = rating;
+            const results = await page.evaluate(() => {
+                const items = [];
+                const knownBrands = ['Apple', 'Samsung', 'Sony', 'Google', 'Xiaomi', 'OnePlus', 'Huawei'];
 
-                //Discount and shipping cost
-                const deliveryText = el.innerText.toLowerCase();
-                let shippingCost = '0.00';
+                document.querySelectorAll('.s-main-slot .s-result-item').forEach((el) => {
+                    const title = el.querySelector('h2 span')?.innerText;
+                    const priceText = el.querySelector('.a-price .a-offscreen')?.innerText;
+                    const rating = el.querySelector('.a-icon-alt')?.innerText;
+                    const image = el.querySelector('.s-image')?.src;
+                    const asin = el.getAttribute('data-asin');
+                    const link = asin ? `https://www.amazon.de/dp/${asin}` : undefined;
+                    const badge = el.querySelector('.s-badge-text')?.innerText;
+                    const isPrime = !!el.querySelector('.a-icon-prime');
+                    const delivery = el.querySelector('.a-color-base.a-text-bold')?.innerText;
 
-                if (deliveryText.includes('free delivery') || deliveryText.includes('gratis')) {
-                    shippingCost = '0.00';
-                } else {
-                    const shippingMatch = deliveryText.match(/(?:delivery|shipping).*?(€|\$|£)?\s?(\d+([.,]\d+)?)/i);
-                    if (shippingMatch) {
-                        shippingCost = shippingMatch[2].replace(',', '.');
+                    const currency = priceText?.match(/(€|\$|£)/)?.[1] || '€';
+                    const price = priceText?.replace(/[^\d,.]/g, '');
+
+                    let brand = 'Unknown';
+                    for (const b of knownBrands) {
+                        if (title?.toLowerCase().includes(b.toLowerCase())) {
+                            brand = b;
+                            break;
+                        }
                     }
-                }
-                const originalPriceText = el.querySelector('.a-price.a-text-price span')?.innerText || '';
-                const currentPriceText = el.querySelector('.a-price .a-offscreen')?.innerText || '';
-                const original = parseFloat(originalPriceText.replace(/[^\d,.-]/g, '').replace(',', '.'));
-                const current = parseFloat(currentPriceText.replace(/[^\d,.-]/g, '').replace(',', '.'));
-                const discount =
-                    !isNaN(original) && !isNaN(current) && original > current
-                        ? (original - current).toFixed(2)
-                        : '0.00';
 
-                // Normalize price and currency
-                const currencyMatch = priceText?.match(/(€|\$|£)/);
-                const currency = currencyMatch ? currencyMatch[1] : '€';
-                const price = priceText?.replace(/[^\d,.]/g, '');
+                    const storageMatch = title?.match(/(\d+)\s?(GB|Gb|Go)/);
+                    const storage_gb = storageMatch ? parseInt(storageMatch[1]) : null;
 
-                // Guess brand
-                let detectedBrand = 'Unknown';
-                for (const b of knownBrands) {
-                    if (
-                        title?.toLowerCase().includes(b.toLowerCase()) ||
-                        secondaryInfo?.toLowerCase().includes(b.toLowerCase())
-                    ) {
-                        detectedBrand = b;
-                        break;
+                    const availability = el.innerText.includes('Auf Lager') ? '1' : '0';
+                    const seller_rating = rating;
+
+                    if (title && price) {
+                        items.push({
+                            title,
+                            price,
+                            currency,
+                            brand,
+                            availability,
+                            storage_gb,
+                            link,
+                            image,
+                            rating,
+                            badge,
+                            isPrime,
+                            delivery,
+                            store: 'Amazon',
+                            seller_rating,
+                        });
                     }
-                }
+                });
 
-                // Try to detect storage
-                const storageMatch = title?.match(/(\d+) ?(GB|Gb|gb|Go)/);
-                const storage_gb = storageMatch ? parseInt(storageMatch[1]) : null;
-                const ramMatch = title?.match(/(?:^|\\s)(\\d{1,2})\\s?(?:GB|Gb|gb)\\s?(?:RAM)?/i);
-                const ram_gb = ramMatch ? parseInt(ramMatch[1]) : null;
-
-                // Placeholder availability
-                const availability =
-                    el.innerText.includes('Auf Lager') ||
-                    el.innerText.includes('Derzeit verfügbar') ||
-                    el.innerText.includes('Nur noch')
-                        ? '1'
-                        : '0';
-
-                const seller_rating = rating;
-
-                if (title && price) {
-                    items.push({
-                        title,
-                        price,
-                        currency,
-                        brand: detectedBrand,
-                        availability,
-                        storage_gb,
-                        ram_gb,
-                        ramMatch,
-                        rating,
-                        shippingCost,
-                        discount,
-                        link,
-                        image,
-                        seller,
-                        productSellerRate,
-                        badge,
-                        isPrime,
-                        delivery,
-                        store: 'Amazon',
-                        seller_rating,
-                    });
-                }
+                return items;
             });
-            return items;
-        });
 
-        console.log(`page ${currentPage}: ${results.length} items scraped`);
-        allResults.push(...results);
+            console.log(`page ${currentPage}: ${results.length} items scraped`);
+            allResults.push(...results);
 
-        const nextPagePath = await page.evaluate(() => {
-            const nextOld = document.querySelector('ul.a-pagination li.a-last a');
-            const nextNew = document.querySelector('a.s-pagination-next');
-            return nextOld?.getAttribute('href') || nextNew?.getAttribute('href') || null;
-        });
+            // Check for next page
+            const nextPagePath = await page.evaluate(() => {
+                const nextOld = document.querySelector('ul.a-pagination li.a-last a');
+                const nextNew = document.querySelector('a.s-pagination-next');
+                return nextOld?.getAttribute('href') || nextNew?.getAttribute('href') || null;
+            });
 
-        if (!nextPagePath) {
-            console.log('no more pages found.');
-            break;
+            if (!nextPagePath) {
+                console.log('No more pages.');
+                break;
+            }
+
+            currentPageUrl = `https://www.amazon.${domain}${nextPagePath}`;
+            currentPage++;
         }
 
-        currentPageUrl = `https://www.amazon.de${nextPagePath}`;
-        currentPage++;
+        return allResults;
+    } catch (err) {
+        console.error('❌ Error in amazonScraper:', err);
+        return [];
+    } finally {
+        if (browser) {
+            try {
+                await browser.close();
+            } catch (closeErr) {
+                console.error('Error closing browser:', closeErr);
+            }
+        }
     }
-
-    await browser.close();
-    return allResults;
 };
